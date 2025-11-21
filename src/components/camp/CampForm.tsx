@@ -30,7 +30,11 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess }) => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -40,7 +44,9 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess }) => {
 
     try {
       const data = new FormData();
-      Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+      Object.entries(formData).forEach(([key, value]) =>
+        data.append(key, value)
+      );
       if (images) {
         for (let i = 0; i < images.length; i++) {
           data.append("images", images[i]);
@@ -63,10 +69,9 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess }) => {
       setImages(null);
       setPreviewUrls([]);
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-toast.error(error.response?.data?.message || error.message || "Failed to create campaign");
-
+      toast.error("Failed to create campaign");
     } finally {
       setLoading(false);
     }
@@ -148,7 +153,11 @@ toast.error(error.response?.data?.message || error.message || "Failed to create 
       {previewUrls.length > 0 && (
         <div className="flex gap-2 overflow-x-auto mt-2">
           {previewUrls.map((url, idx) => (
-            <img key={idx} src={url} className="w-20 h-20 object-cover rounded" />
+            <img
+              key={idx}
+              src={url}
+              className="w-20 h-20 object-cover rounded"
+            />
           ))}
         </div>
       )}
