@@ -117,8 +117,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       setEmail("in@gmail.com");
       setPassword("123");
     } else {
-      setEmail("admin@trust.com");
-      setPassword("admin123");
+      setEmail("daniii@gmail.com");
+      setPassword("Danish90$");
     }
     setRole(userRole);
   };

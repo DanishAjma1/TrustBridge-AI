@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from "react";
-import { User, Lock, Palette, CreditCard } from "lucide-react";
+import { User2, Lock, Palette, CreditCard } from "lucide-react";
 import { Card, CardHeader, CardBody } from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { getEnterpreneurById, getInvestorById } from "../../data/users";
-import { Entrepreneur, Investor } from "../../types";
+import { Entrepreneur, Investor, User } from "../../types";
 import { ProfileSettings } from "../../components/settings/ProfileSettings";
 import { SecuritySettings } from "../../components/settings/SecuritySettings";
 import { AppearanceSettings } from "../../components/settings/AppearanceSettings";
@@ -14,7 +14,7 @@ type SettingsTab = "profile" | "security" | "appearance" | "billing";
 
 export const SettingsPage: React.FC = () => {
   const { user: currentUser } = useAuth();
-  const [user, setUser] = useState<Entrepreneur | Investor>();
+  const [user, setUser] = useState<Entrepreneur | Investor |User>();
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const SettingsPage: React.FC = () => {
   }, [currentUser]);
 
   const navItems = [
-    { id: "profile" as SettingsTab, label: "Profile", icon: User },
+    { id: "profile" as SettingsTab, label: "Profile", icon: User2 },
     { id: "security" as SettingsTab, label: "Security", icon: Lock },
     { id: "appearance" as SettingsTab, label: "Appearance", icon: Palette },
     { id: "billing" as SettingsTab, label: "Billing", icon: CreditCard },

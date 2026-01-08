@@ -4,12 +4,12 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Avatar } from "../ui/Avatar";
 import { useAuth } from "../../context/AuthContext";
-import { Entrepreneur, Investor, UserRole } from "../../types";
+import { Entrepreneur, Investor, User, UserRole } from "../../types";
 import { InvestorSettings } from "./InvestorSettings";
 import { EntrepreneurSettings } from "./EntrepreneurSettings";
 
 interface ProfileSettingsProps {
-  user?: Entrepreneur | Investor;
+  user?: Entrepreneur | Investor | User;
   currentUser: any;
 }
 

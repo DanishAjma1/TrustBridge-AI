@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { InvestorSettings } from "../settings/InvestorSettings";
 import { EntrepreneurSettings } from "../settings/EntrepreneurSettings";
-import { useAuth } from "../../context/AuthContext";
 import { Card } from "../ui/Card";
 
 export const UserDetails: React.FC = () => {
   const [role, setRole] = useState<string | null>(null);
-  const { logout } = useAuth();
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("userInfo");
