@@ -16,6 +16,7 @@ import {
   Ban,
   ChevronDown,
   Home,
+  Rocket,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Avatar } from "../ui/Avatar";
@@ -91,7 +92,7 @@ export const Navbar: React.FC = () => {
         path: "/admin/all-users",
       },
       {
-        icon: <CircleDollarSign size={18} />,
+        icon: <Rocket size={18} />,
         label: "Campaigns",
         path: "/admin/campaigns",
       },
