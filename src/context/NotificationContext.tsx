@@ -27,6 +27,7 @@ interface NotificationContextType {
     markAsRead: (id: string) => Promise<void>;
     markAllAsRead: () => Promise<void>;
     clearAll: () => Promise<void>;
+    deleteNotification: (id: string) => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -167,6 +168,23 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
     };
 
+    const deleteNotification = async (id: string) => {
+        const originalNotifications = [...notifications];
+        // Optimistic update
+        setNotifications(prev => prev.filter(n => n._id !== id));
+
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`${URL}/admin/notifications/item/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+            setNotifications(originalNotifications);
+            toast.error("Failed to delete notification");
+        }
+    };
+
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     const value = {
@@ -177,6 +195,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         markAsRead,
         markAllAsRead,
         clearAll,
+        deleteNotification,
     };
 
     return (

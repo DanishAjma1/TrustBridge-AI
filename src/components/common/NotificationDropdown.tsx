@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, Check, Trash2, UserPlus, Clock, Info } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
 import { formatNotificationMessage } from "../../utils/formatNotificationMessage";
 
 export const NotificationDropdown: React.FC = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const {
         notifications,
         unreadCount,
         markAsRead,
         markAllAsRead,
-        clearAll
+        clearAll,
+        deleteNotification
     } = useNotification();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -40,6 +42,16 @@ export const NotificationDropdown: React.FC = () => {
     }, []);
 
     if (!user) return null;
+
+    const handleNotificationClick = (notification: any) => {
+        if (!notification.isRead) {
+            markAsRead(notification._id);
+        }
+        if (notification.link) {
+            navigate(notification.link);
+            setIsOpen(false);
+        }
+    };
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -97,10 +109,11 @@ export const NotificationDropdown: React.FC = () => {
                                 {notifications.map((notification) => (
                                     <div
                                         key={notification._id}
-                                        className={`p-4 hover:bg-gray-50 transition-colors relative group ${!notification.isRead ? 'bg-primary-50/30' : ''}`}
+                                        onClick={() => handleNotificationClick(notification)}
+                                        className={`p-4 hover:bg-gray-50 transition-colors relative group cursor-pointer ${!notification.isRead ? 'bg-primary-50/30' : ''}`}
                                     >
-                                        <div className="flex gap-3">
-                                            <div className={`mt-1 flex-shrink-0 p-2 rounded-full ${notification.type === 'registration'
+                                        <div className="flex gap-3 items-center">
+                                            <div className={`flex-shrink-0 p-2 rounded-full ${notification.type === 'registration'
                                                 ? 'bg-emerald-100 text-emerald-600'
                                                 : notification.type === 'general'
                                                     ? 'bg-blue-100 text-blue-600'
@@ -122,15 +135,30 @@ export const NotificationDropdown: React.FC = () => {
                                                     {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                                                 </div>
                                             </div>
-                                            {!notification.isRead && (
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all self-center">
+                                                {!notification.isRead && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            markAsRead(notification._id);
+                                                        }}
+                                                        className="p-1 text-primary-600 hover:bg-primary-50 rounded-md transition-all"
+                                                        title="Mark as read"
+                                                    >
+                                                        <Check size={16} />
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() => markAsRead(notification._id)}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-primary-600 hover:bg-primary-50 rounded-md transition-all self-center"
-                                                    title="Mark as read"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        deleteNotification(notification._id);
+                                                    }}
+                                                    className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                                    title="Delete notification"
                                                 >
-                                                    <Check size={16} />
+                                                    <Trash2 size={16} />
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

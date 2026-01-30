@@ -13,7 +13,8 @@ export const AdminNotificationDropdown: React.FC = () => {
         unreadCount,
         markAsRead,
         markAllAsRead,
-        clearAll
+        clearAll,
+        deleteNotification
     } = useNotification();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -86,8 +87,8 @@ export const AdminNotificationDropdown: React.FC = () => {
                                         key={notification._id}
                                         className={`p-4 hover:bg-gray-50 transition-colors relative group ${!notification.isRead ? 'bg-primary-50/30' : ''}`}
                                     >
-                                        <div className="flex gap-3">
-                                            <div className={`mt-1 flex-shrink-0 p-2 rounded-full ${notification.type === 'registration' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-600'
+                                        <div className="flex gap-3 items-center">
+                                            <div className={`flex-shrink-0 p-2 rounded-full ${notification.type === 'registration' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {notification.type === 'registration' ? <UserPlus size={14} /> : <Bell size={14} />}
                                             </div>
@@ -100,15 +101,24 @@ export const AdminNotificationDropdown: React.FC = () => {
                                                     {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                                                 </div>
                                             </div>
-                                            {!notification.isRead && (
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all self-center">
+                                                {!notification.isRead && (
+                                                    <button
+                                                        onClick={() => markAsRead(notification._id)}
+                                                        className="p-1 text-primary-600 hover:bg-primary-50 rounded-md transition-all"
+                                                        title="Mark as read"
+                                                    >
+                                                        <Check size={16} />
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() => markAsRead(notification._id)}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-primary-600 hover:bg-primary-50 rounded-md transition-all self-center"
-                                                    title="Mark as read"
+                                                    onClick={() => deleteNotification(notification._id)}
+                                                    className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                                    title="Delete notification"
                                                 >
-                                                    <Check size={16} />
+                                                    <Trash2 size={16} />
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
