@@ -127,10 +127,21 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const fetchFraudGrowthChartData = async () => {
-    const res = await fetch(`${URL}/admin/risk-detection-flags`);
-    const data = await res.json();
-    const { finalData } = data;
-    setFraudGrowthChartData(finalData);
+    try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${URL}/admin/risk-detection-flags`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        console.error("Failed to fetch fraud data:", res.status);
+        return;
+      }
+      const data = await res.json();
+      const { finalData } = data;
+      setFraudGrowthChartData(finalData || []);
+    } catch (error) {
+      console.error("Error fetching fraud data:", error);
+    }
   };
 
   useEffect(() => {
@@ -293,8 +304,9 @@ export const AdminDashboard: React.FC = () => {
                 approaching in a well and structured way or not.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
+                <Link to="/admin/campaigns">
                 <Button leftIcon={<Shield size={16} />}>View Reports</Button>
-                <Button variant="outline">Take Action</Button>
+                </Link>
               </div>
             </div>
             <div className="h-[40vh] md:h-[50vh] w-full lg:w-3/5">
@@ -323,8 +335,9 @@ export const AdminDashboard: React.FC = () => {
                 investors is our top priority.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
+                <Link to="/admin/fraud-and-risk-detection">
                 <Button leftIcon={<Shield size={16} />}>View Reports</Button>
-                <Button variant="outline">Take Action</Button>
+                </Link>
               </div>
             </div>
             <div className="h-[40vh] md:h-[50vh] w-full lg:w-3/5">

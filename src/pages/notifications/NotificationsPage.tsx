@@ -16,7 +16,8 @@ export const NotificationsPage: React.FC = () => {
     isLoading,
     markAsRead,
     markAllAsRead,
-    clearAll
+    clearAll,
+    deleteNotification
   } = useNotification();
 
   // Removed admin-only restriction to allow all users to view their notifications
@@ -67,7 +68,7 @@ export const NotificationsPage: React.FC = () => {
             <Card
               key={notification._id}
               onClick={() => handleNotificationClick(notification)}
-              className={`transition-all duration-300 hover:shadow-md cursor-pointer ${!notification.isRead ? "bg-primary-50/50 border-l-4 border-l-primary-500" : ""
+              className={`transition-all duration-300 hover:shadow-md cursor-pointer group ${!notification.isRead ? "bg-primary-50/50 border-l-4 border-l-primary-500" : ""
                 }`}
             >
               <CardBody className="flex items-start p-6">
@@ -104,6 +105,17 @@ export const NotificationsPage: React.FC = () => {
                           <Check size={16} className="mr-1" /> Mark read
                         </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNotification(notification._id);
+                        }}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 size={16} className="mr-1" /> Delete
+                      </Button>
                     </div>
                   </div>
 
