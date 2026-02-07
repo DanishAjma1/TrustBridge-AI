@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import {
   Check,
@@ -512,12 +513,14 @@ export const UserApprovals: React.FC = () => {
       if (e.target === e.currentTarget) setShowRejectModal(null);
     };
 
-    return (
-      <div
-        className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-all duration-300 animate-fade-in"
-        onClick={handleBackdropClick}
-      >
-        <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden transform animate-scale-in">
+    return createPortal(
+      <>
+        <div 
+          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"
+          onClick={() => setShowRejectModal(null)}
+        ></div>
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 transition-all duration-300 animate-fade-in pointer-events-none">
+          <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden transform animate-scale-in pointer-events-auto">
           <CardHeader className="bg-red-50 border-b border-red-100 px-6 py-4">
             <h2 className="text-xl font-bold text-red-900 flex items-center">
               <div className="p-2 bg-red-100 rounded-full mr-3">
@@ -568,6 +571,8 @@ export const UserApprovals: React.FC = () => {
           </div>
         </Card>
       </div>
+      </>,
+      document.body
     );
 
         <div className="flex gap-2 pt-3 border-t border-gray-100 mt-3">
@@ -621,12 +626,14 @@ export const UserApprovals: React.FC = () => {
       if (e.target === e.currentTarget) setShowDetailModal(false);
     };
 
-    return (
-      <div
-        className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-all duration-300 animate-fade-in"
-        onClick={handleBackdropClick}
-      >
-        <Card className="w-full max-w-lg bg-white shadow-2xl overflow-hidden transform animate-scale-in">
+    return createPortal(
+      <>
+        <div 
+          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"
+          onClick={() => setShowDetailModal(false)}
+        ></div>
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 transition-all duration-300 animate-fade-in pointer-events-none">
+          <Card className="w-full max-w-lg bg-white shadow-2xl overflow-hidden transform animate-scale-in pointer-events-auto">
           <CardHeader className="bg-red-50 border-b border-red-100 px-6 py-5">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-red-900 flex items-center">
@@ -686,6 +693,8 @@ export const UserApprovals: React.FC = () => {
           </div>
         </Card>
       </div>
+      </>,
+      document.body
     );
   };
 
@@ -697,108 +706,110 @@ export const UserApprovals: React.FC = () => {
       return doc.fileUrl?.startsWith("http") ? doc.fileUrl : `${URL}${doc.fileUrl}`;
     };
 
-    return (
-      <div
-        className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) setShowLegalModal(false);
-        }}
-      >
-        <Card className="w-full max-w-3xl bg-white shadow-2xl overflow-hidden">
-          <CardHeader className="flex items-center justify-between border-b px-6 py-4">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Legal Documents</h2>
-              <p className="text-sm text-gray-600">Review and verify identity documents</p>
-            </div>
-            <button onClick={() => setShowLegalModal(false)} className="text-gray-400 hover:text-gray-600">
-              <X className="w-6 h-6" />
-            </button>
-          </CardHeader>
-
-          <div className="px-6 py-5 space-y-5">
-            <div className="flex items-center gap-4">
-              <img
-                src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name)}
-                alt={user.name}
-                className="w-14 h-14 rounded-full object-cover border"
-              />
+    return createPortal(
+      <>
+        <div 
+          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"
+          onClick={() => setShowLegalModal(false)}
+        ></div>
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 pointer-events-none">
+          <Card className="w-full max-w-3xl bg-white shadow-2xl overflow-hidden pointer-events-auto">
+            <CardHeader className="flex items-center justify-between border-b px-6 py-4">
               <div>
-                <p className="text-lg font-semibold text-gray-900">{user.name}</p>
-                <p className="text-sm text-gray-600">{user.email}</p>
-                <p className="text-xs text-gray-500">KYC Status: {user.kycStatus?.status || "unsubmitted"}</p>
+                <h2 className="text-xl font-bold text-gray-900">Legal Documents</h2>
+                <p className="text-sm text-gray-600">Review and verify identity documents</p>
               </div>
-            </div>
+              <button onClick={() => setShowLegalModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-6 h-6" />
+              </button>
+            </CardHeader>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[{ title: "Government ID (CNIC/Passport)", doc: idDoc }, { title: "Selfie Photo", doc: selfieDoc }].map(({ title, doc }) => (
-                <div key={title} className="border rounded-lg p-4 bg-gray-50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{title}</p>
-                      <p className="text-xs text-gray-600">{doc ? "Uploaded" : "Not provided"}</p>
+            <div className="px-6 py-5 space-y-5">
+              <div className="flex items-center gap-4">
+                <img
+                  src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name)}
+                  alt={user.name}
+                  className="w-14 h-14 rounded-full object-cover border"
+                />
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{user.name}</p>
+                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <p className="text-xs text-gray-500">KYC Status: {user.kycStatus?.status || "unsubmitted"}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[{ title: "Government ID (CNIC/Passport)", doc: idDoc }, { title: "Selfie Photo", doc: selfieDoc }].map(({ title, doc }) => (
+                  <div key={title} className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{title}</p>
+                        <p className="text-xs text-gray-600">{doc ? "Uploaded" : "Not provided"}</p>
+                      </div>
+                      {doc && (
+                        <a
+                          href={fullUrl(doc)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-primary-700 font-semibold hover:underline"
+                        >
+                          View
+                        </a>
+                      )}
                     </div>
-                    {doc && (
-                      <a
-                        href={fullUrl(doc)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm text-primary-700 font-semibold hover:underline"
-                      >
-                        View
-                      </a>
+                    {doc ? (
+                      <div className="text-xs text-gray-600">
+                        <p className="font-medium">{doc.fileName}</p>
+                        <p>Uploaded {new Date(doc.uploadedAt).toLocaleString()}</p>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">No file uploaded.</div>
                     )}
                   </div>
-                  {doc ? (
-                    <div className="text-xs text-gray-600">
-                      <p className="font-medium">{doc.fileName}</p>
-                      <p>Uploaded {new Date(doc.uploadedAt).toLocaleString()}</p>
-                    </div>
-                  ) : (
-                    <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">No file uploaded.</div>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-800">Admin Notes</label>
-              <textarea
-                className="w-full border rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-                value={kycNote}
-                onChange={(e) => setKycNote(e.target.value)}
-                placeholder="Optional notes for this verification"
-              />
-            </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-800">Admin Notes</label>
+                <textarea
+                  className="w-full border rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  value={kycNote}
+                  onChange={(e) => setKycNote(e.target.value)}
+                  placeholder="Optional notes for this verification"
+                />
+              </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={() => updateKycStatus("verified")}
-                disabled={kycUpdating || legalLoading}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                {kycUpdating ? "Saving..." : "Mark Verified"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => updateKycStatus("rejected")}
-                disabled={kycUpdating || legalLoading}
-              >
-                Mark Rejected
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => updateKycStatus("pending")}
-                disabled={kycUpdating || legalLoading}
-              >
-                Reset to Pending
-              </Button>
-            </div>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => updateKycStatus("verified")}
+                  disabled={kycUpdating || legalLoading}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {kycUpdating ? "Saving..." : "Mark Verified"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => updateKycStatus("rejected")}
+                  disabled={kycUpdating || legalLoading}
+                >
+                  Mark Rejected
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => updateKycStatus("pending")}
+                  disabled={kycUpdating || legalLoading}
+                >
+                  Reset to Pending
+                </Button>
+              </div>
 
-            {legalLoading && <p className="text-xs text-gray-500">Loading documents...</p>}
-          </div>
-        </Card>
-      </div>
+              {legalLoading && <p className="text-xs text-gray-500">Loading documents...</p>}
+            </div>
+          </Card>
+        </div>
+      </>,
+      document.body
     );
   };
 
@@ -962,14 +973,17 @@ export const UserApprovals: React.FC = () => {
       {showRejectModal && <RejectionModal userId={showRejectModal} />}
       {showDetailModal && <DetailModal user={selectedUser} />}
       {showLegalModal && selectedUser && <LegalDocsModal user={selectedUser} />}
-      <ConfirmationModal
-        isOpen={deleteModal.show}
-        title="Delete Rejected User"
-        message="Are you sure you want to permanently delete this user? This action cannot be undone."
-        variant="danger"
-        onConfirm={confirmDelete}
-        onClose={() => setDeleteModal({ show: false, userId: null })}
-      />
+      {createPortal(
+        <ConfirmationModal
+          isOpen={deleteModal.show}
+          title="Delete Rejected User"
+          message="Are you sure you want to permanently delete this user? This action cannot be undone."
+          variant="danger"
+          onConfirm={confirmDelete}
+          onClose={() => setDeleteModal({ show: false, userId: null })}
+        />,
+        document.body
+      )}
     </div>
   );
 };
