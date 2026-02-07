@@ -295,15 +295,6 @@ export const SuspendedBlockedUsers: React.FC = () => {
                         <CheckCircle className="h-4 w-4" />
                         Unsuspend
                       </Button>
-                      <Button
-                        variant="error"
-                        onClick={() => deleteUser(user._id)}
-                        disabled={processing[user._id]}
-                        className="flex items-center gap-2"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </Button>
                     </div>
                   </div>
                 </Card>
