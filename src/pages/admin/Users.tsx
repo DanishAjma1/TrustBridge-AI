@@ -452,17 +452,18 @@ export const Users: React.FC = () => {
     return <p className="p-4 text-gray-600">No users found.</p>;
 
   return (
+    <>
     <div className="p-4">
       {/* Profile Modal */}
       <div
-        className={`fixed transition-all ease-in-out z-10 inset-0 bg-black bg-opacity-20 overflow-scroll scroll-smooth duration-300 p-10 ${profileModal
+        className={`fixed transition-all ease-in-out z-[10000] inset-0 bg-black/30 backdrop-blur-md overflow-scroll scroll-smooth duration-300 p-10 ${profileModal
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
           }`}
       >
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end max-w-7xl mx-auto">
           <X
-            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2"
+            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2 shadow-lg"
             onClick={() => setProfileModal(false)}
           />
           <div className="w-full">
@@ -477,19 +478,19 @@ export const Users: React.FC = () => {
 
       {/* GraphViewModal */}
       <div
-        className={`fixed z-10 inset-0 transition-all duration-300 bg-black bg-opacity-35 p-10 ${graphViewModal?.show
+        className={`fixed z-[10000] inset-0 transition-all duration-300 bg-black/30 backdrop-blur-md p-10 ${graphViewModal?.show
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
           }`}
       >
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end max-w-7xl mx-auto">
           <X
-            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2"
+            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2 shadow-lg"
             onClick={() => setGraphViewModal({ show: false })}
           />
         </div>
 
-        <div className="w-full h-[80vh] bg-white rounded-xl p-10">
+        <div className="w-full max-w-7xl mx-auto h-[80vh] bg-white rounded-xl p-10 shadow-2xl">
           {graphViewModal?.type === "startup" ? (
             <StartupGrowthChart data={startupGrowthChartData} />
           ) : (
@@ -891,5 +892,6 @@ export const Users: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
