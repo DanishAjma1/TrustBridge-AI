@@ -958,32 +958,37 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
             </CardHeader>
             <CardBody>
               <div className="space-y-3">
-                {documents.length > 0 ? (
-                  documents.map((doc) => (
-                    <div key={doc._id} className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-                      <div className="p-2 bg-primary-50 rounded-md mr-3">
-                        <FileText size={18} className="text-primary-700" />
+                {(() => {
+                  const businessDocs = documents.filter(
+                    doc => doc.type !== "Government ID (CNIC/Passport)" && doc.type !== "Selfie Photo"
+                  );
+                  return businessDocs.length > 0 ? (
+                    businessDocs.map((doc) => (
+                      <div key={doc._id} className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-primary-50 rounded-md mr-3">
+                          <FileText size={18} className="text-primary-700" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                            {doc.type}
+                          </h3>
+                          <p className="text-[10px] text-gray-500 truncate">
+                            Updated on {new Date(doc.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewDoc({ url: `${URL}${doc.fileUrl}`, name: doc.fileName })}
+                        >
+                          View
+                        </Button>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {doc.type}
-                        </h3>
-                        <p className="text-[10px] text-gray-500 truncate">
-                          Updated on {new Date(doc.uploadedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPreviewDoc({ url: `${URL}${doc.fileUrl}`, name: doc.fileName })}
-                      >
-                        View
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-4 italic">No documents uploaded yet.</p>
-                )}
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-4 italic">No documents uploaded yet.</p>
+                  );
+                })()}
               </div>
 
               {/* Investors Section */}

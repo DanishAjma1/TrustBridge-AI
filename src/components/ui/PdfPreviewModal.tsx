@@ -48,10 +48,11 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
 
     return (
         <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[10000] p-4 animate-fade-in"
+            className="fixed inset-0 top-0 left-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[10000] p-4 animate-fade-in"
             onClick={handleBackdropClick}
+            style={{ margin: 0, padding: '1rem' }}
         >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-scale-in relative">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
                     <div className="flex items-center gap-3 overflow-hidden">
