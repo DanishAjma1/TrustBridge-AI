@@ -548,58 +548,64 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
       {/* Suspend Modal */}
       {
         isSuspendModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[9999]">
-            <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg">
-              <h2 className="text-lg font-bold mb-4">Suspend User</h2>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                <textarea
-                  className="w-full border rounded p-2"
-                  rows={3}
-                  value={suspendReason}
-                  onChange={(e) => setSuspendReason(e.target.value)}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
-                <input
-                  type="number"
-                  className="w-full border rounded p-2"
-                  value={suspendDays}
-                  onChange={(e) => setSuspendDays(parseInt(e.target.value))}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)}>Cancel</Button>
-                <Button onClick={handleSuspend} className="bg-yellow-600 hover:bg-yellow-700 text-white">Suspend</Button>
+          <>
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsSuspendModalOpen(false)}></div>
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+              <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
+                <h2 className="text-lg font-bold mb-4">Suspend User</h2>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                  <textarea
+                    className="w-full border rounded p-2"
+                    rows={3}
+                    value={suspendReason}
+                    onChange={(e) => setSuspendReason(e.target.value)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
+                  <input
+                    type="number"
+                    className="w-full border rounded p-2"
+                    value={suspendDays}
+                    onChange={(e) => setSuspendDays(parseInt(e.target.value))}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSuspend} className="bg-yellow-600 hover:bg-yellow-700 text-white">Suspend</Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )
       }
 
       {/* Block Modal */}
       {
         isBlockModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[9999]">
-            <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg">
-              <h2 className="text-lg font-bold mb-4 text-red-600">Block User</h2>
-              <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                <textarea
-                  className="w-full border rounded p-2"
-                  rows={3}
-                  value={blockReason}
-                  onChange={(e) => setBlockReason(e.target.value)}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
-                <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
+          <>
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsBlockModalOpen(false)}></div>
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+              <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
+                <h2 className="text-lg font-bold mb-4 text-red-600">Block User</h2>
+                <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                  <textarea
+                    className="w-full border rounded p-2"
+                    rows={3}
+                    value={blockReason}
+                    onChange={(e) => setBlockReason(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
+                  <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )
       }
     </div >

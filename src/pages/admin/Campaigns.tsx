@@ -239,8 +239,10 @@ export const Campaigns: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[9999] p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-5xl relative my-4 max-h-[95vh] overflow-y-auto">
+        <>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex justify-center items-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl relative my-4 max-h-[95vh] overflow-y-auto">
             <button
               onClick={() => setShowForm(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
@@ -261,6 +263,7 @@ export const Campaigns: React.FC = () => {
             </div>
           </div>
         </div>
+        </>
       )}
 
       {filtered.length > 6 && (

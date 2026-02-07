@@ -403,8 +403,15 @@ export const DealForm: React.FC<DealFormProps> = ({
     if (isEmbedded) return content;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[9999] overflow-y-auto py-10">
-            {content}
-        </div>
+        <>
+            {/* Backdrop with full blur */}
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+            {/* Modal Container */}
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex justify-center items-center overflow-y-auto py-10 px-4">
+                <div className="w-full max-w-3xl">
+                    {content}
+                </div>
+            </div>
+        </>
     );
 };

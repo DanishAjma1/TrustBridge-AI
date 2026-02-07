@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import { ThreeDotsButton } from "../../components/ui/ThreeDotsButton";
 import { Button } from "../../components/ui/Button";
@@ -150,9 +151,19 @@ export const Users: React.FC = () => {
       });
       if (!res.ok) throw new Error("Failed to update KYC");
       toast.success(`KYC marked as ${status}`);
+      
+      // Update local state immediately for both lists
+      const updatedItem = (u: KycUser) => 
+        u._id === selectedKycUser._id 
+          ? { ...u, kycStatus: { ...u.kycStatus, status, note: kycNote } as KycStatus } 
+          : u;
+
+      setUsers(prev => prev.map(updatedItem));
+      setSearchedUsers(prev => prev.map(updatedItem));
+
       setShowLegalModal(false);
       setSelectedKycUser(null);
-      fetchUsers();
+      fetchUsers(); // Refresh from server to be sure
     } catch (error) {
       console.error(error);
       toast.error("Could not update KYC status");
@@ -452,17 +463,18 @@ export const Users: React.FC = () => {
     return <p className="p-4 text-gray-600">No users found.</p>;
 
   return (
+    <>
     <div className="p-4">
       {/* Profile Modal */}
       <div
-        className={`fixed transition-all ease-in-out z-10 inset-0 bg-black bg-opacity-20 overflow-scroll scroll-smooth duration-300 p-10 ${profileModal
+        className={`fixed transition-all ease-in-out z-[10000] inset-0 bg-black/30 backdrop-blur-md overflow-scroll scroll-smooth duration-300 p-10 ${profileModal
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
           }`}
       >
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end max-w-7xl mx-auto">
           <X
-            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2"
+            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2 shadow-lg"
             onClick={() => setProfileModal(false)}
           />
           <div className="w-full">
@@ -477,19 +489,19 @@ export const Users: React.FC = () => {
 
       {/* GraphViewModal */}
       <div
-        className={`fixed z-10 inset-0 transition-all duration-300 bg-black bg-opacity-35 p-10 ${graphViewModal?.show
+        className={`fixed z-[10000] inset-0 transition-all duration-300 bg-black/30 backdrop-blur-md p-10 ${graphViewModal?.show
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
           }`}
       >
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end max-w-7xl mx-auto">
           <X
-            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2"
+            className="w-12 h-12 bg-white rounded-full hover:cursor-pointer p-3 mb-2 shadow-lg"
             onClick={() => setGraphViewModal({ show: false })}
           />
         </div>
 
-        <div className="w-full h-[80vh] bg-white rounded-xl p-10">
+        <div className="w-full max-w-7xl mx-auto h-[80vh] bg-white rounded-xl p-10 shadow-2xl">
           {graphViewModal?.type === "startup" ? (
             <StartupGrowthChart data={startupGrowthChartData} />
           ) : (
@@ -752,14 +764,15 @@ export const Users: React.FC = () => {
       )}
 
       {/* KYC / Legal Docs Modal */}
-      {showLegalModal && selectedKycUser && (
+      {showLegalModal && selectedKycUser && createPortal(
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowLegalModal(false);
-          }}
-        >
-          <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] w-full max-w-5xl overflow-hidden border border-gray-100">
+          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"
+          onClick={() => setShowLegalModal(false)}
+        ></div>, document.body)}
+
+      {showLegalModal && selectedKycUser && createPortal(
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 pointer-events-none">
+          <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] w-full max-w-5xl overflow-hidden border border-gray-100 pointer-events-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
               <div className="space-y-1">
                 <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -888,8 +901,10 @@ export const Users: React.FC = () => {
               {legalLoading && <p className="text-xs text-gray-500">Loading documents...</p>}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
+    </>
   );
 };

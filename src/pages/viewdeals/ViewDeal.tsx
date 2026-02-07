@@ -71,6 +71,7 @@ export const ViewDeals: React.FC = () => {
   if (loading) return <div className="p-4">Loading deals...</div>;
 
   return (
+    <>
     <div className="space-y-6 animate-fade-in p-4">
       <h1 className="text-2xl font-bold text-gray-900">Investor Deals</h1>
 
@@ -192,11 +193,16 @@ export const ViewDeals: React.FC = () => {
           ))}
         </div>
       )}
+    </div>
 
-      {/* View Modal (Read Only) */}
-      {isViewModalOpen && selectedDeal && (
-        <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl">
+    {/* View Modal (Read Only) */}
+    {isViewModalOpen && selectedDeal && (
+      <>
+        {/* Backdrop with full blur */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+        {/* Modal Container */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <DealForm
               entrepreneur={selectedDeal.entrepreneurId}
               investor={selectedDeal.investorId}
@@ -207,26 +213,27 @@ export const ViewDeals: React.FC = () => {
             />
           </div>
         </div>
-      )}
+      </>
+    )}
 
-      {/* Negotiation Modal */}
-      {isNegotiationModalOpen && selectedDeal && (
-        <NegotiationModal
-          deal={selectedDeal}
-          onClose={() => {
-            setIsNegotiationModalOpen(false);
-            fetchDeals();
-          }}
-          role="entrepreneur"
-        />
-      )}
+    {/* Negotiation Modal */}
+    {isNegotiationModalOpen && selectedDeal && (
+      <NegotiationModal
+        deal={selectedDeal}
+        onClose={() => {
+          setIsNegotiationModalOpen(false);
+          fetchDeals();
+        }}
+        role="entrepreneur"
+      />
+    )}
 
-      {isReceiptModalOpen && selectedDeal && (
-        <DealReceipt
-          dealId={selectedDeal._id}
-          onClose={() => setIsReceiptModalOpen(false)}
-        />
-      )}
-    </div>
+    {isReceiptModalOpen && selectedDeal && (
+      <DealReceipt
+        dealId={selectedDeal._id}
+        onClose={() => setIsReceiptModalOpen(false)}
+      />
+    )}
+    </>
   );
 };

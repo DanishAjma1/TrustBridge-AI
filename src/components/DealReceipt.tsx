@@ -130,34 +130,48 @@ export const DealReceipt: React.FC<DealReceiptProps> = ({ dealId, onClose }) => 
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading receipt...</p>
+      <>
+        {/* Backdrop with full blur */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+        {/* Modal Container */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading receipt...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!selectedTransaction || !deal || transactions.length === 0) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md">
-          <p className="text-red-600">Receipt not found</p>
-          <p className="text-sm text-gray-600 mt-2">
-            {!deal && "Deal information is missing."}
-            {deal && transactions.length === 0 && "No transaction records found for this deal."}
-            {deal && transactions.length > 0 && !selectedTransaction && "Unable to load transaction details."}
-          </p>
-          <Button onClick={onClose} className="mt-4">Close</Button>
+      <>
+        {/* Backdrop with full blur */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+        {/* Modal Container */}
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md">
+            <p className="text-red-600">Receipt not found</p>
+            <p className="text-sm text-gray-600 mt-2">
+              {!deal && "Deal information is missing."}
+              {deal && transactions.length === 0 && "No transaction records found for this deal."}
+              {deal && transactions.length > 0 && !selectedTransaction && "Unable to load transaction details."}
+            </p>
+            <Button onClick={onClose} className="mt-4">Close</Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto overflow-x-hidden">
-      <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full my-8 max-h-[95vh] flex flex-col">
+    <>
+      {/* Backdrop with full blur */}
+      <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+      {/* Modal Container */}
+      <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] overflow-y-auto overflow-x-hidden p-4 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full my-8 max-h-[95vh] flex flex-col">
         {/* Header Actions */}
         <div className="flex justify-between items-center px-5 py-3 border-b print:hidden flex-shrink-0">
           <div className="flex items-center gap-4">
@@ -394,9 +408,10 @@ export const DealReceipt: React.FC<DealReceiptProps> = ({ dealId, onClose }) => 
           </Button>
         </div>
       </div>
+    </div>
 
-      {/* Print Styles */}
-        <style>{`
+    {/* Print Styles */}
+    <style>{`
         @page {
           size: A4 landscape;
           margin: 12mm;
@@ -420,6 +435,6 @@ export const DealReceipt: React.FC<DealReceiptProps> = ({ dealId, onClose }) => 
           }
         }
       `}</style>
-    </div>
+    </>
   );
 };

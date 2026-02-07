@@ -492,56 +492,64 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
 
       {/* Suspend Modal */}
       {isSuspendModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[9999]">
-          <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Suspend User</h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-              <textarea
-                className="w-full border rounded p-2"
-                rows={3}
-                value={suspendReason}
-                onChange={(e) => setSuspendReason(e.target.value)}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
-              <input
-                type="number"
-                className="w-full border rounded p-2"
-                value={suspendDays}
-                onChange={(e) => setSuspendDays(parseInt(e.target.value))}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSuspend} className="bg-yellow-600 hover:bg-yellow-700 text-white">Suspend</Button>
+        <>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsSuspendModalOpen(false)}></div>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+            <div className="bg-white rounded-lg w-96 p-6 relative shadow-2xl pointer-events-auto">
+              <h2 className="text-lg font-bold mb-4">Suspend User</h2>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  rows={3}
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
+                <input
+                  type="number"
+                  className="w-full border rounded p-2"
+                  value={suspendDays}
+                  onChange={(e) => setSuspendDays(parseInt(e.target.value))}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)}>Cancel</Button>
+                <Button onClick={handleSuspend} className="bg-yellow-600 hover:bg-yellow-700 text-white">Suspend</Button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Block Modal */}
       {isBlockModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[9999]">
-          <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg">
-            <h2 className="text-lg font-bold mb-4 text-red-600">Block User</h2>
-            <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-              <textarea
-                className="w-full border rounded p-2"
-                rows={3}
-                value={blockReason}
-                onChange={(e) => setBlockReason(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
+        <>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsBlockModalOpen(false)}></div>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+            <div className="bg-white rounded-xl w-full max-w-md relative shadow-2xl pointer-events-auto overflow-hidden">
+                <div className="p-6">
+                    <h2 className="text-xl font-bold mb-4 text-red-600">Block User</h2>
+                    <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
+                    <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                    <textarea
+                        className="w-full border rounded p-2"
+                        rows={3}
+                        value={blockReason}
+                        onChange={(e) => setBlockReason(e.target.value)}
+                    />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
+                    <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
+                    </div>
+                </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -958,32 +966,37 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
             </CardHeader>
             <CardBody>
               <div className="space-y-3">
-                {documents.length > 0 ? (
-                  documents.map((doc) => (
-                    <div key={doc._id} className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-                      <div className="p-2 bg-primary-50 rounded-md mr-3">
-                        <FileText size={18} className="text-primary-700" />
+                {(() => {
+                  const businessDocs = documents.filter(
+                    doc => doc.type !== "Government ID (CNIC/Passport)" && doc.type !== "Selfie Photo"
+                  );
+                  return businessDocs.length > 0 ? (
+                    businessDocs.map((doc) => (
+                      <div key={doc._id} className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-primary-50 rounded-md mr-3">
+                          <FileText size={18} className="text-primary-700" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                            {doc.type}
+                          </h3>
+                          <p className="text-[10px] text-gray-500 truncate">
+                            Updated on {new Date(doc.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewDoc({ url: `${URL}${doc.fileUrl}`, name: doc.fileName })}
+                        >
+                          View
+                        </Button>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {doc.type}
-                        </h3>
-                        <p className="text-[10px] text-gray-500 truncate">
-                          Updated on {new Date(doc.uploadedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPreviewDoc({ url: `${URL}${doc.fileUrl}`, name: doc.fileName })}
-                      >
-                        View
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-4 italic">No documents uploaded yet.</p>
-                )}
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-4 italic">No documents uploaded yet.</p>
+                  );
+                })()}
               </div>
 
               {/* Investors Section */}

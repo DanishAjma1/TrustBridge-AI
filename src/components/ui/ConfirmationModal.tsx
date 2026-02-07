@@ -35,11 +35,18 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     };
 
     return (
-        <div
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-opacity animate-fade-in"
-            onClick={handleBackdropClick}
-        >
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-scale-in">
+        <>
+            {/* Backdrop with full blur */}
+            <div 
+                className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"
+                onClick={onClose}
+            ></div>
+            {/* Modal Container */}
+            <div
+                className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4"
+                onClick={handleBackdropClick}
+            >
+                <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-scale-in">
                 <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                         <div className={`p-2 rounded-full ${variant === "danger" ? "bg-red-100 text-red-600" :
@@ -87,5 +94,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 </div>
             </div>
         </div>
+        </>
     );
 };

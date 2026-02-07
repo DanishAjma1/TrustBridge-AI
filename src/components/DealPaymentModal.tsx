@@ -111,8 +111,12 @@ export const DealPaymentModal: React.FC<DealPaymentModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-[9999] px-4">
-            <div className="bg-white rounded-xl w-full max-w-md relative shadow-2xl">
+        <>
+            {/* Backdrop with full blur */}
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
+            {/* Modal Container */}
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex justify-center items-center px-4">
+                <div className="bg-white rounded-xl w-full max-w-md relative shadow-2xl">
                 <div className="flex justify-between items-center p-6 border-b">
                     <h2 className="text-xl font-bold text-gray-900">
                         {isAdditionalInvestment ? 'Additional Investment' : 'Secure Payment'}
@@ -205,5 +209,6 @@ export const DealPaymentModal: React.FC<DealPaymentModalProps> = ({
                 </form>
             </div>
         </div>
+        </>
     );
 };
