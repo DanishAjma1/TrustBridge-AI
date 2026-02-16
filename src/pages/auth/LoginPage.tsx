@@ -103,6 +103,19 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
+  // Strict Input Validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setError('Please enter a valid email address.');
+    return;
+  }
+
+  if (password.length < 6) { 
+     // Basic length check to prevent sending obviously wrong passwords
+    setError('Password must be at least 6 characters.');
+    return;
+  }
+
   setIsLoading(true);
 
   try {
