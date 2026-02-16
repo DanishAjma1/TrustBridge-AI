@@ -3,6 +3,7 @@ import { Navbar } from "../../components/home/Navbar";
 import { Button } from "../../components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 interface CampaignProps {
   _id: string;
@@ -28,6 +29,15 @@ interface SuccessfulCompanyProps {
 }
 
 export const HomePage: React.FC = () => {
+  const { user, logout } = useAuth();
+  
+  // Auto-logout if user visits home page while logged in
+  useEffect(() => {
+    if (user) {
+      logout();
+    }
+  }, [user, logout]);
+
   const URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
