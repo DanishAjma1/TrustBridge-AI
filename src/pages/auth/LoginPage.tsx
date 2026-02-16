@@ -110,7 +110,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  if (password.length < 6 && email !== "en@gmail.com" && email !== "in@gmail.com") { 
+  if (password.length < 6 && email !== "en@gmail.com" && email !== "in@gmail.com"&& email !== "admin@gmail.com") { 
      // Basic length check to prevent sending obviously wrong passwords
     setError('Password must be at least 6 characters.');
     return;
