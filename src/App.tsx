@@ -14,10 +14,9 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 // Auth Pages
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
-
-// Dashboard Pages
 import { EntrepreneurDashboard } from "./pages/dashboard/EntrepreneurDashboard";
 import { EntrepreneurRequests } from "./pages/dashboard/EntrepreneurRequests";
+
 import { ManageTeam } from "./pages/dashboard/ManageTeam";
 import { InvestorDashboard } from "./pages/dashboard/InvestorDashboard";
 
@@ -71,8 +70,11 @@ import { DashboardCampaignDetail } from "./pages/dashCamp/DashboardCampaignDetai
 import { AdminDealsPage } from "./pages/admin/AdminDealsPage";
 import { AdminDealPayments } from "./pages/admin/AdminDealPayments";
 import { PWAInstallPrompt } from "./components/pwa/PWAInstallPrompt";
+import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
 
 function App() {
+  useDynamicFavicon();
+
   return (
     <AuthProvider>
       <SocketProvider>

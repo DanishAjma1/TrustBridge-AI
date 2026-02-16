@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-d70286d7'], (function (workbox) { 'use strict';
+define(['./workbox-237f2c1f'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -81,30 +81,47 @@ define(['./workbox-d70286d7'], (function (workbox) { 'use strict';
     "url": "registerSW.js",
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
-    "url": "index.html",
-    "revision": "0.d9bdidrfrig"
+    "url": "/index.html",
+    "revision": "0.j1fi1ff1r2o"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/],
-    denylist: [/^\/$/, /^\/All-Campaigns(\/.*)?$/, /^\/Fundraises(\/.*)?$/]
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
+    allowlist: [/^\/$/]
   }));
   workbox.registerRoute(({
-    request,
     url
   }) => {
-    if (request.destination !== "document") return false;
-    const excluded = ["/", "/All-Campaigns", "/Fundraises"];
-    return !excluded.some(route => url.pathname === route || url.pathname.startsWith(route + "/"));
+    const apiRoutes = ["/auth", "/user", "/entrepreneur", "/investor", "/campaign", "/deal", "/admin", "/message", "/conversation", "/industry", "/document", "/contact", "/payment", "/agora", "/requests"
+    // collaborationRouter
+    ];
+    return apiRoutes.some(route => url.pathname.startsWith(route));
   }, new workbox.NetworkFirst({
-    "cacheName": "pwa-pages-cache",
-    plugins: []
+    "cacheName": "api-cache",
+    "networkTimeoutSeconds": 5,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 100,
+      maxAgeSeconds: 86400
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
   }), 'GET');
   workbox.registerRoute(({
     request
-  }) => request.destination === "script" || request.destination === "style", new workbox.StaleWhileRevalidate({
-    "cacheName": "assets-cache",
-    plugins: []
+  }) => request.destination === "image", new workbox.CacheFirst({
+    "cacheName": "images-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 100,
+      maxAgeSeconds: 2592000
+    })]
+  }), 'GET');
+  workbox.registerRoute(({
+    url
+  }) => url.origin === "https://rsms.me", new workbox.StaleWhileRevalidate({
+    "cacheName": "fonts-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 10,
+      maxAgeSeconds: 5184000
+    })]
   }), 'GET');
 
 }));

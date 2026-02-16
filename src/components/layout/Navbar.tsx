@@ -128,7 +128,7 @@ export const Navbar: React.FC = () => {
         label: "Messages",
         path: "/messages",
       },
-      { icon: <User size={18} />, label: "Profile", path: profileRoute },
+      { icon: <Rocket size={18} />, label: "Campaigns", path: `/dashboard/campaigns` },
     ];
   }
 
@@ -138,19 +138,19 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-16 h-16 bg-white rounded-md flex items-center justify-center">
-                {/* <Handshake className="text-white" /> */}
-                <img
-                  src="/tab-logo1.png"
-                  alt="TrustBridge AI Logo"
-                  className="w-auto h-full object-contain"
-                />
-              </div>
-              <span className="text-lg font-bold text-gray-900">
-                TrustBridge AI
-              </span>
-            </Link>
+
+            <div className="w-16 h-16 bg-white rounded-md flex items-center justify-center">
+              {/* <Handshake className="text-white" /> */}
+              <img
+                src="/tab-logo1.png"
+                alt="TrustBridge AI Logo"
+                className="w-auto h-full object-contain"
+              />
+            </div>
+            <span className="text-lg font-bold text-gray-900">
+              TrustBridge AI
+            </span>
+
           </div>
 
           {/* Desktop navigation */}
@@ -161,12 +161,14 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={index}
                     to={link.path}
-                    title={link.label}
-                    aria-label={link.label}
-                    className="inline-flex items-center justify-center w-10 h-10 text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
+                    className="group relative flex items-center bg-gray-50/50 hover:bg-blue-50/80 px-3 py-2 rounded-full transition-all duration-300 ease-out hover:shadow-sm border border-transparent hover:border-blue-100 overflow-hidden"
                   >
-                    {link.icon}
-                    <span className="sr-only">{link.label}</span>
+          <div className="relative text-gray-500 group-hover:text-blue-600 transition-colors duration-500 transform group-hover:translate-x-1 group-hover:scale-105 z-10 w-6 h-6 flex items-center justify-center">
+            {link.icon}
+          </div>
+          <span className="whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-xs opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] text-sm font-semibold text-gray-700 group-hover:text-blue-600 pl-0 group-hover:pl-2">
+            {link.label}
+          </span>
                   </Link>
                 ))}
 
@@ -177,12 +179,9 @@ export const Navbar: React.FC = () => {
 
                 {/* Profile dropdown */}
                 <div className="relative" ref={profileMenuRef}>
-                  <button
-                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                    className="inline-flex items-center gap-2 h-10 px-3 rounded-full border border-gray-200 bg-white hover:bg-gray-50 hover:border-primary-200 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
-                    aria-label="Profile menu"
-                    aria-haspopup="menu"
-                    aria-expanded={isProfileMenuOpen}
+                 <button
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white hover:bg-gray-50 border border-gray-200 rounded-full transition-all shadow-sm hover:shadow active:scale-95"
                   >
                     <Avatar
                       src={user.avatarUrl}
@@ -190,36 +189,51 @@ export const Navbar: React.FC = () => {
                       size="sm"
                       status={user.isOnline ? "online" : "offline"}
                     />
-                    <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
-                      {user.name}
-                    </span>
+                    <div className="flex flex-col items-start mr-1">
+                      <span className="text-xs font-medium text-gray-700 leading-none">
+                        {user.name?.split(' ')[0]}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-medium capitalize mt-0.5">
+                        {user.role}
+                      </span>
+                    </div>
                     <ChevronDown
-                      size={16}
-                      className={`text-gray-500 transition-transform ${
-                        isProfileMenuOpen ? "rotate-180" : "rotate-0"
-                      }`}
+                      size={14}
+                      className={`text-gray-400 transition-transform duration-300 ${isProfileMenuOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
-
                   {isProfileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-100 bg-white shadow-lg z-50 py-1">
+                    <div className="absolute right-0 mt-3 w-48 rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-200/50 z-50 py-2 transform origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                      <div className="px-4 py-3 border-b border-gray-50 mb-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">
+                          {user.email}
+                        </p>
+                      </div>
+                      
                       <Link
                         to={editProfileRoute}
                         onClick={() => setIsProfileMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                       >
-                        <User size={16} />
+                        <Settings size={16} />
                         <span>Edit Profile</span>
                       </Link>
+                      
+                      <div className="border-t border-gray-50 my-1"></div>
+                      
                       <button
                         onClick={() => {
                           handleLogout();
                           setIsProfileMenuOpen(false);
                         }}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
                       >
-                        <LogOut size={16} />
-                        <span>Logout</span>
+                       <LogOut size={16} />
+                        <span>Sign out</span>
                       </button>
                     </div>
                   )}
@@ -256,16 +270,14 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden bg-white border-b border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen
-            ? "max-h-screen opacity-100 translate-y-0"
-            : "max-h-0 opacity-0 -translate-y-2"
-        }`}
+        className={`md:hidden bg-white border-b border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen
+          ? "max-h-screen opacity-100 translate-y-0"
+          : "max-h-0 opacity-0 -translate-y-2"
+          }`}
       >
         <div
-          className={`px-2 pt-2 pb-3 space-y-1 sm:px-3 transition-opacity duration-300 ${
-            isMenuOpen ? "opacity-100 delay-150" : "opacity-0"
-          }`}
+          className={`px-2 pt-2 pb-3 space-y-1 sm:px-3 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 delay-150" : "opacity-0"
+            }`}
         >
           {user ? (
             <>
