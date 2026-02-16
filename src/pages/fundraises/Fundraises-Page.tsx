@@ -45,6 +45,7 @@ export const FundraisePage: React.FC = () => {
   });
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(6); // 6 items for 2 rows of 3
+  const [industriesList, setIndustriesList] = useState<string[]>([]);
 
   const URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -52,13 +53,20 @@ export const FundraisePage: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [entRes, statsRes] = await Promise.all([
+        const [entRes, statsRes, indRes] = await Promise.all([
           axios.get(`${URL}/entrepreneur/get-entrepreneurs`),
-          axios.get(`${URL}/user/platform-stats`)
+          axios.get(`${URL}/user/platform-stats`),
+          axios.get(`${URL}/industry/get-all`)
         ]);
 
         setEntrepreneurs(entRes.data.entrepreneurs || []);
         setFilteredEntrepreneurs(entRes.data.entrepreneurs || []);
+        
+        if (indRes.data) {
+           // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           const industries = indRes.data.map((ind: any) => ind.name);
+           setIndustriesList(industries);
+        }
 
         if (statsRes.data) {
           setPlatformStats(statsRes.data);
@@ -76,7 +84,12 @@ export const FundraisePage: React.FC = () => {
     let filtered = [...entrepreneurs];
 
     if (selectedIndustry !== "All Industries") {
-      filtered = filtered.filter(ent => ent.industry === selectedIndustry);
+      filtered = filtered.filter(ent => {
+        if (Array.isArray(ent.industry)) {
+          return ent.industry.includes(selectedIndustry);
+        }
+        return ent.industry === selectedIndustry;
+      });
     }
 
     if (selectedStage !== "All Stages") {
@@ -137,7 +150,7 @@ export const FundraisePage: React.FC = () => {
     return () => window.removeEventListener('resize', updateItemsPerPage);
   }, []);
 
-  const industries = ["All Industries", ...new Set(entrepreneurs.map(ent => ent.industry).filter(Boolean) as string[])];
+  const industries = ["All Industries", ...industriesList];
   const stages = ["All Stages", "Pre-Seed", "Seed", "Series A"];
 
   const BusinessCard: React.FC<BusinessCardProps> = ({ entrepreneur }) => {
@@ -198,10 +211,18 @@ export const FundraisePage: React.FC = () => {
         </div>
 
         {/* Industry Badge */}
-        <div className="absolute top-4 right-4 z-10">
-          <span className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg">
-            {entrepreneur.industry || "General"}
-          </span>
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 items-end">
+          {Array.isArray(entrepreneur.industry) && entrepreneur.industry.length > 0 ? (
+            entrepreneur.industry.map((ind, index) => (
+              <span key={index} className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg">
+                {ind}
+              </span>
+            ))
+          ) : (
+            <span className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg">
+               General
+            </span>
+          )}
         </div>
 
         {/* Image Slider */}
@@ -457,23 +478,20 @@ export const FundraisePage: React.FC = () => {
             <div className="flex items-center gap-3">
               <Filter size={20} className="text-blue-500" />
               <div className="flex flex-col sm:flex-row gap-4">
-                {/* Industry Filter */}
+            {/* Industry Filter */}
                 <div className="flex flex-col gap-2">
                   <span className="text-gray-300 text-sm font-medium">Industry</span>
-                  <div className="flex flex-wrap gap-2">
-                    {industries.slice(0, 5).map((ind) => (
-                      <button
-                        key={ind}
-                        onClick={() => setSelectedIndustry(ind)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedIndustry === ind
-                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
-                          : "bg-gray-900 text-gray-300 hover:text-white hover:bg-gray-800 border border-gray-800"
-                          }`}
-                      >
+                  <select
+                    value={selectedIndustry}
+                    onChange={(e) => setSelectedIndustry(e.target.value)}
+                    className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors min-w-[200px]"
+                  >
+                    {industries.map((ind) => (
+                      <option key={ind} value={ind} className="bg-gray-900 text-gray-300">
                         {ind}
-                      </button>
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 </div>
 
                 {/* Stage Filter */}

@@ -65,13 +65,31 @@ export const DealForm: React.FC<DealFormProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Validation
+        const investmentAmount = Number(formData.investmentAmount);
+        const equityOffered = Number(formData.equityOffered);
+        const preMoneyValuation = Number(formData.preMoneyValuation);
+
+        if (isNaN(investmentAmount) || investmentAmount <= 0) {
+            toast.error("Investment amount must be a positive number.");
+            return;
+        }
+        if (isNaN(equityOffered) || equityOffered <= 0 || equityOffered > 100) {
+            toast.error("Equity offered must be between 0 and 100.");
+            return;
+        }
+        if (isNaN(preMoneyValuation) || preMoneyValuation < 0) {
+            toast.error("Pre-money valuation cannot be negative.");
+            return;
+        }
+
         const payload = {
             investorId: investor.userId,
             entrepreneurId: entrepreneur.userId,
             ...formData,
-            investmentAmount: Number(formData.investmentAmount),
-            equityOffered: Number(formData.equityOffered),
-            preMoneyValuation: Number(formData.preMoneyValuation),
+            investmentAmount,
+            equityOffered,
+            preMoneyValuation,
             postMoneyValuation: Number(formData.postMoneyValuation),
         };
 

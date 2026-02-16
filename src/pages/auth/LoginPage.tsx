@@ -28,6 +28,10 @@ export const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockoutTimer, setLockoutTimer] = useState(0);
+
   const [pageTransition, setPageTransition] = useState({
     direction: "enter-right",
     isTransitioning: false
@@ -36,6 +40,20 @@ export const LoginPage: React.FC = () => {
   
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Rate limiting effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isLocked && lockoutTimer > 0) {
+      timer = setInterval(() => {
+        setLockoutTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (lockoutTimer === 0) {
+      setIsLocked(false);
+      setFailedAttempts(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLocked, lockoutTimer]);
 
   // Check if mobile
   useEffect(() => {
@@ -79,11 +97,34 @@ export const LoginPage: React.FC = () => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setError(null);
+
+  if (isLocked) {
+    setError(`Too many failed attempts. Please try again in ${lockoutTimer} seconds.`);
+    return;
+  }
+
+  // Strict Input Validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setError('Please enter a valid email address.');
+    return;
+  }
+
+  if (password.length < 6) { 
+     // Basic length check to prevent sending obviously wrong passwords
+    setError('Password must be at least 6 characters.');
+    return;
+  }
+
   setIsLoading(true);
 
   try {
     // Call AuthContext login function
     const result = await login(email, password, role);
+    
+    // Reset failed attempts on success
+    setFailedAttempts(0);
+    setIsLocked(false);
 
     // Check if 2FA is required
     if (result.requires2FA) {
@@ -149,8 +190,20 @@ const handleSubmit = async (e: React.FormEvent) => {
         setError(data.message || "Login failed");
       }
     } else {
-      setError(err.message || "Login failed");
+      setFailedAttempts((prev) => {
+        const newCount = prev + 1;
+        if (newCount >= 5) {
+          setIsLocked(true);
+          setLockoutTimer(30); // 30 seconds lockout
+          setError("Too many failed attempts. Please try again in 30 seconds.");
+        } else {
+          setError(err.message || "Login failed");
+        }
+        return newCount;
+      });
     }
+  } finally {
+    setIsLoading(false);
   }
 };
 

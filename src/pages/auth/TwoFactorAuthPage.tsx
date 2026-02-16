@@ -37,7 +37,7 @@ export const TwoFactorAuthPage: React.FC = () => {
     try {
       const result = await verify2FA(code, useBackupCode);
       
-      toast.success("2FA verification successful!");
+      
       
       // Navigate to appropriate dashboard
       if (role === "entrepreneur") {
