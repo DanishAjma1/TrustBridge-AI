@@ -7,11 +7,10 @@ import { getEnterpreneurById, getInvestorById } from "../../data/users";
 import { Entrepreneur, Investor } from "../../types";
 import { ProfileSettings } from "../../components/settings/ProfileSettings";
 import { SecuritySettings } from "../../components/settings/SecuritySettings";
-import { AppearanceSettings } from "../../components/settings/AppearanceSettings";
 import { BillingSettings } from "../../components/settings/BillingSettings";
 import { LegalInfoUpload } from "../../components/settings/LegalInfoUpload";
 
-type SettingsTab = "profile" | "security" | "appearance" | "billing" | "legal";
+type SettingsTab = "profile" | "security" | "billing" | "legal";
 
 export const SettingsPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -34,7 +33,6 @@ export const SettingsPage: React.FC = () => {
   const navItems = [
     { id: "profile" as SettingsTab, label: "Profile", icon: User },
     { id: "security" as SettingsTab, label: "Security", icon: Lock },
-    { id: "appearance" as SettingsTab, label: "Appearance", icon: Palette },
     { id: "billing" as SettingsTab, label: "Billing", icon: CreditCard },
     { id: "legal" as SettingsTab, label: "Legal", icon: ShieldCheck },
   ];
@@ -49,8 +47,6 @@ export const SettingsPage: React.FC = () => {
         return <ProfileSettings user={user} currentUser={currentUser} />;
       case "security":
         return <SecuritySettings />;
-      case "appearance":
-        return <AppearanceSettings />;
       case "billing":
         return <BillingSettings />;
       case "legal":

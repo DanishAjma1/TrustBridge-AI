@@ -49,6 +49,7 @@ export const EntrepreneurSetup: React.FC = () => {
     const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
     const [customIndustry, setCustomIndustry] = useState("");
     const [isAddingCustom, setIsAddingCustom] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchEntrepreneur = async () => {
@@ -110,11 +111,80 @@ export const EntrepreneurSetup: React.FC = () => {
         setFormData(
             (prev) => ({ ...(prev || {}), [name]: value } as Partial<Entrepreneur>)
         );
+        validateField(name, value);
+    };
+
+    useEffect(() => {
+        validateField("industry", formData.industry);
+    }, [formData.industry]);
+
+    const validateField = (name: string, value: any) => {
+        let error = "";
+        if (name === "startupName") {
+            if (!value || value.toString().trim().length < 2) error = "Enter a valid startup name (min 2 characters).";
+        } else if (name === "industry") {
+            if (!value || (Array.isArray(value) && value.length === 0)) error = "Select at least one industry.";
+        } else if (name === "pitchSummary") {
+            if (!value || value.toString().trim().length < 20) error = "Pitch should be at least 20 characters.";
+        } else if (name === "marketOpportunity") {
+            if (!value || value.toString().trim().length < 20) error = "Describe the market opportunity (min 20 characters).";
+        } else if (name === "advantage") {
+            if (!value || value.toString().trim().length < 10) error = "State your competitive advantage (min 10 characters).";
+        } else if (name === "foundedYear") {
+            if (value) {
+                const y = parseInt(value as any);
+                const currentYear = new Date().getFullYear();
+                if (isNaN(y) || y.toString().length !== 4) error = "Founded Year must be a 4-digit year.";
+                else if (y > currentYear) error = `Founded Year cannot be in the future (max ${currentYear}).`;
+            }
+        } else if (["teamSize", "fundingNeeded", "revenue", "profitMargin", "growthRate"].includes(name)) {
+            if (value !== "" && value !== undefined && value !== null) {
+                const num = Number(value);
+                if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
+            }
+        }
+
+        setErrors(prev => {
+            const next = { ...prev };
+            if (error) next[name] = error;
+            else delete next[name];
+            return next;
+        });
+
+        return error;
+    };
+
+    const validateAll = () => {
+        const fieldsToCheck = [
+            "startupName",
+            "industry",
+            "pitchSummary",
+            "marketOpportunity",
+            "advantage",
+            "foundedYear",
+            "teamSize",
+            "fundingNeeded",
+            "revenue",
+            "profitMargin",
+            "growthRate",
+        ];
+        let hasError = false;
+        fieldsToCheck.forEach(f => {
+            const err = validateField(f, (formData as any)[f]);
+            if (err) hasError = true;
+        });
+        return !hasError;
     };
 
     const handleUserSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
+
+        if (!validateAll()) {
+            toast.error("Please fix form errors before submitting");
+            setIsSubmitting(false);
+            return;
+        }
 
         if (formData.foundedYear) {
             const yearStr = formData.foundedYear.toString();
@@ -259,6 +329,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.startupName && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.startupName}</p>
+                                )}
                             </div>
                         </div>
 
@@ -450,6 +523,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
+                                {errors.industry && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.industry}</p>
+                                )}
                             </div>
                         </div>
 
@@ -470,6 +546,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.foundedYear && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.foundedYear}</p>
+                                )}
                             </div>
                         </div>
 
@@ -489,6 +568,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.teamSize && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.teamSize}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -508,6 +590,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 resize-none group-hover:border-green-300"
                             />
                             <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                            {errors.pitchSummary && (
+                                <p className="text-sm text-red-600 mt-1">{errors.pitchSummary}</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -539,6 +624,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-blue-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-blue-400 pointer-events-none"></div>
+                                {errors.fundingNeeded && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.fundingNeeded}</p>
+                                )}
                             </div>
                         </div>
 
@@ -559,6 +647,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-blue-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-blue-400 pointer-events-none"></div>
+                                {errors.revenue && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.revenue}</p>
+                                )}
                             </div>
                         </div>
 
@@ -579,6 +670,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                 />
                                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">%</div>
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-blue-400 pointer-events-none"></div>
+                                {errors.profitMargin && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.profitMargin}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -599,6 +693,9 @@ export const EntrepreneurSetup: React.FC = () => {
                             />
                             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">%</div>
                             <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-blue-400 pointer-events-none"></div>
+                            {errors.growthRate && (
+                                <p className="text-sm text-red-600 mt-1">{errors.growthRate}</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -628,6 +725,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 resize-none group-hover:border-purple-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
+                                {errors.marketOpportunity && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.marketOpportunity}</p>
+                                )}
                             </div>
                         </div>
 
@@ -646,6 +746,9 @@ export const EntrepreneurSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 resize-none group-hover:border-purple-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
+                                {errors.advantage && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.advantage}</p>
+                                )}
                             </div>
                         </div>
                     </div>

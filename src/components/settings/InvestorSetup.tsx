@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 import { Investor, UserRole } from "../../types";
 import {
     getInvestorById,
@@ -42,6 +43,8 @@ export const InvestorSetup: React.FC = () => {
     const checkIfSettingPage = location.pathname === "/settings" ? true : false;
     const { user, register } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const [investor, setInvestor] = useState<Investor>();
     const [industries, setIndustries] = useState<{ _id: string; name: string; isCustom: boolean }[]>([]);
@@ -95,11 +98,82 @@ export const InvestorSetup: React.FC = () => {
     const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setInvestorFormData({ ...investorFormData, [name]: value });
+        validateField(name, value);
+    };
+
+    useEffect(() => {
+        validateField("investmentInterests", investorFormData.investmentInterests);
+        validateField("investmentCriteria", investorFormData.investmentCriteria);
+    }, [investorFormData.investmentInterests, investorFormData.investmentCriteria]);
+
+    const validateField = (name: string, value: any) => {
+        let error = "";
+        if (name === "investmentInterests") {
+            if (!value || (Array.isArray(value) && value.length === 0)) error = "Select at least one industry.";
+            else if (Array.isArray(value) && value.length > 5) error = "You can select up to 5 interests.";
+        } else if (name === "investmentCriteria") {
+            if (!value || (Array.isArray(value) && value.length === 0)) error = "Add at least one investment criteria.";
+            else if (Array.isArray(value) && value.length > 5) error = "You can add up to 5 criteria.";
+        } else if (name === "minimumInvestment" || name === "maximumInvestment") {
+            if (value !== "" && value !== undefined && value !== null) {
+                const num = Number(value);
+                if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
+            }
+            const min = Number(investorFormData.minimumInvestment);
+            const max = Number(investorFormData.maximumInvestment);
+            if (!isNaN(min) && !isNaN(max) && min > max) {
+                if (name === "minimumInvestment") error = "Min cannot be greater than Max.";
+                if (name === "maximumInvestment") error = "Max cannot be less than Min.";
+            }
+        } else if (name === "successfullExits" || name === "minTimline" || name === "maxTimline") {
+            if (value !== "" && value !== undefined && value !== null) {
+                const num = Number(value);
+                if (!Number.isInteger(num) || num < 0) error = "Must be a non-negative integer.";
+            }
+            const minT = Number(investorFormData.minTimline);
+            const maxT = Number(investorFormData.maxTimline);
+            if (!isNaN(minT) && !isNaN(maxT) && minT > maxT) {
+                if (name === "minTimline") error = "Min timeline cannot be greater than Max timeline.";
+                if (name === "maxTimline") error = "Max timeline cannot be less than Min timeline.";
+            }
+        }
+
+        setErrors(prev => {
+            const next = { ...prev };
+            if (error) next[name] = error;
+            else delete next[name];
+            return next;
+        });
+
+        return error;
+    };
+
+    const validateAll = () => {
+        const fields = [
+            "investmentInterests",
+            "investmentCriteria",
+            "minimumInvestment",
+            "maximumInvestment",
+            "successfullExits",
+            "minTimline",
+            "maxTimline",
+        ];
+        let hasError = false;
+        fields.forEach(f => {
+            const err = validateField(f, (investorFormData as any)[f]);
+            if (err) hasError = true;
+        });
+        return !hasError;
     };
 
     const handleInvestorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
+        if (!validateAll()) {
+            toast.error("Please fix form errors before submitting");
+            setIsSubmitting(false);
+            return;
+        }
         try {
             if (
                 investorFormData.maximumInvestment === "" ||
@@ -176,6 +250,7 @@ export const InvestorSetup: React.FC = () => {
             investmentInterests: updatedInterests,
             interest: "",
         });
+        validateField("investmentInterests", updatedInterests);
     };
 
     const handleCriteria = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -189,6 +264,7 @@ export const InvestorSetup: React.FC = () => {
             investmentCriteria: updateCriteria,
             criteria: "",
         });
+        validateField("investmentCriteria", updateCriteria);
     };
 
     const removeInterest = (index: number) => {
@@ -353,6 +429,9 @@ export const InvestorSetup: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+                            {errors.investmentInterests && (
+                                <p className="text-sm text-red-600 mt-1">{errors.investmentInterests}</p>
+                            )}
                         </div>
                     </div>
 
@@ -409,6 +488,9 @@ export const InvestorSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 disabled:opacity-50 group-hover:border-purple-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
+                                    {errors.investmentCriteria && (
+                                        <p className="text-sm text-red-600 mt-1">{errors.investmentCriteria}</p>
+                                    )}
                             </div>
                             <button
                                 type="button"
@@ -475,6 +557,9 @@ export const InvestorSetup: React.FC = () => {
                                     className="w-full pl-10 pr-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.minimumInvestment && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.minimumInvestment}</p>
+                                )}
                             </div>
                         </div>
 
@@ -495,6 +580,9 @@ export const InvestorSetup: React.FC = () => {
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.maximumInvestment && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.maximumInvestment}</p>
+                                )}
                             </div>
                         </div>
 
@@ -514,6 +602,9 @@ export const InvestorSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.successfullExits && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.successfullExits}</p>
+                                )}
                             </div>
                         </div>
 
@@ -534,6 +625,9 @@ export const InvestorSetup: React.FC = () => {
                                 />
                                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.minTimline && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.minTimline}</p>
+                                )}
                             </div>
                         </div>
 
@@ -554,6 +648,9 @@ export const InvestorSetup: React.FC = () => {
                                 />
                                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                                {errors.maxTimline && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.maxTimline}</p>
+                                )}
                             </div>
                         </div>
                     </div>
