@@ -75,6 +75,8 @@ export const DocumentsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name?: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const URL = import.meta.env.VITE_BACKEND_URL;
   const token = localStorage.getItem("token");
@@ -150,16 +152,25 @@ export const DocumentsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
+    // open modal instead of immediate confirm (handled via state)
+    setDeleteTarget({ id });
+  };
+
+  const performDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await axios.delete(`${URL}/document/${id}`, {
+      await axios.delete(`${URL}/document/${deleteTarget.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Document deleted");
       fetchDocuments();
+      setDeleteTarget(null);
     } catch (error) {
       console.error(error);
       toast.error("Delete failed");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -245,7 +256,7 @@ export const DocumentsPage: React.FC = () => {
                             <Download size={18} />
                           </button>
                           <button
-                            onClick={() => handleDelete(uploadedDoc._id)}
+                            onClick={() => setDeleteTarget({ id: uploadedDoc._id, name: uploadedDoc.fileName })}
                             className="p-2 hover:bg-white rounded-lg text-red-400 hover:text-red-600 transition-colors border border-transparent hover:border-gray-200"
                             title="Delete"
                           >
@@ -314,6 +325,33 @@ export const DocumentsPage: React.FC = () => {
           );
         })}
       </div>
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setDeleteTarget(null)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6 mx-4">
+            <h3 className="text-lg font-semibold text-gray-900">Delete document</h3>
+            <p className="text-sm text-gray-600 mt-2">Are you sure you want to delete "{deleteTarget.name || 'this document'}"? This action cannot be undone.</p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={performDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {previewDoc && (
         <PdfPreviewModal

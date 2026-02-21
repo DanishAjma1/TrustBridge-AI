@@ -154,8 +154,13 @@ export const SecuritySettings: React.FC = () => {
       return false;
     }
 
-    if (passwords.new.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+    // Allow shorter new passwords for a couple of special test accounts
+    const email = user?.email?.toLowerCase?.() || "";
+    const specialEmails = ["in@gmail.com", "en@gmmail.com", "admin@trust.com"];
+    const minNewLength = specialEmails.includes(email) ? 3 : 8;
+
+    if (passwords.new.length < minNewLength) {
+      setPasswordError(`New password must be at least ${minNewLength} characters`);
       return false;
     }
 
@@ -179,18 +184,31 @@ export const SecuritySettings: React.FC = () => {
     setPasswordError("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const token = localStorage.getItem("token");
+        const resp = await axios.patch(
+          `${URL}/auth/update-password-verify/${user?.userId}`,
+          { currentPassword: passwords.current, newPassword: passwords.new },
+          { headers: { Authorization: token ? `Bearer ${token}` : undefined } }
+        );
 
-      // TODO: Replace with actual API call
-      // await updatePassword(passwords.current, passwords.new);
+      if (resp?.data?.user) {
+        setPasswordSuccess(true);
+        setPasswords({ current: "", new: "", confirm: "" });
+        setTimeout(() => setPasswordSuccess(false), 5000);
+      } else {
+        setPasswordError(resp?.data?.message || "Failed to update password.");
+      }
+    } catch (err: any) {
+      const serverMessage = err?.response?.data?.message;
+      const status = err?.response?.status;
 
-      setPasswordSuccess(true);
-      setPasswords({ current: "", new: "", confirm: "" });
-
-      setTimeout(() => setPasswordSuccess(false), 5000);
-    } catch (error) {
-      setPasswordError("Failed to update password. Please try again.");
+      if (status === 401) {
+        setPasswordError(serverMessage || "Current password is incorrect");
+      } else if (status === 404) {
+        setPasswordError(serverMessage || "User not found");
+      } else {
+        setPasswordError(serverMessage || "Failed to update password. Please try again.");
+      }
     } finally {
       setIsUpdatingPassword(false);
     }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, Filter, MapPin } from "lucide-react";
+import axios from "axios";
 import { Input } from "../../components/ui/Input";
 import { Card, CardHeader, CardBody } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -16,6 +17,7 @@ export const InvestorsPage: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
   const [investors, setInvestors] = useState<Investor[]>([]);
+  const [entrepreneurLocations, setEntrepreneurLocations] = useState<string[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -27,17 +29,29 @@ export const InvestorsPage: React.FC = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchEntrepreneurLocations = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/entrepreneur/get-entrepreneurs`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        const entrepreneurs = res.data?.entrepreneurs || [];
+        const locations = Array.from(new Set(entrepreneurs.map((e: any) => e.location).filter(Boolean)));
+        setEntrepreneurLocations(locations as string[]);
+      } catch (err) {
+        console.error("Failed to fetch entrepreneur locations", err);
+      }
+    };
+    fetchEntrepreneurLocations();
+  }, []);
   if (!user) return null;
-  // Get unique investment stages and interests
-  const allStages = Array.from(
-    new Set(investors.flatMap((i) => i.investmentStage || ""))
-  );
-  const allInterests = Array.from(
-    new Set(investors.flatMap((i) => i.investmentInterests || ""))
-  ).filter(Boolean);
-  const allLocations = Array.from(
-    new Set(investors.map((i) => i.location).filter(Boolean))
-  ) as string[];
+  // Get unique investment stages and interests from investor profiles
+  const allStages = Array.from(new Set(investors.flatMap((i) => i.investmentStage || []))).filter(Boolean);
+  const allInterests = Array.from(new Set(investors.flatMap((i) => i.investmentInterests || []))).filter(Boolean);
+  // Locations sourced from entrepreneur startup profiles
+  const allLocations = entrepreneurLocations;
 
   // Filter investors based on search and filters
   const filteredInvestors = investors && investors.filter((investor) => {
@@ -97,7 +111,7 @@ export const InvestorsPage: React.FC = () => {
               <h2 className="text-lg font-medium text-gray-900">Filters</h2>
             </CardHeader>
             <CardBody className="space-y-6">
-              <div>
+              {/* <div>
                 <h3 className="text-sm font-medium text-gray-900 mb-2">
                   Investment Stage
                 </h3>
@@ -115,7 +129,7 @@ export const InvestorsPage: React.FC = () => {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <h3 className="text-sm font-medium text-gray-900 mb-2">
