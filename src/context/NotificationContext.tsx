@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext";
 import { useSocket } from "./SocketContext";
 import toast from "react-hot-toast";
 import { playNotificationSound } from "../utils/notificationSound";
+import { initNotificationAudio } from "../utils/notificationSound";
 
 interface Notification {
     _id: string;
@@ -28,6 +29,10 @@ interface NotificationContextType {
     markAllAsRead: () => Promise<void>;
     clearAll: () => Promise<void>;
     deleteNotification: (id: string) => Promise<void>;
+    subscribePush: () => Promise<void>;
+    unsubscribePush: () => Promise<void>;
+    isPushSupported: boolean;
+    isPushSubscribed: boolean;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -38,6 +43,100 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const URL = import.meta.env.VITE_BACKEND_URL;
+    const [isPushSupported, setIsPushSupported] = useState<boolean>(false);
+    const [isPushSubscribed, setIsPushSubscribed] = useState<boolean>(false);
+
+    useEffect(() => {
+        setIsPushSupported(typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window);
+    }, []);
+
+    async function urlBase64ToUint8Array(base64String: string) {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    const subscribePush = async () => {
+        if (!user?.userId) throw new Error('Not authenticated');
+        if (!isPushSupported) throw new Error('Push not supported in this browser');
+
+        try {
+            // Request notification permission first
+            if (typeof Notification !== 'undefined') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') throw new Error('Notification permission denied');
+            }
+            // Register service worker; try common fallback path used in dev-dist
+            let reg: ServiceWorkerRegistration | undefined;
+            try {
+                reg = await navigator.serviceWorker.register('/sw.js');
+            } catch {
+                reg = await navigator.serviceWorker.register('/dev-dist/sw.js');
+            }
+            const vapidPublic = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: await urlBase64ToUint8Array(vapidPublic)
+            });
+
+            const token = localStorage.getItem('token');
+            await axios.post(`${URL}/notifications/subscribe`, { userId: user.userId, subscription: sub }, { headers: { Authorization: token ? `Bearer ${token}` : undefined } });
+            setIsPushSubscribed(true);
+            toast.success('Subscribed to push notifications');
+        } catch (err) {
+            console.error('Push subscribe error', err);
+            toast.error(((err as unknown as { message?: string })?.message) || 'Failed to subscribe to push');
+            throw err;
+        }
+    };
+
+    // On mount, check current service worker registration and subscription
+    useEffect(() => {
+        const checkSubscription = async () => {
+            if (!isPushSupported) return;
+            try {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                let foundSub = false;
+                for (const r of regs) {
+                    try {
+                        const s = await r.pushManager.getSubscription();
+                        if (s) { foundSub = true; break; }
+                        } catch {
+                            // ignore per-registration errors
+                        }
+                }
+                setIsPushSubscribed(foundSub);
+            } catch (err) {
+                console.error('Error checking push subscription', err);
+                setIsPushSubscribed(false);
+            }
+        };
+        checkSubscription();
+    }, [isPushSupported]);
+
+    const unsubscribePush = async () => {
+        if (!user?.userId) throw new Error('Not authenticated');
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) {
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) await sub.unsubscribe();
+            }
+            const token = localStorage.getItem('token');
+            await axios.post(`${URL}/notifications/unsubscribe`, { userId: user.userId }, { headers: { Authorization: token ? `Bearer ${token}` : undefined } });
+            setIsPushSubscribed(false);
+            toast.success('Unsubscribed from push notifications');
+        } catch (err) {
+            console.error('Push unsubscribe error', err);
+            toast.error('Failed to unsubscribe from push');
+            throw err;
+        }
+    };
 
     const fetchNotifications = useCallback(async () => {
         if (!user?.userId) {
@@ -112,6 +211,44 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             socket.off('new-notification', handleNewNotification);
         };
     }, [socket]);
+
+    // Listen for messages from the service worker (push events when page is open)
+    useEffect(() => {
+        if (!('serviceWorker' in navigator)) return;
+        const handler = (event: MessageEvent) => {
+            try {
+                const data = event.data;
+                if (data && data.type === 'push') {
+                    // play sound and optionally show a toast when SW forwards push
+                    playNotificationSound();
+                    if (data.payload && data.payload.message) {
+                        toast(data.payload.message, { icon: '🔔', duration: 4000 });
+                    }
+                }
+            } catch {
+                // ignore
+            }
+        };
+        navigator.serviceWorker.addEventListener('message', handler as EventListener);
+        return () => navigator.serviceWorker.removeEventListener('message', handler as EventListener);
+    }, []);
+
+    // Ensure audio is unlocked on first user interaction so sounds can play
+    useEffect(() => {
+        const unlock = async () => {
+            try {
+                await initNotificationAudio();
+            } catch {
+                // ignore
+            }
+            document.removeEventListener('pointerdown', unlock);
+            document.removeEventListener('click', unlock);
+        };
+        document.addEventListener('pointerdown', unlock, { once: true });
+        document.addEventListener('click', unlock, { once: true });
+        // also try immediately in case already allowed
+        initNotificationAudio().catch(() => {});
+    }, []);
 
     const markAsRead = async (id: string) => {
         // Optimistic update
@@ -196,6 +333,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         markAllAsRead,
         clearAll,
         deleteNotification,
+        subscribePush,
+        unsubscribePush,
+        isPushSupported,
+        isPushSubscribed,
     };
 
     return (

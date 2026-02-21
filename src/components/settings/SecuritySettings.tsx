@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNotification } from '../../context/NotificationContext';
 import { Card, CardHeader, CardBody } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
@@ -46,6 +47,7 @@ interface TrustedDevice {
 
 export const SecuritySettings: React.FC = () => {
   const { user, logout } = useAuth();
+  const { isPushSupported, isPushSubscribed, subscribePush, unsubscribePush } = useNotification();
   const URL = import.meta.env.VITE_BACKEND_URL;
 
   const [passwords, setPasswords] = useState({
@@ -544,6 +546,32 @@ ${codesText}`;
 
   return (
     <div className="space-y-6">
+        {/* Push Notification Control */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Globe className="text-primary-600" size={20} />
+              <h2 className="text-lg font-medium text-gray-900">Push Notifications</h2>
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <p className="text-sm text-gray-600 mb-2">
+              Receive real-time notifications even when the app is closed. Requires browser permission and HTTPS in production.
+            </p>
+            {!isPushSupported ? (
+              <div className="text-red-600 text-sm">Push notifications are not supported in your browser.</div>
+            ) : (
+              <div className="flex items-center gap-3">
+                {isPushSubscribed ? (
+                  <Button variant="outline" onClick={unsubscribePush}>Disable Push Notifications</Button>
+                ) : (
+                  <Button onClick={subscribePush}>Enable Push Notifications</Button>
+                )}
+                <span className="text-xs text-gray-500">You can change this anytime.</span>
+              </div>
+            )}
+          </CardBody>
+        </Card>
       {/* Two-Factor Authentication */}
       <Card>
         <CardHeader>
