@@ -82,7 +82,7 @@ define(['./workbox-237f2c1f'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/index.html",
-    "revision": "0.fobct8g96ao"
+    "revision": "0.93erp44jj7"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
@@ -125,55 +125,3 @@ define(['./workbox-237f2c1f'], (function (workbox) { 'use strict';
   }), 'GET');
 
 }));
-
-// Push Notification Event Handler - show notification and notify open clients
-self.addEventListener('push', function(event) {
-  let data = {};
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data = { body: event.data.text() };
-    }
-  }
-  const title = data.title || 'New Notification';
-  const options = {
-    body: data.body || '',
-    icon: data.icon || '/tab-logo1.png',
-    badge: data.badge || '/tab-logo1.png',
-    data: data.url ? { url: data.url } : {}
-  };
-  event.waitUntil(
-    (async () => {
-      await self.registration.showNotification(title, options);
-      try {
-        const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-        for (const client of clientList) {
-          client.postMessage({ type: 'push', payload: data });
-        }
-      } catch (err) {
-        // ignore
-      }
-    })()
-  );
-});
-
-// Notification Click Handler
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  const url = event.notification.data && event.notification.data.url;
-  if (url) {
-    event.waitUntil(
-      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-        for (const client of clientList) {
-          if (client.url === url && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        if (clients.openWindow) {
-          return clients.openWindow(url);
-        }
-      })
-    );
-  }
-});

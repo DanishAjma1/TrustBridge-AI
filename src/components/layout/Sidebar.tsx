@@ -128,7 +128,7 @@ export const Sidebar: React.FC = () => {
     {
       to: "/admin/supporters",
       icon: <User2Icon size={20} />,
-      text: "Manage Supporters",
+      text: "View Supporters",
     },
 
     {

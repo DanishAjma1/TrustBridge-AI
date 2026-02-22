@@ -49,6 +49,11 @@ export const Supporters: React.FC = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailSubject, setEmailSubject] = useState<string>("Message from TrustBridge AI");
+  const [emailBody, setEmailBody] = useState<string>("");
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+  const [emailSending, setEmailSending] = useState<boolean>(false);
 
   // close on outside click
   useEffect(() => {
@@ -102,7 +107,10 @@ export const Supporters: React.FC = () => {
                 variant="ghost"
                 className="justify-start px-4 py-2 text-xs hover:bg-gray-100 rounded-none h-auto"
                 onClick={() => {
-                  window.location.href = `mailto:${sup.email}`;
+                  setSelectedEmail(sup.email);
+                  setEmailSubject(`Message from TrustBridge AI`);
+                  setEmailBody("");
+                  setShowEmailModal(true);
                   setShowDialog(false);
                 }}
               >
@@ -219,6 +227,70 @@ export const Supporters: React.FC = () => {
           </table>
         </div>
       </div>
+      {showEmailModal && selectedEmail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+            <h3 className="text-lg font-semibold mb-3">Send Email to {selectedEmail}</h3>
+            <input
+              type="text"
+              placeholder="Subject"
+              value={emailSubject}
+              onChange={(e) => setEmailSubject(e.target.value)}
+              className="w-full border px-3 py-2 rounded mb-3"
+            />
+            <textarea
+              placeholder="Write your message here..."
+              value={emailBody}
+              onChange={(e) => setEmailBody(e.target.value)}
+              className="w-full border px-3 py-2 rounded h-40 mb-3"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowEmailModal(false);
+                  setSelectedEmail(null);
+                }}
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    setEmailSending(true);
+                    const token = localStorage.getItem("token");
+                    await axios.post(
+                      `${URL}/admin/send-email`,
+                      { to: selectedEmail, subject: emailSubject, text: emailBody, html: `<div>${emailBody.replace(/\n/g, "<br/>")}</div>` },
+                      { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    toast.success("Email sent");
+                    setShowEmailModal(false);
+                    setSelectedEmail(null);
+                  } catch (err: any) {
+                    console.error("Failed to send email:", err);
+                    toast.error("Failed to send email");
+                  } finally {
+                    setEmailSending(false);
+                  }
+                }}
+                disabled={emailSending}
+                className={`px-4 py-2 rounded bg-blue-600 text-white ${emailSending ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700"}`}
+              >
+                {emailSending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    <span>Sending...</span>
+                  </div>
+                ) : (
+                  "Send"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
