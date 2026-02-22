@@ -163,13 +163,13 @@ export const AccountUnderReviewPage: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <Button
+          {/* <Button
             onClick={checkApprovalStatus}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
             Check Approval Status
-          </Button>
+          </Button> */}
 
           <Button
             onClick={() => navigate("/login")}
@@ -198,12 +198,6 @@ export const AccountUnderReviewPage: React.FC = () => {
               className="flex-1 text-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
             >
               Email Support
-            </a>
-            <a
-              href="/help"
-              className="flex-1 text-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              Help Center
             </a>
           </div>
         </div>

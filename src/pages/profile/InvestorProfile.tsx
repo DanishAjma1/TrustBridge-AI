@@ -4,6 +4,8 @@ import {
   MessageCircle,
   Building2,
   MapPin,
+  Globe,
+  Phone,
   UserCircle,
   BarChart3,
   Briefcase,
@@ -126,10 +128,10 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
     if (!investor?.userId) return;
     setIsSavingBio(true);
     try {
-      await axios.post(`${URL}/user/update-profile/${investor.userId}`, {
+      await axios.post(`${URL} /user/update - profile / ${investor.userId} `, {
         bio: editedBio
       }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token} ` }
       });
       setInvestor(prev => prev ? { ...prev, bio: editedBio } : undefined);
       setIsEditingBio(false);
@@ -175,6 +177,12 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                   <MapPin size={14} className="mr-1" />
                   {investor?.location || "--"}
                 </Badge>
+                {investor.country && (
+                  <Badge variant="primary">
+                    <Globe size={14} className="mr-1" />
+                    {investor.country}
+                  </Badge>
+                )}
                 {investor.investmentStage &&
                   investor.investmentStage.map((stage, index) => (
                     <Badge key={index} variant="secondary" size="sm">
@@ -188,7 +196,7 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
           <div className="mt-6 sm:mt-0 flex flex-col sm:flex-row gap-2 justify-center sm:justify-end">
             {!isAdmin ? (
               !isCurrentUser && (
-                <Link to={`/chat/${investor.userId}`}>
+                <Link to={`/ chat / ${investor.userId} `}>
                   <Button leftIcon={<MessageCircle size={18} />}>
                     Message
                   </Button>
@@ -376,7 +384,7 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                 {(investor.portfolio && investor.portfolio.length > 0) ? (
                   investor.portfolio.map((company, index) => (
                     <Link
-                      to={`/profile/entrepreneur/${company.userId}`}
+                      to={`/ profile / entrepreneur / ${company.userId} `}
                       key={index}
                       className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
                     >
@@ -484,6 +492,30 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
               </div>
             </CardBody>
           </Card>
+
+          {/* Contact Info */}
+          {isAdmin && (
+            <Card className="border-red-100 bg-white">
+              <CardHeader className="pb-2">
+                <h2 className="text-lg font-medium text-red-900 flex items-center gap-2">
+                  <Phone size={18} />
+                  Contact Info
+                </h2>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs text-red-600 font-medium uppercase tracking-wider">
+                      Phone Number
+                    </span>
+                    <p className="text-lg font-semibold text-gray-900 mt-1">
+                      {investor.phoneNumber || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          )}
 
           {/* Stats */}
           <Card>

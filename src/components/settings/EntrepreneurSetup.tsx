@@ -29,6 +29,19 @@ import {
     ChevronDown
 } from "lucide-react";
 import axios from "axios";
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
+const COUNTRIES = [
+    { code: 'US', name: 'USA' },
+    { code: 'AU', name: 'AUS' },
+    { code: 'NZ', name: 'NZ' },
+    { code: 'PK', name: 'PAK' },
+    { code: 'DE', name: 'GER' },
+    { code: 'DK', name: 'DEN' },
+    { code: 'ZA', name: 'South Africa' },
+    { code: 'CA', name: 'CAN' }
+];
 
 type User = {
     name: string;
@@ -88,6 +101,8 @@ export const EntrepreneurSetup: React.FC = () => {
             growthRate: entrepreneur?.growthRate,
             marketOpportunity: entrepreneur?.marketOpportunity,
             advantage: entrepreneur?.advantage,
+            country: entrepreneur?.country || "",
+            phoneNumber: entrepreneur?.phoneNumber || "",
         }),
         [entrepreneur]
     );
@@ -106,7 +121,7 @@ export const EntrepreneurSetup: React.FC = () => {
     }, [entrepreneur, isEditMode]);
 
 
-    const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(
             (prev) => ({ ...(prev || {}), [name]: value } as Partial<Entrepreneur>)
@@ -142,6 +157,11 @@ export const EntrepreneurSetup: React.FC = () => {
                 const num = Number(value);
                 if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
             }
+        } else if (name === "phoneNumber") {
+            if (!value) error = "Phone number is required.";
+            else if (!isValidPhoneNumber(value)) error = "Invalid phone number format.";
+        } else if (name === "country") {
+            if (!value) error = "Please select a country.";
         }
 
         setErrors(prev => {
@@ -167,6 +187,8 @@ export const EntrepreneurSetup: React.FC = () => {
             "revenue",
             "profitMargin",
             "growthRate",
+            "country",
+            "phoneNumber"
         ];
         let hasError = false;
         fieldsToCheck.forEach(f => {
@@ -241,6 +263,8 @@ export const EntrepreneurSetup: React.FC = () => {
                     revenue,
                     profitMargin,
                     growthRate,
+                    country,
+                    phoneNumber
                 } = fd as Partial<Entrepreneur>;
 
                 setEnterpreneur({
@@ -255,6 +279,8 @@ export const EntrepreneurSetup: React.FC = () => {
                     revenue,
                     profitMargin,
                     growthRate,
+                    country,
+                    phoneNumber
                 } as Entrepreneur);
 
                 setFormData(initialData || {});
@@ -335,6 +361,51 @@ export const EntrepreneurSetup: React.FC = () => {
                             </div>
                         </div>
 
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                                <Globe className="w-4 h-4" />
+                                <span>Country</span>
+                            </label>
+                            <select
+                                name="country"
+                                value={formData.country || ""}
+                                onChange={(e) => {
+                                    handleUserChange(e as any);
+                                }}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-gray-700 hover:border-green-300"
+                            >
+                                <option value="">Select Country</option>
+                                {COUNTRIES.map(c => (
+                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
+                            {errors.country && (
+                                <p className="text-sm text-red-600 mt-1">{errors.country}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                                <span>Phone Number</span>
+                            </label>
+                            <div className="phone-input-container">
+                                <PhoneInput
+                                    placeholder="Enter phone number"
+                                    value={formData.phoneNumber}
+                                    onChange={(value) => {
+                                        setFormData(prev => ({ ...prev, phoneNumber: value }));
+                                        validateField("phoneNumber", value);
+                                    }}
+                                    countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
+                                    defaultCountry={COUNTRIES.find(c => c.name === formData.country)?.code as any}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-green-500 focus-within:bg-white transition-all group-hover:border-green-300"
+                                />
+                            </div>
+                            {errors.phoneNumber && (
+                                <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
+                            )}
+                        </div>
+
                         <div className="space-y-2 md:col-span-2">
                             <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
                                 <Globe className="w-4 h-4" />
@@ -392,7 +463,7 @@ export const EntrepreneurSetup: React.FC = () => {
                                                             const existsInList = industries.some(ind => ind.name.toLowerCase() === trimmed.toLowerCase());
                                                             // Check if already selected
                                                             const alreadySelected = formData.industry?.some(ind => ind.toLowerCase() === trimmed.toLowerCase());
-                                                            
+
                                                             if (alreadySelected) {
                                                                 toast.error('Industry already selected');
                                                                 return;
@@ -420,7 +491,7 @@ export const EntrepreneurSetup: React.FC = () => {
                                                                     setIsAddingCustom(false);
                                                                 }
                                                             }
-                                                            
+
                                                             // Add to selected
                                                             const currentIndustries = formData.industry || [];
                                                             setFormData(prev => ({
@@ -440,7 +511,7 @@ export const EntrepreneurSetup: React.FC = () => {
 
                                                         const existsInList = industries.some(ind => ind.name.toLowerCase() === trimmed.toLowerCase());
                                                         const alreadySelected = formData.industry?.some(ind => ind.toLowerCase() === trimmed.toLowerCase());
-                                                        
+
                                                         if (alreadySelected) {
                                                             toast.error('Industry already selected');
                                                             return;
@@ -466,7 +537,7 @@ export const EntrepreneurSetup: React.FC = () => {
                                                                 setIsAddingCustom(false);
                                                             }
                                                         }
-                                                        
+
                                                         const currentIndustries = formData.industry || [];
                                                         setFormData(prev => ({
                                                             ...prev,
@@ -506,9 +577,8 @@ export const EntrepreneurSetup: React.FC = () => {
                                                                 }));
                                                             }
                                                         }}
-                                                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                                                            isSelected ? 'bg-green-50 text-green-700' : 'text-gray-700'
-                                                        }`}
+                                                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-green-50 text-green-700' : 'text-gray-700'
+                                                            }`}
                                                     >
                                                         <span className="flex items-center gap-2">
                                                             {industry.name}

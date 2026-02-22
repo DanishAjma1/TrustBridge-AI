@@ -14,6 +14,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardHeader } from "../ui/Card";
 import axios from "axios";
 import toast from "react-hot-toast";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
+const COUNTRIES = [
+  { code: 'US', name: 'USA' },
+  { code: 'AU', name: 'AUS' },
+  { code: 'NZ', name: 'NZ' },
+  { code: 'PK', name: 'PAK' },
+  { code: 'DE', name: 'GER' },
+  { code: 'DK', name: 'DEN' },
+  { code: 'SA', name: 'SA' },
+  { code: 'CA', name: 'CAN' }
+];
 
 type User = {
   name: string;
@@ -45,6 +58,8 @@ export const InvestorSettings: React.FC = () => {
       maxTimline: investor?.maxTimline,
       interest: "",
       criteria: "",
+      country: investor?.country || "",
+      phoneNumber: investor?.phoneNumber || "",
     }),
     [investor, user]
   );
@@ -79,7 +94,7 @@ export const InvestorSettings: React.FC = () => {
     setInvestorFormData(initialInvestorData);
   }, [initialInvestorData]);
 
-  const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setInvestorFormData({ ...investorFormData, [name]: value });
   };
@@ -144,6 +159,8 @@ export const InvestorSettings: React.FC = () => {
           successfullExits,
           minTimline,
           maxTimline,
+          country: investorFormData.country,
+          phoneNumber: investorFormData.phoneNumber,
         } as Investor);
         setInvestorFormData(initialInvestorData);
       }
@@ -190,7 +207,7 @@ export const InvestorSettings: React.FC = () => {
           <label className="text-sm font-medium text-gray-700">
             Investment Interests (Select up to 5)
           </label>
-          
+
           {/* Selected industries as chips */}
           <div className="flex flex-wrap gap-2 min-h-[32px]">
             {investorFormData.investmentInterests && investorFormData.investmentInterests.length > 0 ? (
@@ -372,6 +389,35 @@ export const InvestorSettings: React.FC = () => {
             />
           </div>
         </div>
+
+        <div className="flex flex-row gap-5">
+          <div className="flex flex-col w-1/2">
+            <label className="text-sm font-medium text-gray-700 mb-2">Country</label>
+            <select
+              name="country"
+              value={investorFormData.country || ""}
+              onChange={handleInvestorChange}
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            >
+              <option value="">Select Country</option>
+              {COUNTRIES.map(c => (
+                <option key={c.code} value={c.name}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col w-1/2">
+            <label className="text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <PhoneInput
+              placeholder="Enter phone number"
+              value={investorFormData.phoneNumber}
+              onChange={(value) => setInvestorFormData(prev => ({ ...prev, phoneNumber: value }))}
+              countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
+              defaultCountry={COUNTRIES.find(c => c.name === investorFormData.country)?.code as any}
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all"
+            />
+          </div>
+        </div>
+
         <div className="flex w-full justify-end pt-6 mt-6 border-t-2">
           <Button type="submit">Save Changes</Button>
         </div>

@@ -6,6 +6,8 @@ import {
   Calendar,
   Building2,
   MapPin,
+  Globe,
+  Phone,
   UserCircle,
   FileText,
   DollarSign,
@@ -365,6 +367,12 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                   <MapPin size={14} className="mr-1" />
                   {entrepreneur.location || "--"}
                 </Badge>
+                {entrepreneur.country && (
+                  <Badge variant="gray">
+                    <Globe size={14} className="mr-1" />
+                    {entrepreneur.country}
+                  </Badge>
+                )}
                 <Badge variant="accent">
                   <Calendar size={14} className="mr-1" />
                   Founded {entrepreneur.foundedYear || "--"}
@@ -530,23 +538,23 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
           <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsBlockModalOpen(false)}></div>
           <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
             <div className="bg-white rounded-xl w-full max-w-md relative shadow-2xl pointer-events-auto overflow-hidden">
-                <div className="p-6">
-                    <h2 className="text-xl font-bold mb-4 text-red-600">Block User</h2>
-                    <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
-                    <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                    <textarea
-                        className="w-full border rounded p-2"
-                        rows={3}
-                        value={blockReason}
-                        onChange={(e) => setBlockReason(e.target.value)}
-                    />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
-                    <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
-                    </div>
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-4 text-red-600">Block User</h2>
+                <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                  <textarea
+                    className="w-full border rounded p-2"
+                    rows={3}
+                    value={blockReason}
+                    onChange={(e) => setBlockReason(e.target.value)}
+                  />
                 </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
+                  <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
+                </div>
+              </div>
             </div>
           </div>
         </>
@@ -676,10 +684,10 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                         Upload File
                       </Button>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex items-center gap-1" 
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1"
                       onClick={() => setIsUrlModalOpen(true)}
                       disabled={isUploadingThumbnails}
                     >
@@ -694,9 +702,9 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                   {entrepreneur?.businessThumbnails && entrepreneur.businessThumbnails.length > 0 ? (
                     entrepreneur.businessThumbnails.map((url, idx) => (
                       <div key={idx} className="relative group aspect-video rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                        <img 
-                          src={url} 
-                          alt={`Showcase ${idx + 1}`} 
+                        <img
+                          src={url}
+                          alt={`Showcase ${idx + 1}`}
                           className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
                         {isCurrentUser && (
@@ -958,6 +966,30 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
               </div>
             </CardBody>
           </Card>
+
+          {/* Admin Contact Info */}
+          {isAdmin && (
+            <Card className="border-red-100 bg-white">
+              <CardHeader className="pb-2">
+                <h2 className="text-lg font-medium text-red-900 flex items-center gap-2">
+                  <Phone size={18} />
+                  Contact Info
+                </h2>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs text-red-600 font-medium uppercase tracking-wider">
+                      Phone Number
+                    </span>
+                    <p className="text-lg font-semibold text-gray-900 mt-1">
+                      {entrepreneur.phoneNumber || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          )}
 
           {/* Documents */}
           <Card>
