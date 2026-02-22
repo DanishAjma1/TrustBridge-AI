@@ -13,6 +13,19 @@ import { Card, CardHeader } from "../ui/Card";
 import { X, Plus, ChevronDown, Check, Loader2 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
+const COUNTRIES = [
+  { code: 'US', name: 'USA' },
+  { code: 'AU', name: 'AUS' },
+  { code: 'NZ', name: 'NZ' },
+  { code: 'PK', name: 'PAK' },
+  { code: 'DE', name: 'GER' },
+  { code: 'DK', name: 'DEN' },
+  { code: 'SA', name: 'SA' },
+  { code: 'CA', name: 'CAN' }
+];
 
 type User = {
   name: string;
@@ -69,6 +82,8 @@ export const EntrepreneurSettings: React.FC = () => {
       growthRate: entrepreneur?.growthRate,
       marketOpportunity: entrepreneur?.marketOpportunity,
       advantage: entrepreneur?.advantage,
+      country: entrepreneur?.country || "",
+      phoneNumber: entrepreneur?.phoneNumber || "",
     }),
     [entrepreneur]
   );
@@ -82,7 +97,7 @@ export const EntrepreneurSettings: React.FC = () => {
     setFormData(initialData || {});
   }, [initialData]);
 
-  const handleUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(
       (prev) => ({ ...(prev || {}), [name]: value } as Partial<Entrepreneur>)
@@ -153,6 +168,8 @@ export const EntrepreneurSettings: React.FC = () => {
           revenue,
           profitMargin,
           growthRate,
+          country: fd.country,
+          phoneNumber: fd.phoneNumber
         } as Entrepreneur);
 
         setFormData(initialData || {});
@@ -189,6 +206,33 @@ export const EntrepreneurSettings: React.FC = () => {
               value={formData.foundedYear}
               onChange={handleUserChange}
             />
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Country</label>
+              <select
+                name="country"
+                value={formData.country || ""}
+                onChange={handleUserChange}
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-green-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-gray-700"
+              >
+                <option value="">Select Country</option>
+                {COUNTRIES.map(c => (
+                  <option key={c.code} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Phone Number</label>
+              <PhoneInput
+                placeholder="Enter phone number"
+                value={formData.phoneNumber}
+                onChange={(value) => setFormData(prev => ({ ...prev, phoneNumber: value }))}
+                countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
+                defaultCountry={COUNTRIES.find(c => c.name === formData.country)?.code as any}
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent transition-all"
+              />
+            </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
@@ -246,7 +290,7 @@ export const EntrepreneurSettings: React.FC = () => {
 
                               const existsInList = industries.some(ind => ind.name.toLowerCase() === trimmed.toLowerCase());
                               const alreadySelected = formData.industry?.some(ind => ind.toLowerCase() === trimmed.toLowerCase());
-                              
+
                               if (alreadySelected) {
                                 toast.error('Industry already selected');
                                 return;
@@ -272,7 +316,7 @@ export const EntrepreneurSettings: React.FC = () => {
                                   setIsAddingCustom(false);
                                 }
                               }
-                              
+
                               const currentIndustries = formData.industry || [];
                               setFormData(prev => ({
                                 ...prev,
@@ -291,7 +335,7 @@ export const EntrepreneurSettings: React.FC = () => {
 
                             const existsInList = industries.some(ind => ind.name.toLowerCase() === trimmed.toLowerCase());
                             const alreadySelected = formData.industry?.some(ind => ind.toLowerCase() === trimmed.toLowerCase());
-                            
+
                             if (alreadySelected) {
                               toast.error('Industry already selected');
                               return;
@@ -317,7 +361,7 @@ export const EntrepreneurSettings: React.FC = () => {
                                 setIsAddingCustom(false);
                               }
                             }
-                            
+
                             const currentIndustries = formData.industry || [];
                             setFormData(prev => ({
                               ...prev,
@@ -355,9 +399,8 @@ export const EntrepreneurSettings: React.FC = () => {
                                 }));
                               }
                             }}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                              isSelected ? 'bg-green-50 text-green-700' : 'text-gray-700'
-                            }`}
+                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-green-50 text-green-700' : 'text-gray-700'
+                              }`}
                           >
                             <span className="flex items-center gap-2">
                               {industry.name}

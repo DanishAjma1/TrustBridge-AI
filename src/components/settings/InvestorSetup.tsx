@@ -29,6 +29,19 @@ import {
     Search
 } from "lucide-react";
 import axios from "axios";
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
+const COUNTRIES = [
+    { code: 'US', name: 'USA' },
+    { code: 'AU', name: 'AUS' },
+    { code: 'NZ', name: 'NZ' },
+    { code: 'PK', name: 'PAK' },
+    { code: 'DE', name: 'GER' },
+    { code: 'DK', name: 'DEN' },
+    { code: 'ZA', name: 'SA' },
+    { code: 'CA', name: 'CAN' }
+];
 
 type User = {
     name: string;
@@ -63,6 +76,8 @@ export const InvestorSetup: React.FC = () => {
             maxTimline: investor?.maxTimline,
             interest: "",
             criteria: "",
+            country: investor?.country || "",
+            phoneNumber: investor?.phoneNumber || "",
         }),
         [investor, user]
     );
@@ -95,7 +110,7 @@ export const InvestorSetup: React.FC = () => {
         setInvestorFormData(initialInvestorData);
     }, [initialInvestorData]);
 
-    const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setInvestorFormData({ ...investorFormData, [name]: value });
         validateField(name, value);
@@ -136,6 +151,11 @@ export const InvestorSetup: React.FC = () => {
                 if (name === "minTimline") error = "Min timeline cannot be greater than Max timeline.";
                 if (name === "maxTimline") error = "Max timeline cannot be less than Min timeline.";
             }
+        } else if (name === "phoneNumber") {
+            if (!value) error = "Phone number is required.";
+            else if (!isValidPhoneNumber(value)) error = "Invalid phone number format.";
+        } else if (name === "country") {
+            if (!value) error = "Please select a country.";
         }
 
         setErrors(prev => {
@@ -157,6 +177,8 @@ export const InvestorSetup: React.FC = () => {
             "successfullExits",
             "minTimline",
             "maxTimline",
+            "country",
+            "phoneNumber"
         ];
         let hasError = false;
         fields.forEach(f => {
@@ -219,6 +241,8 @@ export const InvestorSetup: React.FC = () => {
                     successfullExits,
                     minTimline,
                     maxTimline,
+                    country,
+                    phoneNumber
                 } = investorFormData;
                 setInvestor({
                     ...investor,
@@ -229,6 +253,8 @@ export const InvestorSetup: React.FC = () => {
                     successfullExits,
                     minTimline,
                     maxTimline,
+                    country,
+                    phoneNumber
                 } as Investor);
                 setInvestorFormData(initialInvestorData);
             }
@@ -457,6 +483,51 @@ export const InvestorSetup: React.FC = () => {
                             </div>
                         </div>
                     )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                                <Globe className="w-4 h-4" />
+                                <span>Country</span>
+                            </label>
+                            <select
+                                name="country"
+                                value={investorFormData.country || ""}
+                                onChange={handleInvestorChange}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-700 hover:border-blue-300"
+                            >
+                                <option value="">Select Country</option>
+                                {COUNTRIES.map(c => (
+                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
+                            {errors.country && (
+                                <p className="text-sm text-red-600 mt-1">{errors.country}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                                <span>Phone Number</span>
+                            </label>
+                            <div className="phone-input-container">
+                                <PhoneInput
+                                    placeholder="Enter phone number"
+                                    value={investorFormData.phoneNumber}
+                                    onChange={(value) => {
+                                        setInvestorFormData(prev => ({ ...prev, phoneNumber: value }));
+                                        validateField("phoneNumber", value);
+                                    }}
+                                    countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
+                                    defaultCountry={COUNTRIES.find(c => c.name === investorFormData.country)?.code as any}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition-all group-hover:border-blue-300"
+                                />
+                            </div>
+                            {errors.phoneNumber && (
+                                <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Investment Criteria */}
@@ -488,9 +559,9 @@ export const InvestorSetup: React.FC = () => {
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 disabled:opacity-50 group-hover:border-purple-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
-                                    {errors.investmentCriteria && (
-                                        <p className="text-sm text-red-600 mt-1">{errors.investmentCriteria}</p>
-                                    )}
+                                {errors.investmentCriteria && (
+                                    <p className="text-sm text-red-600 mt-1">{errors.investmentCriteria}</p>
+                                )}
                             </div>
                             <button
                                 type="button"

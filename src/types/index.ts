@@ -9,6 +9,8 @@ export interface User {
   location: string;
   bio: string;
   isOnline?: boolean;
+  country?: string;
+  phoneNumber?: string;
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   isBlocked?: boolean;
   isSuspended?: boolean;
