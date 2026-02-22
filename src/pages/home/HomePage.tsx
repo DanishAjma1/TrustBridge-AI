@@ -53,6 +53,22 @@ export const HomePage: React.FC = () => {
     successRate: 95
   });
 
+  // Mobile-only slide-in animation for center text on first page load
+  const [mobileSlideIn, setMobileSlideIn] = useState(false);
+
+  // trigger slide-in only on mount and only on mobile widths
+  useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (!isMobile) {
+      setMobileSlideIn(true);
+      return;
+    }
+
+    // small delay so animation is visible on page load
+    const t = setTimeout(() => setMobileSlideIn(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+
   // Fetch recent active campaigns and platform stats
   useEffect(() => {
     const fetchData = async () => {
@@ -316,7 +332,7 @@ export const HomePage: React.FC = () => {
           {/* 3 COLUMN LAYOUT */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* LEFT - CAMPAIGNS */}
-            <div className="lg:w-1/4 w-full">
+            <div className="lg:w-1/4 w-full order-3 lg:order-1">
               <div className="sticky top-24">
                 <div className="flex items-center mb-4">
                   <div className="w-1 h-6 bg-orange-500 rounded-full mr-3" />
@@ -355,8 +371,12 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* CENTER CONTENT */}
-            <div className="lg:w-1/2 w-full flex flex-col items-center justify-center py-8 lg:py-16 px-4">
-              <div className="max-w-2xl text-center space-y-6 lg:space-y-8">
+            <div className="lg:w-1/2 w-full flex flex-col items-center justify-center py-8 lg:py-16 px-4 order-1 lg:order-2">
+              <div
+                className={`max-w-2xl text-center space-y-6 lg:space-y-8 transform transition-all duration-700 ease-out ${
+                  mobileSlideIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
+              >
                 <div className="space-y-4">
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
                     Where{" "}
@@ -405,7 +425,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* RIGHT - FUNDRAISERS */}
-            <div className="lg:w-1/4 w-full">
+            <div className="lg:w-1/4 w-full order-2 lg:order-3">
               <div className="sticky top-24">
                 <div className="flex items-center mb-4">
                   <div className="w-1 h-6 bg-blue-500 rounded-full mr-3" />
@@ -582,30 +602,30 @@ export const HomePage: React.FC = () => {
 
               {/* RIGHT: Contact Info */}
               <div className="flex flex-col justify-center p-6 bg-gray-800/50 rounded-xl backdrop-blur-sm shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">Contact Info</h3>
-                <p className="text-gray-300 mb-2">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Contact Info</h3>
+                <p className="text-gray-300 text-base md:text-lg mb-2">
                   Have questions? Reach out to us anytime.
                 </p>
                 <div className="mt-4">
-                  <p className="text-gray-400 text-xs mb-1">Email</p>
+                  <p className="text-gray-400 text-sm md:text-base mb-1">Email</p>
                   <a
                     href="https://mail.google.com/mail/?view=cm&to=aitrustbridge@gmail.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center text-xs font-medium text-primary-600 hover:text-primary-500"
+                    className="mt-2 inline-flex items-center text-sm md:text-base font-medium text-primary-600 hover:text-primary-500"
                   >
                     aitrustbridge@gmail.com
                   </a>
                 </div>
                 <div className="mt-4">
-                  <p className="text-gray-400 text-xs mb-1">Address</p>
-                  <span className="text-gray-300 text-sm">
-                    123 AI Street, Tech City, Country
+                  <p className="text-gray-400 text-sm md:text-base mb-1">Address</p>
+                  <span className="text-gray-300 text-base md:text-lg">
+                    River Garden, Gujrat, Pakistan
                   </span>
                 </div>
                 <div className="mt-4">
-                  <p className="text-gray-400 text-xs mb-1">Phone</p>
-                  <span className="text-gray-300 text-sm">+1 (234) 567-890</span>
+                  <p className="text-gray-400 text-sm md:text-base mb-1">Phone</p>
+                  <span className="text-gray-300 text-base md:text-lg">+92 3226409363</span>
                 </div>
               </div>
             </div>
