@@ -56,6 +56,9 @@ export const BillingSettings: React.FC = () => {
   const [isFetchingBilling, setIsFetchingBilling] = useState(true);
   const [isFetchingInvestment, setIsFetchingInvestment] = useState(true);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [removeModalOpen, setRemoveModalOpen] = useState(false);
+  const [cardToRemove, setCardToRemove] = useState<PaymentMethod | null>(null);
+  const [confirmedNoOther, setConfirmedNoOther] = useState(false);
   const [formData, setFormData] = useState<CardFormData>({
     cardNumber: "",
     cardholderName: "",
@@ -207,24 +210,72 @@ export const BillingSettings: React.FC = () => {
   };
 
   const handleRemoveCard = async (id: string) => {
-    if (!window.confirm("Are you sure you want to remove this card?")) {
+    // Open confirmation modal instead of using window.confirm
+    const method = paymentMethods.find((m) => m.id === id) || null;
+    setCardToRemove(method);
+    setConfirmedNoOther(false);
+    setRemoveModalOpen(true);
+  };
+
+  const confirmRemoveCard = async () => {
+    if (!cardToRemove) return;
+    // Prevent removal if it's the only card and it's default unless user confirmed they have no other card
+    if (cardToRemove.isDefault && paymentMethods.length <= 1 && !confirmedNoOther) {
+      toast.error("Please confirm you have no other card before removing this one.");
       return;
     }
-
+    // If it's the only card and it's default, warn but still allow removal on confirm
+    const wasOnlyCard = cardToRemove.isDefault && paymentMethods.length <= 1;
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
-      await axios.delete(`${URL}/user/cards/${id}`, {
+      await axios.delete(`${URL}/user/cards/${cardToRemove.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      setPaymentMethods((prev) => prev.filter((method) => method.id !== id));
+
+      // Update local list
+      setPaymentMethods((prev) => {
+        const remaining = prev.filter((method) => method.id !== cardToRemove.id);
+
+        // If removed card was default and another card exists, set first as default
+        if (cardToRemove.isDefault && remaining.length > 0) {
+          // optimistically update state to mark first as default
+          const newFirstId = remaining[0].id;
+          // Call backend to set default
+          handleSetDefault(newFirstId).catch((e) => console.error(e));
+          return remaining.map((r, idx) => ({ ...r, isDefault: idx === 0 }));
+        }
+
+        return remaining;
+      });
+
+        // If user removed their only card, notify admins
+        if (wasOnlyCard) {
+          try {
+            const senderId = user?.userId || (user as any)?._id;
+            await axios.post(`${URL}/notifications/notify-admins`, {
+              senderId,
+              message: `User ${senderId} removed their only saved payment method.`,
+              link: `/admin/user/${senderId}/billing`,
+              type: 'action_required'
+            }, { headers: { Authorization: `Bearer ${token}` } });
+          } catch (err) {
+            console.error('Failed to notify admins', err);
+          }
+        }
+
       toast.success("Card removed successfully");
     } catch (error) {
       console.error("Error removing card:", error);
       const errMsg = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string } } }).response?.data?.message : undefined;
       toast.error(errMsg || "Failed to remove card");
+    } finally {
+      setIsLoading(false);
+      setRemoveModalOpen(false);
+      setCardToRemove(null);
+      setConfirmedNoOther(false);
     }
   };
 
@@ -264,6 +315,8 @@ export const BillingSettings: React.FC = () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
+
+      const prevCount = paymentMethods.length;
 
       if (editingCardId) {
         // Update existing card
@@ -311,7 +364,16 @@ export const BillingSettings: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setPaymentMethods(response.data.cards || []);
+      const cards = response.data.cards || [];
+      setPaymentMethods(cards);
+
+      // If this was the first card added, set it as default automatically
+      if (prevCount === 0 && cards.length > 0) {
+        const newCardId = cards[0].id || cards[0]._id;
+        if (newCardId) {
+          await handleSetDefault(newCardId);
+        }
+      }
 
       // Reset form and close modal
       setFormData({
@@ -578,6 +640,88 @@ export const BillingSettings: React.FC = () => {
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Card Confirmation Modal */}
+      {removeModalOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setRemoveModalOpen(false);
+              setCardToRemove(null);
+            }
+          }}
+        >
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {cardToRemove?.isDefault && paymentMethods.length <= 1
+                    ? "Confirm removal of your only saved card"
+                    : cardToRemove?.isDefault
+                    ? "Remove default card?"
+                    : "Remove card?"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setRemoveModalOpen(false);
+                    setCardToRemove(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+                              <p className="text-sm text-gray-600 mb-4">
+                                {cardToRemove?.isDefault && paymentMethods.length <= 1
+                                  ? "This is your only saved card and it's set as default. If you really have no other card, confirm below to remove it." 
+                                  : cardToRemove?.isDefault
+                                  ? "This card is set as your default. Removing it will automatically set another saved card as default (if any). Are you sure you want to remove it?"
+                                  : "Are you sure you want to remove this card?"}
+                              </p>
+
+                              {cardToRemove?.isDefault && paymentMethods.length <= 1 && (
+                                <div className="flex items-center gap-2 mt-2">
+                                  <input
+                                    type="checkbox"
+                                    id="confirmNoOther"
+                                    checked={confirmedNoOther}
+                                    onChange={(e) => setConfirmedNoOther(e.target.checked)}
+                                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                  />
+                                  <label htmlFor="confirmNoOther" className="text-sm text-gray-700">
+                                    I confirm I have no other saved payment method
+                                  </label>
+                                </div>
+                              )}
+
+              <div className="flex gap-3 pt-4 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setRemoveModalOpen(false);
+                    setCardToRemove(null);
+                  }}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={confirmRemoveCard}
+                  isLoading={isLoading}
+                  disabled={!!(cardToRemove?.isDefault && paymentMethods.length <= 1 && !confirmedNoOther)}
+                >
+                  Remove Card
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -39,6 +39,7 @@ export const DealForm: React.FC<DealFormProps> = ({
         rofr: initialData?.rofr || "No",
         exitStrategy: initialData?.exitStrategy || "Acquisition",
         exitTimeline: initialData?.exitTimeline,
+        contractDurationYears: initialData?.contractDurationYears || 1,
         additionalTerms: initialData?.additionalTerms || "",
         stage: initialData?.stage || "Seed", 
     });
@@ -259,15 +260,17 @@ export const DealForm: React.FC<DealFormProps> = ({
                                 className={`mt-1 w-full border border-gray-300 rounded-md p-2 ${readOnly ? "bg-gray-100" : ""}`}
                             >
                                 <option value="Equity">Equity</option>
-                                <option value="Convertible Note">Convertible Note</option>
-                                <option value="SAFE">SAFE</option>
-                                <option value="Debt">Debt</option>
+                                {/* <option value="Convertible Note">Convertible Note</option> */}
+                                {/* <option value="SAFE">SAFE</option> */}
+                                {/* <option value="Debt">Debt</option> */}
                             </select>
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700">
                                 Funding Stage
                             </label>
+                            {/* Make Funding Stage read-only: comment out editable dropdown */}
+                            {/*
                             <select
                                 name="stage"
                                 value={formData.stage}
@@ -281,6 +284,14 @@ export const DealForm: React.FC<DealFormProps> = ({
                                 <option value="Series B">Series B</option>
                                 <option value="Late Stage">Late Stage</option>
                             </select>
+                            */}
+                            <input
+                                type="text"
+                                name="stage"
+                                value={formData.stage}
+                                readOnly
+                                className="mt-1 w-full bg-gray-100 border-gray-300 rounded-md p-2 text-gray-600 cursor-not-allowed"
+                            />
                         </div>
                     </div>
                 </div>
@@ -382,6 +393,18 @@ export const DealForm: React.FC<DealFormProps> = ({
                                 onChange={handleChange}
                                 readOnly={readOnly}
                                 placeholder="e.g., 3-5 years"
+                                className={`mt-1 w-full border border-gray-300 rounded-md p-2 ${readOnly ? "bg-gray-100" : ""}`}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Contract Duration (years)</label>
+                            <input
+                                type="number"
+                                name="contractDurationYears"
+                                value={formData.contractDurationYears}
+                                onChange={handleChange}
+                                readOnly={readOnly}
+                                min={1}
                                 className={`mt-1 w-full border border-gray-300 rounded-md p-2 ${readOnly ? "bg-gray-100" : ""}`}
                             />
                         </div>
