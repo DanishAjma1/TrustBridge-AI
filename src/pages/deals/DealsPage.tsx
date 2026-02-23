@@ -30,6 +30,8 @@ export const DealsPage: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isAdditionalInvestmentModal, setIsAdditionalInvestmentModal] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelDealId, setCancelDealId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDeals();
@@ -51,14 +53,14 @@ export const DealsPage: React.FC = () => {
 
   const handleDealStatus = async (
     dealId: string,
-    action: "accept" | "reject"
+    action: "accept" | "reject" | "cancel"
   ) => {
     try {
       await axios.put(`${URL}/deal/update-deal/${dealId}`, {
         action,
         role: "investor",
       });
-      toast.success(`Deal ${action === 'accept' ? 'accepted' : 'rejected'}!`);
+      toast.success(`Deal ${action === 'accept' ? 'accepted' : action === 'cancel' ? 'cancelled' : 'rejected'}!`);
       fetchDeals(); // Refresh list
     } catch (error) {
       console.error(`Error ${action}ing deal:`, error);
@@ -138,6 +140,20 @@ export const DealsPage: React.FC = () => {
                   >
                     See Details
                   </Button>
+
+                  {/* Allow investor to cancel the deal until it's accepted */}
+                  {user?.userId && user?.role === 'investor' && ((deal.investorId && (deal.investorId._id ? deal.investorId._id : deal.investorId)) === user.userId) && deal.status !== 'accepted' && deal.status !== 'rejected' && deal.status !== 'cancelled' && (
+                    <Button
+                      variant="ghost"
+                      className="text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        setCancelDealId(deal._id);
+                        setCancelModalOpen(true);
+                      }}
+                    >
+                      Cancel Deal
+                    </Button>
+                  )}
 
                   {(deal.status === "negotiating" && deal.lastActionBy === 'entrepreneur') && (
                     <>
@@ -285,6 +301,35 @@ export const DealsPage: React.FC = () => {
           dealId={selectedDeal._id}
           onClose={() => setIsReceiptModalOpen(false)}
         />
+      )}
+
+      {/* Cancel Deal Confirmation Modal */}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Cancel Deal</h3>
+                  <p className="text-sm text-gray-600 mt-2">Are you sure you want to cancel this deal? This action cannot be undone.</p>
+                </div>
+                <button onClick={() => { setCancelModalOpen(false); setCancelDealId(null); }} className="text-gray-400 hover:text-gray-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+                </button>
+              </div>
+
+              <div className="mt-4 flex justify-end gap-3">
+                <Button variant="outline" onClick={() => { setCancelModalOpen(false); setCancelDealId(null); }}>Cancel</Button>
+                <Button variant="primary" onClick={async () => {
+                  if (!cancelDealId) return;
+                  setCancelModalOpen(false);
+                  await handleDealStatus(cancelDealId, 'cancel');
+                  setCancelDealId(null);
+                }}>Confirm Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

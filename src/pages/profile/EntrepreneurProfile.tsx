@@ -35,6 +35,8 @@ import { useAuth } from "../../context/AuthContext";
 import {
   checkRequestsFromInvestor,
   createCollaborationRequest,
+  getRequestBetween,
+  updateRequestStatus,
 } from "../../data/collaborationRequests";
 import { Entrepreneur } from "../../types";
 import { AmountMeasureWithTags, getEnterpreneurById, updateEntrepreneurData } from "../../data/users";
@@ -163,6 +165,24 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
 
   const isCurrentUser = currentUser?.userId === entrepreneur?.userId;
   console.log("CurrentUser:", currentUser?.userId);
+
+        const handleCancelRequest = async () => {
+          if (isInvestor && currentUser && id) {
+            try {
+              const req = await getRequestBetween(currentUser.userId, id);
+              if (!req) {
+                setRequestStatus(null);
+                return;
+              }
+              await updateRequestStatus((req as any)._id, "rejected");
+              setRequestStatus(null);
+              toast.success("Request cancelled");
+            } catch (error) {
+              console.error(error);
+              toast.error("Failed to cancel request");
+            }
+          }
+        };
   console.log("EntrepreneurUser:", entrepreneur?.userId);
   console.log("IsCurrentUser:", isCurrentUser);
 
@@ -401,25 +421,25 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                   )}
 
                   {isInvestor && (
-                    <Button
-                      leftIcon={
-                        requestStatus === "pending" ? (
-                          <Clock size={18} />
-                        ) : requestStatus === "accepted" ? (
-                          <Check size={18} />
-                        ) : (
-                          <Send size={18} />
-                        )
-                      }
-                      disabled={requestStatus === "pending" || requestStatus === "accepted"}
-                      onClick={handleSendRequest}
-                    >
-                      {requestStatus === "pending"
-                        ? "Request Sent"
-                        : requestStatus === "accepted"
-                          ? "Request Accepted"
-                          : "Request Collaboration"}
-                    </Button>
+                    <>
+                      {requestStatus === "pending" ? (
+                        <Button
+                          variant="outline"
+                          leftIcon={<X size={18} />}
+                          onClick={handleCancelRequest}
+                        >
+                          Cancel Request
+                        </Button>
+                      ) : requestStatus === "accepted" ? (
+                        <Button leftIcon={<Check size={18} />} disabled>
+                          Request Accepted
+                        </Button>
+                      ) : (
+                        <Button leftIcon={<Send size={18} />} onClick={handleSendRequest}>
+                          Request Collaboration
+                        </Button>
+                      )}
+                    </>
                   )}
                 </>
               )

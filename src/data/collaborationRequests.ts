@@ -53,6 +53,25 @@ export const checkRequestsFromInvestor = async (
   }
 };
 
+// Helper to fetch the full request object between an investor and entrepreneur
+export const getRequestBetween = async (
+  inves_id: string | undefined,
+  enter_id: string | undefined
+): Promise<CollaborationRequest | null> => {
+  try {
+    const res = await axios.post(
+      URL + "/requests/check-request-for-investor",
+      { inves_id, enter_id },
+      { withCredentials: true }
+    );
+    const { request } = res.data;
+    return request || null;
+  } catch (error) {
+    console.error("getRequestBetween error:", error);
+    return null;
+  }
+};
+
 // Helper function to update a collaboration request status
 export const updateRequestStatus = async (
   requestId: string,
@@ -64,7 +83,6 @@ export const updateRequestStatus = async (
     { withCredentials: true }
   );
   const { request } = res.data;
-  toast.success("request status updated");
   return request;
 };
 
