@@ -384,7 +384,7 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                 {(investor.portfolio && investor.portfolio.length > 0) ? (
                   investor.portfolio.map((company, index) => (
                     <Link
-                      to={`/ profile / entrepreneur / ${company.userId} `}
+                      to={`/profile/entrepreneur/${company.userId}`}
                       key={index}
                       className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
                     >
