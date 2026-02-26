@@ -111,7 +111,22 @@ export const InvestorSetup: React.FC = () => {
     }, [initialInvestorData]);
 
     const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        // Prevent negative and invalid input for number fields
+        if (type === "number") {
+            // Disallow negative sign and 'e' for all number fields
+            if (value.includes("-") || value.includes("e") || value.includes("E")) {
+                return;
+            }
+            // For integer fields, disallow decimals
+            if (["successfullExits", "minTimline", "maxTimline"].includes(name) && value.includes(".")) {
+                return;
+            }
+            // Prevent non-numeric input
+            if (value && !/^\d*$/.test(value)) {
+                return;
+            }
+        }
         setInvestorFormData({ ...investorFormData, [name]: value });
         validateField(name, value);
     };
@@ -625,6 +640,12 @@ export const InvestorSetup: React.FC = () => {
                                     onChange={handleInvestorChange}
                                     placeholder="Minimum amount"
                                     min="0"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onWheel={e => (e.target as HTMLInputElement).blur()}
+                                    onKeyDown={e => {
+                                        if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                                    }}
                                     className="w-full pl-10 pr-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
@@ -648,6 +669,12 @@ export const InvestorSetup: React.FC = () => {
                                     onChange={handleInvestorChange}
                                     placeholder="Maximum amount"
                                     min="0"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onWheel={e => (e.target as HTMLInputElement).blur()}
+                                    onKeyDown={e => {
+                                        if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                                    }}
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
@@ -670,6 +697,12 @@ export const InvestorSetup: React.FC = () => {
                                     onChange={handleInvestorChange}
                                     placeholder="Number of exits"
                                     min="0"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onWheel={e => (e.target as HTMLInputElement).blur()}
+                                    onKeyDown={e => {
+                                        if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+                                    }}
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
@@ -692,6 +725,12 @@ export const InvestorSetup: React.FC = () => {
                                     onChange={handleInvestorChange}
                                     placeholder="Minimum months"
                                     min="0"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onWheel={e => (e.target as HTMLInputElement).blur()}
+                                    onKeyDown={e => {
+                                        if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+                                    }}
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
@@ -715,6 +754,12 @@ export const InvestorSetup: React.FC = () => {
                                     onChange={handleInvestorChange}
                                     placeholder="Maximum months"
                                     min="0"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onWheel={e => (e.target as HTMLInputElement).blur()}
+                                    onKeyDown={e => {
+                                        if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+                                    }}
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
                                 />
                                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
