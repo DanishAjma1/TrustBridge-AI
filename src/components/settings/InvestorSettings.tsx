@@ -94,9 +94,65 @@ export const InvestorSettings: React.FC = () => {
     setInvestorFormData(initialInvestorData);
   }, [initialInvestorData]);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    // Prevent negative and invalid input for number fields
+    if (type === "number") {
+      // Disallow negative sign and 'e' for all number fields
+      if (value.includes("-") || value.includes("e") || value.includes("E")) {
+        return;
+      }
+      // For integer fields, disallow decimals
+      if (["successfullExits", "minTimline", "maxTimline"].includes(name) && value.includes(".")) {
+        return;
+      }
+      // Prevent non-numeric input
+      if (value && !/^\d*$/.test(value)) {
+        return;
+      }
+    }
     setInvestorFormData({ ...investorFormData, [name]: value });
+    validateField(name, value);
+  };
+
+  const validateField = (name: string, value: any) => {
+    let error = "";
+    if (name === "minimumInvestment" || name === "maximumInvestment") {
+      if (value !== "" && value !== undefined && value !== null) {
+        const num = Number(value);
+        if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
+      }
+      const min = Number(name === "minimumInvestment" ? value : investorFormData.minimumInvestment);
+      const max = Number(name === "maximumInvestment" ? value : investorFormData.maximumInvestment);
+      if (!isNaN(min) && !isNaN(max) && min > max) {
+        if (name === "minimumInvestment") error = "Min cannot be greater than Max.";
+        if (name === "maximumInvestment") error = "Max cannot be less than Min.";
+      }
+    } else if (name === "successfullExits" || name === "minTimline" || name === "maxTimline") {
+      if (value !== "" && value !== undefined && value !== null) {
+        const num = Number(value);
+        if (!Number.isInteger(num) || num < 0) error = "Must be a non-negative integer.";
+      }
+      const minT = Number(name === "minTimline" ? value : investorFormData.minTimline);
+      const maxT = Number(name === "maxTimline" ? value : investorFormData.maxTimline);
+      if (!isNaN(minT) && !isNaN(maxT) && minT > maxT) {
+        if (name === "minTimline") error = "Min timeline cannot be greater than Max timeline.";
+        if (name === "maxTimline") error = "Max timeline cannot be less than Min timeline.";
+      }
+    } else if (name === "phoneNumber") {
+      if (!value) error = "Phone number is required.";
+    } else if (name === "country") {
+      if (!value) error = "Please select a country.";
+    }
+    setErrors(prev => {
+      const next = { ...prev };
+      if (error) next[name] = error;
+      else delete next[name];
+      return next;
+    });
+    return error;
   };
   const handleInvestorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -356,6 +412,15 @@ export const InvestorSettings: React.FC = () => {
               name="minimumInvestment"
               value={investorFormData.minimumInvestment}
               onChange={handleInvestorChange}
+              min="0"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onWheel={e => (e.target as HTMLInputElement).blur()}
+              onKeyDown={e => {
+                if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+              }}
+              error={!!errors.minimumInvestment}
+              helperText={errors.minimumInvestment}
             />
             <Input
               type="number"
@@ -363,6 +428,15 @@ export const InvestorSettings: React.FC = () => {
               name="maximumInvestment"
               value={investorFormData.maximumInvestment}
               onChange={handleInvestorChange}
+              min="0"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onWheel={e => (e.target as HTMLInputElement).blur()}
+              onKeyDown={e => {
+                if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+              }}
+              error={!!errors.maximumInvestment}
+              helperText={errors.maximumInvestment}
             />
             <Input
               type="number"
@@ -370,6 +444,15 @@ export const InvestorSettings: React.FC = () => {
               name="successfullExits"
               value={investorFormData.successfullExits}
               onChange={handleInvestorChange}
+              min="0"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onWheel={e => (e.target as HTMLInputElement).blur()}
+              onKeyDown={e => {
+                if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+              }}
+              error={!!errors.successfullExits}
+              helperText={errors.successfullExits}
             />
           </div>
           <div className="flex gap-5 w-1/2 flex-col pl-4">
@@ -379,6 +462,15 @@ export const InvestorSettings: React.FC = () => {
               name="minTimline"
               value={investorFormData.minTimline}
               onChange={handleInvestorChange}
+              min="0"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onWheel={e => (e.target as HTMLInputElement).blur()}
+              onKeyDown={e => {
+                if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+              }}
+              error={!!errors.minTimline}
+              helperText={errors.minTimline}
             />
             <Input
               type="number"
@@ -386,6 +478,15 @@ export const InvestorSettings: React.FC = () => {
               name="maxTimline"
               value={investorFormData.maxTimline}
               onChange={handleInvestorChange}
+              min="0"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onWheel={e => (e.target as HTMLInputElement).blur()}
+              onKeyDown={e => {
+                if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
+              }}
+              error={!!errors.maxTimline}
+              helperText={errors.maxTimline}
             />
           </div>
         </div>
@@ -410,11 +511,17 @@ export const InvestorSettings: React.FC = () => {
             <PhoneInput
               placeholder="Enter phone number"
               value={investorFormData.phoneNumber}
-              onChange={(value) => setInvestorFormData(prev => ({ ...prev, phoneNumber: value }))}
+              onChange={(value) => {
+                setInvestorFormData(prev => ({ ...prev, phoneNumber: value }));
+                validateField("phoneNumber", value);
+              }}
               countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
               defaultCountry={COUNTRIES.find(c => c.name === investorFormData.country)?.code as any}
               className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all"
             />
+            {errors.phoneNumber && (
+              <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
+            )}
           </div>
         </div>
 

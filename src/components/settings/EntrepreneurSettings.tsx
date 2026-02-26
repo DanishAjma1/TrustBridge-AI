@@ -97,11 +97,24 @@ export const EntrepreneurSettings: React.FC = () => {
     setFormData(initialData || {});
   }, [initialData]);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const handleUserChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    if (type === "number") {
+      if (value.includes("-") || value.includes("e") || value.includes("E")) {
+        return;
+      }
+      if (["foundedYear", "teamSize"].includes(name) && value.includes(".")) {
+        return;
+      }
+      if (value && !/^\d*$/.test(value)) {
+        return;
+      }
+    }
     setFormData(
       (prev) => ({ ...(prev || {}), [name]: value } as Partial<Entrepreneur>)
     );
+    validateField(name, value);
   };
 
   const handleUserSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
