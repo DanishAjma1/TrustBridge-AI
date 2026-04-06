@@ -894,11 +894,22 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
               <h2 className="text-lg font-medium text-gray-900">Funding</h2>
             </CardHeader>
             <CardBody>
-              <div className="space-y-4">
+              <div className="gap-4 grid grid-cols-2 items-center mb-6">
+
+                <div>
+                  <span className="text-sm text-gray-500">Valuation</span>
+                  <div className="flex items-center">
+                    <DollarSign size={18} className="text-accent-600" />
+                    <p className="text-lg font-semibold text-gray-900">
+                      {AmountMeasureWithTags(valuation ?? 0)}
+                    </p>
+                  </div>
+                </div>
+
                 <div>
                   <span className="text-sm text-gray-500">Fund needed</span>
-                  <div className="flex items-center mt-1">
-                    <DollarSign size={18} className="text-accent-600 mr-1" />
+                  <div className="flex items-center">
+                    <DollarSign size={18} className="text-accent-600" />
                     <p className="text-lg font-semibold text-gray-900">
                       {AmountMeasureWithTags(entrepreneur.fundingNeeded ?? 0)}
                     </p>
@@ -906,11 +917,19 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                 </div>
 
                 <div>
-                  <span className="text-sm text-gray-500">Valuation</span>
+                  <span className="text-sm text-gray-500">Reveneue</span>
                   <p className="text-md font-medium text-gray-900">
-                    ${AmountMeasureWithTags(valuation ?? 0)}
+                    $ {AmountMeasureWithTags(Number(entrepreneur.revenue ?? 0))}
                   </p>
                 </div>
+                <div>
+                  <span className="text-sm text-gray-500">Profit Margin</span>
+                  <p className="text-md font-medium text-gray-900">
+                    {(entrepreneur.profitMargin ?? 0)}%
+                  </p>
+                </div>
+                  </div>
+
 
                 <div>
                   <span className="text-sm text-gray-500">
@@ -981,7 +1000,6 @@ export const EntrepreneurProfile: React.FC<Props> = ({ userId }) => {
                         {fundAmount > 20000000 ? "Completed" : "In progress"}
                       </span>
                     </div>
-                  </div>
                 </div>
               </div>
             </CardBody>

@@ -547,7 +547,7 @@ ${codesText}`;
   return (
     <div className="space-y-6">
         {/* Push Notification Control */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Globe className="text-primary-600" size={20} />
@@ -571,7 +571,7 @@ ${codesText}`;
               </div>
             )}
           </CardBody>
-        </Card>
+        </Card> */}
       {/* Two-Factor Authentication */}
       <Card>
         <CardHeader>
