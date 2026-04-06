@@ -4,7 +4,7 @@ import { InvestorSetup } from "../settings/InvestorSetup";
 import { EntrepreneurSetup } from "../settings/EntrepreneurSetup";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../ui/Card";
-import { Building2, TrendingUp, Sparkles, LogOut } from "lucide-react";
+import { Building2, TrendingUp } from "lucide-react";
 
 export const UserDetails: React.FC = () => {
   const [role, setRole] = useState<string | null>(null);

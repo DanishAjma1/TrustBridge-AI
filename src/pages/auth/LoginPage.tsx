@@ -18,14 +18,12 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../components/ui/Button";
 import { UserRole } from "../../types";
-import toast from "react-hot-toast";
-import axios from "axios";
 
 export const LoginPage: React.FC = () => {
+  const roleFromState = useLocation().state?.role as UserRole | undefined;
   const [email, setEmail] = useState("");
-   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("entrepreneur");
+  const [role, setRole] = useState<UserRole>(roleFromState ?? "entrepreneur");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -113,7 +111,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  if (password.length < 6 && email !== "en@gmail.com" && email !== "in@gmail.com"&& email !== "admin@gmail.com") { 
+  if (password.length < 6 && email !== "en@gmail.com" && email !== "danish9087@gmail.com"&& email !== "admin@gmail.com") { 
      // Basic length check to prevent sending obviously wrong passwords
     setError('Password must be at least 6 characters.');
     return;
@@ -215,11 +213,11 @@ const handleSubmit = async (e: React.FormEvent) => {
       setEmail("en@gmail.com");
       setPassword("123");
     } else if (userRole === "investor") {
-      setEmail("in@gmail.com");
-      setPassword("123");
+      setEmail("danish9087@gmail.com");
+      setPassword("Danish1234$");
     } else {
-      setEmail("admin@trust.com");
-      setPassword("admin123");
+      setEmail("admin@gmail.com");
+      setPassword("123");
     }
     setRole(userRole);
   };

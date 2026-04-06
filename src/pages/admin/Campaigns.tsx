@@ -25,7 +25,9 @@ export const Campaigns: React.FC = () => {
   const [filtered, setFiltered] = useState<Campaign[]>([]);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingCampaign, setEditingCampaign] = useState<Campaign | undefined>(undefined);
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | undefined>(
+    undefined,
+  );
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [campaignToDelete, setCampaignToDelete] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -93,7 +95,7 @@ export const Campaigns: React.FC = () => {
       (c) =>
         c.title.toLowerCase().includes(q) ||
         c.description.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q)
+        c.category.toLowerCase().includes(q),
     );
     setFiltered(result);
   };
@@ -117,7 +119,9 @@ export const Campaigns: React.FC = () => {
   const categories = ["All", ...new Set(campaigns.map((c) => c.category))];
   const chartData = campaigns
     .filter((c) => c.status === "active")
-    .filter((c) => selectedCategory === "All" || c.category === selectedCategory)
+    .filter(
+      (c) => selectedCategory === "All" || c.category === selectedCategory,
+    )
     .map((c) => ({
       name: c.title,
       raised: c.raisedAmount,
@@ -186,10 +190,15 @@ export const Campaigns: React.FC = () => {
               <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
                 Campaign Progress Analytics
               </h2>
-              <p className="text-xs text-gray-500 mt-1">Funding status of active campaigns</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Funding status of active campaigns
+              </p>
             </div>
             <div className="flex items-center gap-3">
-              <label htmlFor="category-select" className="text-sm font-semibold text-gray-600">
+              <label
+                htmlFor="category-select"
+                className="text-sm font-semibold text-gray-600"
+              >
                 Filter:
               </label>
               <select
@@ -212,11 +221,24 @@ export const Campaigns: React.FC = () => {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-3">
                 <div className="p-4 bg-gray-50 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
                   </svg>
                 </div>
-                <p className="font-medium">No active campaigns found in this category</p>
+                <p className="font-medium">
+                  No active campaigns found in this category
+                </p>
               </div>
             )}
           </div>
@@ -243,26 +265,37 @@ export const Campaigns: React.FC = () => {
           <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9998] bg-black/30 backdrop-blur-md"></div>
           <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex justify-center items-center p-2 sm:p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl relative my-4 max-h-[95vh] overflow-y-auto">
-            <button
-              onClick={() => setShowForm(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="p-4 sm:p-6">
-              <CampForm
-                onSuccess={() => {
-                  fetchCampaigns();
-                  setShowForm(false);
-                  setEditingCampaign(undefined);
-                }}
-                initialData={editingCampaign}
-              />
+              <button
+                onClick={() => setShowForm(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+              <div className="p-4 sm:p-6">
+                <CampForm
+                  onSuccess={() => {
+                    fetchCampaigns();
+                    setShowForm(false);
+                    setEditingCampaign(undefined);
+                  }}
+                  initialData={editingCampaign}
+                />
+              </div>
             </div>
           </div>
-        </div>
         </>
       )}
 
@@ -285,7 +318,7 @@ export const Campaigns: React.FC = () => {
 
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
+        className="grid grid-cols-1 md:grid-cols-3 grid-flow-col gap-4 scroll-smooth snap-x snap-mandatory pb-4"
       >
         {filtered.map((c) => (
           <div
@@ -344,8 +377,9 @@ export const Campaigns: React.FC = () => {
             <p className="text-xs mb-3">
               Status:{" "}
               <span
-                className={`font-semibold ${c.status === "active" ? "text-green-500" : "text-red-500"
-                  }`}
+                className={`font-semibold ${
+                  c.status === "active" ? "text-green-500" : "text-red-500"
+                }`}
               >
                 {c.status}
               </span>
@@ -388,7 +422,6 @@ export const Campaigns: React.FC = () => {
               </div>
             </div>
           </div>
-
         ))}
       </div>
 
@@ -404,8 +437,18 @@ export const Campaigns: React.FC = () => {
           >
             <div className="flex items-start mb-4">
               <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <svg
+                  className="w-6 h-6 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
                 </svg>
               </div>
               <div className="ml-4 flex-1">
@@ -413,7 +456,8 @@ export const Campaigns: React.FC = () => {
                   Delete Campaign?
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Are you sure you want to delete this campaign? This action cannot be undone and all data will be permanently removed.
+                  Are you sure you want to delete this campaign? This action
+                  cannot be undone and all data will be permanently removed.
                 </p>
               </div>
             </div>

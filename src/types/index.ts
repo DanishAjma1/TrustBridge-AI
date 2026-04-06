@@ -65,7 +65,7 @@ export interface Investor extends User {
   investmentCriteria: string[] | undefined;
   successfullExits: number | undefined;
   minTimline: number | undefined;
-  maxTimline: number | undefined;
+  maxTimline: Date | undefined;
   portfolio?: {
     startupName: string;
     avatarUrl: string;
