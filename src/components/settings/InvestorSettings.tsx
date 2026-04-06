@@ -452,8 +452,6 @@ export const InvestorSettings: React.FC = () => {
               value={investorFormData.minimumInvestment}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E"].includes(e.key)) e.preventDefault();
@@ -470,8 +468,6 @@ export const InvestorSettings: React.FC = () => {
               value={investorFormData.maximumInvestment}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E"].includes(e.key)) e.preventDefault();
@@ -488,8 +484,6 @@ export const InvestorSettings: React.FC = () => {
               value={investorFormData.successfullExits}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
@@ -508,8 +502,6 @@ export const InvestorSettings: React.FC = () => {
               value={investorFormData.minTimline}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
@@ -526,8 +518,6 @@ export const InvestorSettings: React.FC = () => {
               value={investorFormData.maxTimline}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
