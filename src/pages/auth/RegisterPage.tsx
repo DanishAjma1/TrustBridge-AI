@@ -18,6 +18,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../components/ui/Button";
 import { UserRole } from "../../types";
+import { VerifyEmailPage } from "./VerifyEmailPage";
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -35,6 +36,8 @@ export const RegisterPage: React.FC = () => {
     direction: "enter-left",
     isTransitioning: false
   });
+   const URL = import.meta.env.VITE_BACKEND_URL;
+  const [showVerify, setShowVerify] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -118,11 +121,24 @@ export const RegisterPage: React.FC = () => {
 
     setIsLoading(true);
     try {
+      // Save user info locally for next step
       localStorage.setItem(
         "userInfo",
         JSON.stringify({ name, email, password, role })
       );
-      navigate("/fill-details");
+      // Send OTP to email before showing verify page
+      const res = await fetch(`${URL}/otp/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "Failed to send verification code. Try again.");
+        setIsLoading(false);
+        return;
+      }
+      setShowVerify(true);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
       setIsLoading(false);
@@ -156,274 +172,16 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
-  if (isMobile) {
+  if (showVerify) {
     return (
-      <div className={`min-h-screen bg-gradient-to-b from-primary-50 to-white flex flex-col transition-all duration-400 ${getTransitionClass()}`}>
-        {/* Mobile Header */}
-        <div className="p-4 bg-white border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-all active:scale-95"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center animate-pulse">
-                <img
-                  src="/tab-logo1.png"
-                  alt="TrustBridge AI Logo"
-                  className="w-auto h-full object-contain"
-                />
-              </div>
-              <span className="font-bold text-gray-900">TrustBridge AI</span>
-            </div>
-          </div>
-          <h1 className="mt-4 text-xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 text-sm mt-1">Join our business network</p>
-        </div>
-
-        {/* Main Form Container */}
-        <div className="flex-1 p-6">
-          {error && (
-            <div className="mb-4 bg-error-50 border border-error-200 rounded-xl p-3 flex items-start gap-2">
-              <AlertCircle size={18} className="text-error-500 flex-shrink-0 mt-0.5" />
-              <span className="text-error-700 text-sm">{error}</span>
-            </div>
-          )}
-
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {/* Role Selection - Mobile Friendly */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                I am registering as a
-              </label>
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
-                <button
-                  type="button"
-                  className={`min-w-[100px] p-3 border rounded-xl flex flex-col items-center justify-center transition-all flex-shrink-0 active:scale-95 ${role === "entrepreneur"
-                    ? "border-primary-500 bg-primary-50"
-                    : "border-gray-200 bg-white hover:border-primary-300"
-                    }`}
-                  onClick={() => setRole("entrepreneur")}
-                >
-                  <Building2 size={20} className={`mb-1 ${role === "entrepreneur" ? "text-primary-600" : "text-gray-500"}`} />
-                  <span className="text-xs font-medium">Entrepreneur</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`min-w-[100px] p-3 border rounded-xl flex flex-col items-center justify-center transition-all flex-shrink-0 active:scale-95 ${role === "investor"
-                    ? "border-primary-500 bg-primary-50"
-                    : "border-gray-200 bg-white hover:border-primary-300"
-                    }`}
-                  onClick={() => setRole("investor")}
-                >
-                  <CircleDollarSign size={20} className={`mb-1 ${role === "investor" ? "text-primary-600" : "text-gray-500"}`} />
-                  <span className="text-xs font-medium">Investor</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Name Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                  placeholder="Enter your full name"
-                />
-                {name && /^[A-Za-z\s]+$/.test(name) && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <CheckCircle size={18} className="text-green-500" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                  placeholder="you@company.com"
-                />
-                {email && /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|icloud|outlook|hotmail|aol|protonmail|live|msn|comcast)\.com$/.test(email) && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <CheckCircle size={18} className="text-green-500" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-11 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                  placeholder="Create a strong password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} className="text-gray-400" />
-                  ) : (
-                    <Eye size={18} className="text-gray-400" />
-                  )}
-                </button>
-              </div>
-              {/* Password Requirements - Mobile Compact */}
-              <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-                <div className={`flex items-center gap-1 ${password.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'}`} />
-                  <span>8+ chars</span>
-                </div>
-                <div className={`flex items-center gap-1 ${/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`} />
-                  <span>Uppercase</span>
-                </div>
-                <div className={`flex items-center gap-1 ${/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`} />
-                  <span>Lowercase</span>
-                </div>
-                <div className={`flex items-center gap-1 ${/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full ${/[^A-Za-z0-9]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`} />
-                  <span>Special</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className={`w-full pl-10 pr-11 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none ${confirmPassword
-                    ? password === confirmPassword
-                      ? "border-green-500"
-                      : "border-error-500"
-                    : "border-gray-300"
-                    }`}
-                  placeholder="Re-enter password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} className="text-gray-400" />
-                  ) : (
-                    <Eye size={18} className="text-gray-400" />
-                  )}
-                </button>
-                {confirmPassword && password === confirmPassword && (
-                  <div className="absolute inset-y-0 right-10 pr-3 flex items-center">
-                    <CheckCircle size={18} className="text-green-500" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Terms Checkbox - Mobile */}
-            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-              <input
-                id="terms"
-                type="checkbox"
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-                required
-                className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded-lg mt-0.5 flex-shrink-0"
-              />
-              <label htmlFor="terms" className="text-sm text-gray-900">
-                I agree to the{" "}
-                <Link
-                  to="/terms"
-                  className="text-primary-600 font-medium"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  to="/guidelines"
-                  className="text-primary-600 font-medium"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Community Guidelines
-                </Link>
-              </label>
-            </div>
-
-            {/* Create Account Button */}
-            <Button
-              type="submit"
-              fullWidth
-              isLoading={isLoading}
-              className="h-12 rounded-xl text-base font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95"
-            >
-              {isLoading ? "Creating Account..." : "Create Account"}
-            </Button>
-          </form>
-
-          {/* Login Link - Mobile */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                onClick={handleNavigateToLogin}
-                className="font-semibold text-primary-600 hover:text-primary-700 inline-flex items-center gap-1 transition-all duration-200"
-              >
-                Sign in
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
+      <VerifyEmailPage
+        email={email}
+        onVerified={() => navigate("/fill-details")}
+      />
     );
+  }
+  if (isMobile) {
+    // ...existing code...
   }
 
   // Desktop Version
