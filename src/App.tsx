@@ -71,6 +71,7 @@ import { AdminDealsPage } from "./pages/admin/AdminDealsPage";
 import { AdminDealPayments } from "./pages/admin/AdminDealPayments";
 import { PWAInstallPrompt } from "./components/pwa/PWAInstallPrompt";
 import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
+import { TrustBridgeAIChatbot } from "./components/ai/TrustBridgeAIChatbot";
 
 function App() {
   useDynamicFavicon();
@@ -199,6 +200,7 @@ function App() {
                 element={<Navigate to="/login" replace />}
               />
             </Routes>
+            <TrustBridgeAIChatbot />
           </Router>
           <PWAInstallPrompt />
           <Toaster position="top-right" reverseOrder={false} />
