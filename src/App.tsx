@@ -37,8 +37,16 @@ import { HelpPage } from "./pages/help/HelpPage";
 import { ChatPage } from "./pages/chat/ChatPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-import { VideoCall } from "./pages/webRTC/Videocall";
-import { AudioCall } from "./pages/webRTC/AudioCall";
+const VideoCall = React.lazy(() =>
+  import("./pages/webRTC/Videocall").then((module) => ({
+    default: module.VideoCall,
+  })),
+);
+const AudioCall = React.lazy(() =>
+  import("./pages/webRTC/AudioCall").then((module) => ({
+    default: module.AudioCall,
+  })),
+);
 import { Toaster } from "react-hot-toast";
 import { HomePage } from "./pages/home/HomePage";
 import { Supporters } from "./pages/admin/supporters";
@@ -71,6 +79,7 @@ import { AdminDealsPage } from "./pages/admin/AdminDealsPage";
 import { AdminDealPayments } from "./pages/admin/AdminDealPayments";
 import { PWAInstallPrompt } from "./components/pwa/PWAInstallPrompt";
 import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
+import React, { Suspense } from "react";
 
 function App() {
   useDynamicFavicon();
@@ -87,28 +96,40 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/account-under-review" element={<AccountUnderReviewPage />} />
-              <Route path="/account-rejected" element={<AccountRejectedPage />} />
-              <Route path="/account-suspended" element={<SuspendedUserPage />} />
+              <Route
+                path="/account-under-review"
+                element={<AccountUnderReviewPage />}
+              />
+              <Route
+                path="/account-rejected"
+                element={<AccountRejectedPage />}
+              />
+              <Route
+                path="/account-suspended"
+                element={<SuspendedUserPage />}
+              />
               <Route path="/account-blocked" element={<BlockedUserPage />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/guidelines" element={<CommunityGuidelines />} />
 
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route path="entrepreneur" element={<EntrepreneurDashboard />} />
+                <Route
+                  path="entrepreneur"
+                  element={<EntrepreneurDashboard />}
+                />
                 <Route
                   path="entrepreneur/requests"
                   element={<EntrepreneurRequests />}
                 />
-                <Route
-                  path="entrepreneur/team"
-                  element={<ManageTeam />}
-                />
+                <Route path="entrepreneur/team" element={<ManageTeam />} />
                 <Route path="investor" element={<InvestorDashboard />} />
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="campaigns" element={<DashboardCampaigns />} />
-                <Route path="campaigns/:id" element={<DashboardCampaignDetail />} />
+                <Route
+                  path="campaigns/:id"
+                  element={<DashboardCampaignDetail />}
+                />
               </Route>
 
               <Route path="/admin" element={<DashboardLayout />}>
@@ -117,9 +138,18 @@ function App() {
                 <Route path="investors" element={<Investors />} />
                 <Route path="campaigns" element={<Campaigns />} />
                 <Route path="supporters" element={<Supporters />} />
-                <Route path="suspended-blocked" element={<SuspendedBlockedUsers />} />
-                <Route path="fraud-and-risk-detection" element={<FraudAndRiskDetection />} />
-                <Route path="send-notification" element={<SendMassNotification />} />
+                <Route
+                  path="suspended-blocked"
+                  element={<SuspendedBlockedUsers />}
+                />
+                <Route
+                  path="fraud-and-risk-detection"
+                  element={<FraudAndRiskDetection />}
+                />
+                <Route
+                  path="send-notification"
+                  element={<SendMassNotification />}
+                />
                 <Route path="deals" element={<AdminDealsPage />} />
                 <Route path="payments" element={<AdminDealPayments />} />
               </Route>
@@ -177,11 +207,19 @@ function App() {
               <Route path="/chat" element={<DashboardLayout />}>
                 <Route
                   path=":userId/audio-call/:roomId/:isIncommingCall"
-                  element={<AudioCall />}
+                  element={
+                    <Suspense>
+                      <AudioCall />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path=":userId/video-call/:roomId/:isIncommingCall"
-                  element={<VideoCall />}
+                  element={
+                    <Suspense>
+                      <VideoCall />
+                    </Suspense>
+                  }
                 />
                 <Route path=":userId" element={<ChatPage />} />
               </Route>

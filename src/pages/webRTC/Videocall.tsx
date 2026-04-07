@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import toast from "react-hot-toast";
-import AgoraRTC, { ILocalTrack, IAgoraRTCClient } from "agora-rtc-sdk-ng";
+import { ILocalTrack, IAgoraRTCClient } from "agora-rtc-sdk-ng";
 import axios from "axios";
+import { initAgora } from "../../utils/agoraInit";
 
 export const VideoCall: React.FC = () => {
   const { roomId, userId, isIncommingCall } = useParams();
@@ -46,9 +47,9 @@ export const VideoCall: React.FC = () => {
   useEffect(() => {
     if (!token || !uid) return;
 
-    AgoraRTC.setLogLevel(0);
-
     const init = async () => {
+      const AgoraRTC = await initAgora();
+
       const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
 

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Navbar } from "./Navbar";
-import { Sidebar } from "./Sidebar";
+const Navbar = React.lazy(() => import("./Navbar").then(module => ({ default: module.Navbar })));
+const Sidebar = React.lazy(() => import("./Sidebar").then(module => ({ default: module.Sidebar })));
 import { useSocket } from "../../context/SocketContext";
 import IncomingCallModal from "../webrtc/IncomingCallModal";
 
@@ -33,8 +33,9 @@ export const DashboardLayout: React.FC = () => {
     if (incomingCall) {
       socket?.emit("accept-call", { to: incomingCall.from });
       navigate(
-        `/chat/${incomingCall.from}/${incomingCall.callType}-call/${incomingCall.roomId
-        }/${true}`
+        `/chat/${incomingCall.from}/${incomingCall.callType}-call/${
+          incomingCall.roomId
+        }/${true}`,
       );
       setIncomingCall(null);
     }
@@ -79,13 +80,18 @@ export const DashboardLayout: React.FC = () => {
         />
       )}
 
-      <Navbar />
-
+      <Suspense>
+        <Navbar />
+      </Suspense>
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar />
+        <Suspense>
+          <Sidebar />
+        </Suspense>
         <main id="dashboard-main" className="flex-1 overflow-y-auto bg-gray-50">
           <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-            <Outlet />
+            <Suspense>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

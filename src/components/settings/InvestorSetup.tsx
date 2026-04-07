@@ -110,16 +110,17 @@ export const InvestorSetup: React.FC = () => {
         setInvestorFormData(initialInvestorData);
     }, [initialInvestorData]);
 
-    const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        // Prevent negative and invalid input for number fields
-        if (type === "number") {
+  const handleInvestorChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value,type } = e.target;
+    if (type === "number") {
             // Disallow negative sign and 'e' for all number fields
             if (value.includes("-") || value.includes("e") || value.includes("E")) {
                 return;
             }
             // For integer fields, disallow decimals
-            if (["successfullExits", "minTimline", "maxTimline"].includes(name) && value.includes(".")) {
+            if (["successfullExits", "minTimline"].includes(name) && value.includes(".")) {
                 return;
             }
             // Prevent non-numeric input
@@ -127,34 +128,6 @@ export const InvestorSetup: React.FC = () => {
                 return;
             }
         }
-        setInvestorFormData({ ...investorFormData, [name]: value });
-        validateField(name, value);
-    };
-    fetchInvestors();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchIndustries = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/industry/get-all`,
-        );
-        setIndustries(res.data || []);
-      } catch (error) {
-        console.error("Failed to load industries", error);
-      }
-    };
-    fetchIndustries();
-  }, []);
-
-  useEffect(() => {
-    setInvestorFormData(initialInvestorData);
-  }, [initialInvestorData]);
-
-  const handleInvestorChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
       if (value !== "" && value !== undefined && value !== null) {
         if (name === "maxTimline") {
           const selectedDate = new Date(value);
@@ -436,6 +409,7 @@ export const InvestorSetup: React.FC = () => {
           <span className="font-medium text-gray-400">Review By Admin</span>
         </div>
       </div>
+      
 
       <form onSubmit={handleInvestorSubmit} className="space-y-8">
         {/* Investment Interests */}
@@ -743,41 +717,7 @@ export const InvestorSetup: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                <DollarSign className="w-4 h-4" />
-                <span>Min Investment</span>
-              </label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  $
-                </div>
-                <input
-                  type="number"
-                  name="minimumInvestment"
-                  value={investorFormData.minimumInvestment || ""}
-                  onChange={handleInvestorChange}
-                  placeholder="Minimum amount"
-                  min="0"
-                  className="w-full pl-10 pr-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
-                />
-                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
-                {errors.minimumInvestment && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.minimumInvestment}
-                  </p>
-                )}
-              </div>
-            </div>
-
-                {/* Financial Preferences */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-green-50 rounded-lg">
-                            <DollarSign className="w-5 h-5 text-green-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Financial Preferences</h3>
-                    </div>
+           
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="space-y-2">
@@ -922,7 +862,6 @@ export const InvestorSetup: React.FC = () => {
                                     <p className="text-sm text-red-600 mt-1">{errors.maxTimline}</p>
                                 )}
                             </div>
-                        </div>
                     </div>
                 </div>
                 <input
@@ -1025,8 +964,6 @@ export const InvestorSetup: React.FC = () => {
                 )}
               </div>
             </div>
-          </div>
-        </div>
 
         {/* Submit Section */}
         <div className="flex items-center justify-between pt-8 border-t border-gray-200">
