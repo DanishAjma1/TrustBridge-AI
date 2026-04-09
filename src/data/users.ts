@@ -173,7 +173,6 @@ export const getAiRecommendations = async (userId: string) => {
   }
 };
 
-export const getSuccessfulEntrepreneurs = () => { };
 export const getSuccessfulEntrepreneurs = () => {};
 
 export const AmountMeasureWithTags = (amount: number) => {

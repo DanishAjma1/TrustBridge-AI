@@ -111,7 +111,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  if (password.length < 6 && email !== "en@gmail.com" && email !== "danish9087@gmail.com"&& email !== "admin@gmail.com") { 
+  if (password.length < 6 && email !== "en@gmail.com" && email !== "in@gmail.com"&& email !== "admin@trust.com") { 
      // Basic length check to prevent sending obviously wrong passwords
     setError('Password must be at least 6 characters.');
     return;
@@ -213,11 +213,11 @@ const handleSubmit = async (e: React.FormEvent) => {
       setEmail("en@gmail.com");
       setPassword("123");
     } else if (userRole === "investor") {
-      setEmail("danish9087@gmail.com");
-      setPassword("Danish1234$");
-    } else {
-      setEmail("admin@gmail.com");
+      setEmail("in@gmail.com");
       setPassword("123");
+    } else {
+      setEmail("admin@trust.com");
+      setPassword("admin123");
     }
     setRole(userRole);
   };
