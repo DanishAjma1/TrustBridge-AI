@@ -72,6 +72,7 @@ import { BlockedUserPage } from "./pages/auth/BlockedUserPage";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { SuspendedBlockedUsers } from "./pages/admin/SuspendedBlockedUsers";
 import { TermsOfService } from "./pages/legal/TermsOfService";
+import { PrivacyPolicy } from "./pages/legal/PrivacyPolicy";
 import { CommunityGuidelines } from "./pages/legal/CommunityGuidelines";
 import SendMassNotification from "./pages/admin/SendMassNotification";
 import { DashboardCampaigns } from "./pages/dashCamp/DashboardCampaigns";
@@ -111,6 +112,7 @@ function App() {
               />
               <Route path="/account-blocked" element={<BlockedUserPage />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/guidelines" element={<CommunityGuidelines />} />
 
               {/* Dashboard Routes */}
