@@ -7,8 +7,8 @@ import axios from "axios";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Local storage keys
-const USER_STORAGE_KEY = "business_nexus_user";
-const RESET_TOKEN_KEY = "business_nexus_reset_token";
+const USER_STORAGE_KEY = "trustbridge_user";
+const RESET_TOKEN_KEY = "trustbridge_reset_token";
 const URL = import.meta.env.VITE_BACKEND_URL;
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

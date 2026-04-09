@@ -237,6 +237,7 @@ function App() {
                 element={<Navigate to="/login" replace />}
               />
             </Routes>
+            <TrustBridgeAIChatbot />
           </Router>
           <PWAInstallPrompt />
           <Toaster position="top-right" reverseOrder={false} />

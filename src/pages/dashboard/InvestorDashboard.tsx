@@ -8,7 +8,7 @@ import { Badge } from "../../components/ui/Badge";
 import { EntrepreneurCard } from "../../components/entrepreneur/EntrepreneurCard";
 import { useAuth } from "../../context/AuthContext";
 import { getRequestsFromInvestor } from "../../data/collaborationRequests";
-import { getEnterprenuerFromDb } from "../../data/users";
+import { getAiRecommendations, getEnterprenuerFromDb } from "../../data/users";
 import { CollaborationRequest, Entrepreneur } from "../../types";
 import axios from "axios";
 
@@ -21,6 +21,8 @@ export const InvestorDashboard: React.FC = () => {
   const [industries, setIndustries] = useState<string[]>([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
+  const [aiRecommendedStartups, setAiRecommendedStartups] = useState<any[]>([]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
   if (!user) return null;
 
   // Get collaboration requests sent by this investor
@@ -30,12 +32,23 @@ export const InvestorDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
-        const entrepreneurs = await getEnterprenuerFromDb();
-        setEnterprenuers(entrepreneurs);
+        const entrepreneursData = await getEnterprenuerFromDb();
+        setEnterprenuers(entrepreneursData);
+
+        // Fetch AI recommendations
+        setIsAiLoading(true);
+        try {
+          const recommendations = await getAiRecommendations(user.userId);
+          setAiRecommendedStartups(recommendations);
+        } catch (error) {
+          console.error("AI Recommendation fetch failed", error);
+        } finally {
+          setIsAiLoading(false);
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [user?.userId]);
 
   // Fetch industries from backend (all available in DB)
   useEffect(() => {
@@ -296,6 +309,45 @@ export const InvestorDashboard: React.FC = () => {
           </CardBody>
         </Card>
       </div>
+
+      {/* TrustBridge AI Recommendations */}
+      <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-indigo-100 p-2 flex items-center justify-center">
+            <img src="/logo-512x512.png" alt="TrustBridge AI" className="w-full h-full object-contain" />
+          </div>
+          <div>
+            <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">TrustBridge AI Recommendations</h2>
+            <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">Hand-picked for you</p>
+          </div>
+        </div>
+
+        {isAiLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-64 bg-gray-50 rounded-2xl animate-pulse border border-gray-100 flex flex-col items-center justify-center gap-2">
+                <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                <div className="w-32 h-4 bg-gray-200 rounded" />
+                <div className="w-48 h-3 bg-gray-100 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : aiRecommendedStartups.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {aiRecommendedStartups.map((entrepreneur: any) => (
+              <div key={entrepreneur._id} className="hover:translate-y-[-8px] transition-all duration-300">
+                <EntrepreneurCard entrepreneur={entrepreneur} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 bg-indigo-50/50 rounded-2xl border-2 border-dashed border-indigo-100 text-center">
+            <p className="text-gray-600 font-medium">Connecting you to the best matches...</p>
+            <p className="text-xs text-gray-400 mt-1">Try refreshing or update your industry interests in your profile.</p>
+          </div>
+        )}
+        <div className="mt-8 border-b border-gray-100"></div>
+      </section>
 
       {/* Entrepreneurs grid */}
       <div>

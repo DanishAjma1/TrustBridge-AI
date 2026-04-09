@@ -33,15 +33,23 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
 
+  // AI Assistant States
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiIdea, setAiIdea] = useState("");
+  const [aiGeneratedOptions, setAiGeneratedOptions] = useState<
+    { title: string; description: string }[]
+  >([]);
+  const [expandedOptions, setExpandedOptions] = useState<number[]>([]);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title || "",
         description: initialData.description || "",
-        goalAmount: initialData.goalAmount || "",
+        goalAmount: initialData.goalAmount?.toString() || "",
         startDate: initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : "",
         endDate: initialData.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : "",
-
         category: initialData.category || "Other",
         organizer: initialData.organizer || "",
         isLifetime: initialData.isLifetime || false,
@@ -54,7 +62,37 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
         setVideoPreview(`${BACKEND_URL}${initialData.video}`);
       }
     }
-  }, [initialData]);
+  }, [initialData, BACKEND_URL]);
+
+  const handleAiGenerate = async () => {
+    setAiLoading(true);
+    setExpandedOptions([]); // Clear expanded states when regenerating
+    try {
+      const response = await axios.post(`${BACKEND_URL}/ai/campaign/generate-campaign`, {
+        idea: aiIdea,
+        category: formData.category,
+        goal: formData.goalAmount,
+      });
+      if (response.data.success) {
+        setAiGeneratedOptions(response.data.options);
+      }
+    } catch (error) {
+      console.error("AI Generation failed:", error);
+      toast.error("Failed to generate ideas. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applyAiGeneratedContent = (option: { title: string; description: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      title: option.title,
+      description: option.description,
+    }));
+    setIsAiModalOpen(false);
+    toast.success("AI content applied to your campaign!");
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -73,8 +111,8 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
     // Title: only letters and spaces
     if (name === "title" && !/^[A-Za-z\s]*$/.test(value)) return;
 
-    // Description: letters, numbers, and spaces only
-    if (name === "description" && !/^[A-Za-z0-9\s]*$/.test(value)) return;
+    // Description: letters, numbers, spaces, and basic punctuation
+    if (name === "description" && !/^[A-Za-z0-9\s.,!]*$/.test(value)) return;
 
     // Category: only letters and spaces
     if (name === "category" && !/^[A-Za-z\s]*$/.test(value)) return;
@@ -179,8 +217,8 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
       toast.error("Description is required");
       return false;
     }
-    if (!/^[A-Za-z0-9\s]+$/.test(description)) {
-      toast.error("Description can contain only letters, numbers, and spaces");
+    if (!/^[A-Za-z0-9\s.,!]+$/.test(description)) {
+      toast.error("Description can contain only letters, numbers, spaces, and basic punctuation (., !)");
       return false;
     }
 
@@ -236,6 +274,7 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
 
     return true;
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -306,7 +345,17 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
       {/* Left Column: Form Details */}
       <div className="space-y-5">
-        <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Campaign Details</h3>
+        <div className="flex items-center justify-between mb-4 border-b pb-2">
+          <h3 className="text-xl font-bold text-gray-800">Campaign Details</h3>
+          <button
+            type="button"
+            onClick={() => setIsAiModalOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-md transition-all text-sm font-medium"
+          >
+            <span className="text-lg">✨</span>
+            AI Assistant
+          </button>
+        </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
@@ -614,6 +663,126 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
                     Add Image
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Assistant Modal */}
+      {isAiModalOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsAiModalOpen(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-1 bg-gradient-to-r from-purple-500 to-indigo-500" />
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center p-1.5 border border-indigo-100 shadow-sm">
+                    <img src="/logo-512x512.png" alt="TrustBridge Logo" className="w-full h-50px object-contain rounded-full" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-gray-900">
+                      TrustBridge AI Assistant
+                    </h3>
+                    <p className="text-xs text-gray-500">I'll help you write a compelling campaign</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsAiModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-3 ml-1">
+                    Describe your campaign idea in a few words:
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={aiIdea}
+                    onChange={(e) => setAiIdea(e.target.value)}
+                    placeholder="e.g., A smart water bottle that tracks hydration..."
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none bg-gray-50 text-gray-800 placeholder:text-gray-400"
+                  />
+                  
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={handleAiGenerate}
+                      disabled={aiLoading || !aiIdea.trim()}
+                      className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg hover:scale-[1.01] transition-all disabled:opacity-50"
+                    >
+                      {aiLoading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                          {aiGeneratedOptions.length > 0 ? "Regenerating..." : "Generating..."}
+                        </span>
+                      ) : aiGeneratedOptions.length > 0 ? "Regenerate Options" : "Generate Options"}
+                    </button>
+                    {aiGeneratedOptions.length > 0 && (
+                      <button 
+                        onClick={() => {
+                          setAiGeneratedOptions([]);
+                          setAiIdea("");
+                          setExpandedOptions([]);
+                        }}
+                        className="px-4 py-2 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {aiGeneratedOptions.length > 0 && !aiLoading && (
+                  <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {aiGeneratedOptions.map((option, idx) => {
+                      const isExpanded = expandedOptions.includes(idx);
+                      return (
+                        <div 
+                          key={idx} 
+                          className="p-5 bg-indigo-50 border-2 border-indigo-100 rounded-2xl hover:border-indigo-400 transition-all group relative cursor-pointer"
+                          onClick={() => applyAiGeneratedContent(option)}
+                        >
+                          <div className="absolute top-4 right-4 bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Select Option {idx + 1}</div>
+                          <div className="mb-3">
+                            <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest pl-1">Option {idx + 1}</span>
+                            <h4 className="font-bold text-gray-900 leading-tight mt-1">{option.title}</h4>
+                          </div>
+                          <div className="relative">
+                            <p className={`text-xs text-gray-600 leading-relaxed ${!isExpanded ? 'line-clamp-3' : ''}`}>
+                              {option.description}
+                            </p>
+                            {option.description.length > 150 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedOptions(prev => 
+                                    prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+                                  );
+                                }}
+                                className="mt-2 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                              >
+                                {isExpanded ? "Show Less ↑" : "Read Full Description ..."}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

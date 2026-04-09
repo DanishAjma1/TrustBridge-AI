@@ -159,6 +159,21 @@ export const getUserFromDb = async (id) => {
   }
 };
 
+export const getAiRecommendations = async (userId: string) => {
+  try {
+    const res = await axios.get(`${URL}/ai/recommendations/${userId}`, {
+      withCredentials: true,
+    });
+    return Array.isArray(res.data?.recommendations)
+      ? res.data.recommendations
+      : [];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
+export const getSuccessfulEntrepreneurs = () => { };
 export const getSuccessfulEntrepreneurs = () => {};
 
 export const AmountMeasureWithTags = (amount: number) => {

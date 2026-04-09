@@ -14,44 +14,59 @@ import { Badge } from "../../components/ui/Badge";
 import { CollaborationRequestCard } from "../../components/collaboration/CollaborationRequestCard";
 import { InvestorCard } from "../../components/investor/InvestorCard";
 import { useAuth } from "../../context/AuthContext";
-import { CollaborationRequest } from "../../types";
+import { CollaborationRequest, Investor } from "../../types";
 import { getRequestsForEntrepreneur, updateRequestStatus } from "../../data/collaborationRequests";
-import { getInvestorsFromDb } from "../../data/users";
+import { getAiRecommendations, getInvestorsFromDb } from "../../data/users";
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
-  console.log(user)
   const [collaborationRequests, setCollaborationRequests] = useState<
     CollaborationRequest[]
   >([]);
-  const [recommendedInvestors, setRecommendedInvestors] = useState([]);
+  const [recommendedInvestors, setRecommendedInvestors] = useState<Investor[]>([]);
+  const [aiRecommendedInvestors, setAiRecommendedInvestors] = useState<Investor[]>([]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
+    const userId = user?.userId;
+    if (!userId) return;
+
     const fetchData = async () => {
-      if (user) {
-        const investors = await getInvestorsFromDb();
-        setRecommendedInvestors(investors);
+      const investors = await getInvestorsFromDb();
+      setRecommendedInvestors(Array.isArray(investors) ? investors : []);
+
+      // Fetch AI recommendations
+      setIsAiLoading(true);
+      try {
+        const recommendations = await getAiRecommendations(userId);
+        setAiRecommendedInvestors(recommendations);
+      } catch (error) {
+        console.error("AI Recommendation fetch failed", error);
+      } finally {
+        setIsAiLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    const userId = user?.userId;
+    if (!userId) return;
+
+    const fetchRequests = async () => {
+      const requests = await getRequestsForEntrepreneur(userId);
+      setCollaborationRequests(Array.isArray(requests) ? requests : []);
+    };
+
+    fetchRequests();
+  }, [user]);
 
   if (!user) return null;
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      const requests = await getRequestsForEntrepreneur(user?.userId);
-      setCollaborationRequests(Array.isArray(requests) ? requests : []);
-    };
-    fetchRequests();
-  }, [user?.userId]);
-
-  const pendingRequests =
-    collaborationRequests.length > 0 &&
-      Array.isArray(collaborationRequests) &&
-      collaborationRequests.length > 0
-      ? collaborationRequests.filter((req) => req.requestStatus === "pending")
-      : [];
+  const pendingRequests = Array.isArray(collaborationRequests)
+    ? collaborationRequests.filter((req) => req.requestStatus === "pending")
+    : [];
 
   const handleRequestStatusUpdate = (
     requestId: string,
@@ -202,8 +217,43 @@ export const EntrepreneurDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Recommended investors */}
+        {/* AI Recommended investors */}
         <div className="space-y-4">
+          <Card className="border-2 border-indigo-100 shadow-indigo-50">
+            <CardHeader className="flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-indigo-100 p-1.5 flex items-center justify-center">
+                  <img src="/logo-512x512.png" alt="TrustBridge AI" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 leading-tight">
+                    TrustBridge AI Matching
+                  </h2>
+                  <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Top Investor Picks</p>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardBody className="space-y-4">
+              {isAiLoading ? (
+                <div className="py-8 flex flex-col items-center justify-center space-y-3">
+                  <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                  <p className="text-xs text-indigo-400 font-medium animate-pulse">Finding your perfect matches...</p>
+                </div>
+              ) : aiRecommendedInvestors && aiRecommendedInvestors.length > 0 ? (
+                aiRecommendedInvestors.map((item: Investor, i) => (
+                  <div key={i} className="hover:scale-[1.02] transition-transform">
+                    <InvestorCard investor={item} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6 px-4">
+                  <p className="text-sm text-gray-500 italic">No direct matches found for your industry yet. Try updating your profile details!</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
           <Card>
             <CardHeader className="flex justify-between items-center">
               <h2 className="text-lg font-medium text-gray-900">
@@ -219,7 +269,7 @@ export const EntrepreneurDashboard: React.FC = () => {
 
             <CardBody className="space-y-4">
               {recommendedInvestors && recommendedInvestors.length > 0 ? (
-                recommendedInvestors.map((investor, i) => (
+                recommendedInvestors.slice(0, 3).map((investor, i) => (
                   <div key={i}>
                     <InvestorCard investor={investor} />
                   </div>

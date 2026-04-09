@@ -56,7 +56,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
-        
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit for large assets
         runtimeCaching: [
           // Cache API requests
           {
