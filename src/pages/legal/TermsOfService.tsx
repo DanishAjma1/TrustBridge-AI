@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Shield, FileText, AlertCircle, CheckCircle, Lock, Globe, Users, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Navbar } from "../../components/home/Navbar";
+import { Footer } from "../../components/home/Footer";
 import { Button } from "../../components/ui/Button";
 import { motion } from "framer-motion";
 
@@ -113,44 +115,35 @@ export const TermsOfService: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-6xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-200"
-                >
-                    {/* Header */}
-                    <div className="relative bg-gradient-to-r from-primary-700 via-primary-600 to-primary-700 px-8 py-12 text-white overflow-hidden">
-                        {/* Animated background */}
-                        <div className="absolute inset-0">
-                            <motion.div
-                                className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full"
-                                animate={{
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.1, 0.05, 0.1]
-                                }}
-                                transition={{
-                                    duration: 4,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                            />
-                        </div>
+        <div className="min-h-screen bg-white pt-16 md:pt-20">
+            <Navbar />
+            <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white py-12 px-4 sm:px-6 lg:px-8 font-sans">
+                <div className="max-w-6xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-md"
+                    >
+                        {/* Header */}
+                        <div className="relative bg-gradient-to-r from-primary-50 via-primary-50 to-blue-50 px-8 py-12 overflow-hidden border-b border-gray-200">
+                            {/* Animated background */}
+                            <div className="absolute inset-0">
+                                <motion.div
+                                    className="absolute top-0 right-0 w-64 h-64 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.2, 0.1, 0.2]
+                                    }}
+                                    transition={{
+                                        duration: 4,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                />
+                            </div>
 
-                        {/* <motion.button
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            onClick={() => navigate(-1)}
-                            className="absolute top-8 left-8 p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-95 group"
-                            whileHover={{ x: -5 }}
-                        >
-                            <ArrowLeft size={22} className="group-hover:-translate-x-1 transition-transform" />
-                        </motion.button> */}
-
-                        <div className="relative z-10">
+                            <div className="relative z-10">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -158,20 +151,20 @@ export const TermsOfService: React.FC = () => {
                                 className="flex items-center gap-6 mb-6"
                             >
                                 <motion.div
-                                    className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20"
+                                    className="p-4 bg-primary-100 rounded-2xl border border-primary-200"
                                     whileHover={{ rotate: 5, scale: 1.05 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                 >
-                                    <Shield size={40} />
+                                    <Shield size={40} className="text-primary-600" />
                                 </motion.div>
                                 <div>
-                                    <h1 className="text-4xl font-bold mb-2">Terms of Service</h1>
-                                    <div className="flex items-center gap-4 text-primary-100">
+                                    <h1 className="text-4xl font-bold mb-2 text-gray-900">Terms of Service</h1>
+                                    <div className="flex items-center gap-4 text-gray-600">
                                         <div className="flex items-center gap-2">
                                             <Globe size={16} />
                                             <span>Global Compliance</span>
                                         </div>
-                                        <div className="w-1 h-1 bg-white/50 rounded-full" />
+                                        <div className="w-1 h-1 bg-gray-300 rounded-full" />
                                         <span className="italic">Effective January 12, 2026</span>
                                     </div>
                                 </div>
@@ -183,13 +176,13 @@ export const TermsOfService: React.FC = () => {
                                 transition={{ delay: 0.4 }}
                                 className="flex flex-wrap gap-4 mt-6"
                             >
-                                <div className="px-4 py-2 bg-white/10 rounded-full text-sm backdrop-blur-sm border border-white/20">
+                                <div className="px-4 py-2 bg-primary-100 rounded-full text-sm border border-primary-200 text-primary-700 font-medium">
                                     Legal Document
                                 </div>
-                                <div className="px-4 py-2 bg-white/10 rounded-full text-sm backdrop-blur-sm border border-white/20">
+                                <div className="px-4 py-2 bg-primary-100 rounded-full text-sm border border-primary-200 text-primary-700 font-medium">
                                     Binding Agreement
                                 </div>
-                                <div className="px-4 py-2 bg-white/10 rounded-full text-sm backdrop-blur-sm border border-white/20">
+                                <div className="px-4 py-2 bg-primary-100 rounded-full text-sm border border-primary-200 text-primary-700 font-medium">
                                     Professional Platform
                                 </div>
                             </motion.div>
@@ -246,14 +239,14 @@ export const TermsOfService: React.FC = () => {
                                     viewport={{ once: true, margin: "-100px" }}
                                     whileHover="hover"
                                     className={`p-8 rounded-2xl border transition-all duration-300 cursor-default ${section.important
-                                        ? 'bg-amber-50 border-amber-200 shadow-sm'
+                                        ? 'bg-blue-50 border-blue-200 shadow-sm'
                                         : 'bg-gray-50 border-gray-200'
                                         }`}
                                 >
                                     <div className="flex items-start gap-6 mb-6">
                                         <motion.div
                                             className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${section.important
-                                                ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
                                                 : 'bg-primary-100 text-primary-700 border border-primary-200'
                                                 }`}
                                             whileHover={{ scale: 1.1 }}
@@ -271,7 +264,7 @@ export const TermsOfService: React.FC = () => {
                                                         variants={pulseAnimation}
                                                         initial="initial"
                                                         animate="pulse"
-                                                        className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200"
+                                                        className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200"
                                                     >
                                                         Important
                                                     </motion.span>
@@ -387,5 +380,7 @@ export const TermsOfService: React.FC = () => {
                 </motion.div>
             </div>
         </div>
+        <Footer />
+    </div>
     );
 };
