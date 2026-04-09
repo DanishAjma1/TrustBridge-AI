@@ -14,18 +14,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardHeader } from "../ui/Card";
 import axios from "axios";
 import toast from "react-hot-toast";
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const COUNTRIES = [
-  { code: 'US', name: 'USA' },
-  { code: 'AU', name: 'AUS' },
-  { code: 'NZ', name: 'NZ' },
-  { code: 'PK', name: 'PAK' },
-  { code: 'DE', name: 'GER' },
-  { code: 'DK', name: 'DEN' },
-  { code: 'SA', name: 'SA' },
-  { code: 'CA', name: 'CAN' }
+  { code: "US", name: "USA" },
+  { code: "AU", name: "AUS" },
+  { code: "NZ", name: "NZ" },
+  { code: "PK", name: "PAK" },
+  { code: "DE", name: "GER" },
+  { code: "DK", name: "DEN" },
+  { code: "SA", name: "SA" },
+  { code: "CA", name: "CAN" },
 ];
 
 type User = {
@@ -42,7 +42,9 @@ export const InvestorSettings: React.FC = () => {
   const { user, register } = useAuth();
 
   const [investor, setInvestor] = useState<Investor>();
-  const [industries, setIndustries] = useState<{ _id: string; name: string; isCustom: boolean }[]>([]);
+  const [industries, setIndustries] = useState<
+    { _id: string; name: string; isCustom: boolean }[]
+  >([]);
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [industryQuery, setIndustryQuery] = useState("");
   const initialInvestorData = useMemo(
@@ -61,7 +63,7 @@ export const InvestorSettings: React.FC = () => {
       country: investor?.country || "",
       phoneNumber: investor?.phoneNumber || "",
     }),
-    [investor, user]
+    [investor, user],
   );
 
   const [investorFormData, setInvestorFormData] = useState(initialInvestorData);
@@ -80,7 +82,9 @@ export const InvestorSettings: React.FC = () => {
   useEffect(() => {
     const fetchIndustries = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/industry/get-all`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/industry/get-all`,
+        );
         setIndustries(res.data || []);
       } catch (error) {
         console.error("Failed to load industries", error);
@@ -154,6 +158,13 @@ export const InvestorSettings: React.FC = () => {
     });
     return error;
   };
+
+  const handleNumericChange =
+    (name: keyof Investor) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value || "";
+      const sanitized = raw.replace(/[^0-9]/g, "");
+      setInvestorFormData((prev) => ({ ...prev, [name]: sanitized }) as any);
+    };
   const handleInvestorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -176,7 +187,10 @@ export const InvestorSettings: React.FC = () => {
           const { name, email, password, role } = parsed;
           const userId = await register(name, email, password, role);
           if (userId) {
-            await createInvestorProfile({ ...investorFormData, userId: userId });
+            await createInvestorProfile({
+              ...investorFormData,
+              userId: userId,
+            });
 
             const message = `
             <p>Hello,</p>
@@ -266,14 +280,21 @@ export const InvestorSettings: React.FC = () => {
 
           {/* Selected industries as chips */}
           <div className="flex flex-wrap gap-2 min-h-[32px]">
-            {investorFormData.investmentInterests && investorFormData.investmentInterests.length > 0 ? (
+            {investorFormData.investmentInterests &&
+            investorFormData.investmentInterests.length > 0 ? (
               investorFormData.investmentInterests.map((item, idx) => (
-                <div key={idx} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-200">
+                <div
+                  key={idx}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-200"
+                >
                   {item}
                   <button
                     type="button"
                     onClick={() => {
-                      const updatedInterests = investorFormData.investmentInterests.filter((_, index) => index !== idx);
+                      const updatedInterests =
+                        investorFormData.investmentInterests.filter(
+                          (_, index) => index !== idx,
+                        );
                       setInvestorFormData({
                         ...investorFormData,
                         investmentInterests: updatedInterests,
@@ -286,7 +307,9 @@ export const InvestorSettings: React.FC = () => {
                 </div>
               ))
             ) : (
-              <span className="text-sm text-gray-400">No industries selected</span>
+              <span className="text-sm text-gray-400">
+                No industries selected
+              </span>
             )}
           </div>
 
@@ -298,7 +321,9 @@ export const InvestorSettings: React.FC = () => {
               className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between"
             >
               <span className="text-gray-700">Select industries</span>
-              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showIndustryDropdown ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-5 h-5 text-gray-400 transition-transform ${showIndustryDropdown ? "rotate-180" : ""}`}
+              />
             </button>
 
             {/* Dropdown menu */}
@@ -314,34 +339,46 @@ export const InvestorSettings: React.FC = () => {
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                {(industries || []).filter((i) => i.name.toLowerCase().includes(industryQuery.toLowerCase())).map((i) => {
-                  const name = i.name;
-                  const isSelected = investorFormData.investmentInterests.includes(name);
-                  const canAddMore = investorFormData.investmentInterests.length < 5;
-                  return (
-                    <button
-                      key={i._id}
-                      type="button"
-                      onClick={() => {
-                        if (isSelected) {
-                          setInvestorFormData(prev => ({
-                            ...prev,
-                            investmentInterests: prev.investmentInterests.filter(ind => ind !== name)
-                          }));
-                        } else if (canAddMore) {
-                          setInvestorFormData(prev => ({
-                            ...prev,
-                            investmentInterests: [...prev.investmentInterests, name]
-                          }));
-                        }
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between hover:bg-gray-50 ${isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-                    >
-                      <span>{name}</span>
-                      {isSelected && <Check className="w-4 h-4" />}
-                    </button>
-                  );
-                })}
+                {(industries || [])
+                  .filter((i) =>
+                    i.name.toLowerCase().includes(industryQuery.toLowerCase()),
+                  )
+                  .map((i) => {
+                    const name = i.name;
+                    const isSelected =
+                      investorFormData.investmentInterests.includes(name);
+                    const canAddMore =
+                      investorFormData.investmentInterests.length < 5;
+                    return (
+                      <button
+                        key={i._id}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setInvestorFormData((prev) => ({
+                              ...prev,
+                              investmentInterests:
+                                prev.investmentInterests.filter(
+                                  (ind) => ind !== name,
+                                ),
+                            }));
+                          } else if (canAddMore) {
+                            setInvestorFormData((prev) => ({
+                              ...prev,
+                              investmentInterests: [
+                                ...prev.investmentInterests,
+                                name,
+                              ],
+                            }));
+                          }
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between hover:bg-gray-50 ${isSelected ? "bg-blue-50 text-blue-700" : "text-gray-700"}`}
+                      >
+                        <span>{name}</span>
+                        {isSelected && <Check className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
                 <div className="mt-2 flex justify-end">
                   <button
                     type="button"
@@ -355,7 +392,8 @@ export const InvestorSettings: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-gray-500">
-            {5 - investorFormData.investmentInterests.length} industries can be added
+            {5 - investorFormData.investmentInterests.length} industries can be
+            added
           </p>
         </div>
         <div className="flex gap-2 w-full">
@@ -365,8 +403,9 @@ export const InvestorSettings: React.FC = () => {
             value={investorFormData.criteria}
             onChange={handleInvestorChange}
             disabled={investorFormData.investmentCriteria.length >= 5}
-            helperText={`${5 - investorFormData.investmentCriteria.length
-              } Investment Criteria rules can be added..`}
+            helperText={`${
+              5 - investorFormData.investmentCriteria.length
+            } Investment Criteria rules can be added..`}
             fullWidth
           />
           <label className="flex items-center">
@@ -387,11 +426,9 @@ export const InvestorSettings: React.FC = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   const updatedCriteria =
-                    investorFormData.investmentCriteria?.filter(
-                      (_, index) => {
-                        return index !== idx;
-                      }
-                    );
+                    investorFormData.investmentCriteria?.filter((_, index) => {
+                      return index !== idx;
+                    });
                   setInvestorFormData({
                     ...investorFormData,
                     investmentCriteria: updatedCriteria,
@@ -407,14 +444,14 @@ export const InvestorSettings: React.FC = () => {
         <div className="flex flex-row">
           <div className="flex w-1/2 gap-5 flex-col pr-4">
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               label="Minimum investment..?"
               name="minimumInvestment"
               value={investorFormData.minimumInvestment}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E"].includes(e.key)) e.preventDefault();
@@ -423,14 +460,14 @@ export const InvestorSettings: React.FC = () => {
               helperText={errors.minimumInvestment}
             />
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               label="Maximum investment..?"
               name="maximumInvestment"
               value={investorFormData.maximumInvestment}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E"].includes(e.key)) e.preventDefault();
@@ -439,14 +476,14 @@ export const InvestorSettings: React.FC = () => {
               helperText={errors.maximumInvestment}
             />
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               label="Successfull Exits..?"
               name="successfullExits"
               value={investorFormData.successfullExits}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
@@ -457,14 +494,14 @@ export const InvestorSettings: React.FC = () => {
           </div>
           <div className="flex gap-5 w-1/2 flex-col pl-4">
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               label="Minimum time to invest..?"
               name="minTimline"
               value={investorFormData.minTimline}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
@@ -473,14 +510,14 @@ export const InvestorSettings: React.FC = () => {
               helperText={errors.minTimline}
             />
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               label="Maximum time to invest..?"
               name="maxTimline"
               value={investorFormData.maxTimline}
               onChange={handleInvestorChange}
               min="0"
-              inputMode="numeric"
-              pattern="[0-9]*"
               onWheel={e => (e.target as HTMLInputElement).blur()}
               onKeyDown={e => {
                 if (["-", "e", "E", "."].includes(e.key)) e.preventDefault();
@@ -493,7 +530,9 @@ export const InvestorSettings: React.FC = () => {
 
         <div className="flex flex-row gap-5">
           <div className="flex flex-col w-1/2">
-            <label className="text-sm font-medium text-gray-700 mb-2">Country</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Country
+            </label>
             <select
               name="country"
               value={investorFormData.country || ""}
@@ -501,13 +540,17 @@ export const InvestorSettings: React.FC = () => {
               className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             >
               <option value="">Select Country</option>
-              {COUNTRIES.map(c => (
-                <option key={c.code} value={c.name}>{c.name}</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.name}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
           <div className="flex flex-col w-1/2">
-            <label className="text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Phone Number
+            </label>
             <PhoneInput
               placeholder="Enter phone number"
               value={investorFormData.phoneNumber}

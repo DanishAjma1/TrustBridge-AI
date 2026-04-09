@@ -22,7 +22,12 @@ import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { useAuth } from "../../context/AuthContext";
 import { getInvestorById } from "../../data/users";
-import { suspendUser, blockUser, unsuspendUser, unblockUser } from "../../data/admin";
+import {
+  suspendUser,
+  blockUser,
+  unsuspendUser,
+  unblockUser,
+} from "../../data/admin";
 import { Investor } from "../../types";
 import { AmountMeasureWithTags } from "../../data/users";
 
@@ -128,12 +133,16 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
     if (!investor?.userId) return;
     setIsSavingBio(true);
     try {
-      await axios.post(`${URL} /user/update - profile / ${investor.userId} `, {
-        bio: editedBio
-      }, {
-        headers: { Authorization: `Bearer ${token} ` }
-      });
-      setInvestor(prev => prev ? { ...prev, bio: editedBio } : undefined);
+      await axios.post(
+        `${URL} /user/update - profile / ${investor.userId} `,
+        {
+          bio: editedBio,
+        },
+        {
+          headers: { Authorization: `Bearer ${token} ` },
+        },
+      );
+      setInvestor((prev) => (prev ? { ...prev, bio: editedBio } : undefined));
       setIsEditingBio(false);
       toast.success("Bio updated successfully");
     } catch (error) {
@@ -144,6 +153,9 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
     }
   };
 
+  const timeline =
+    new Date(investor?.maxTimline ?? "").getFullYear() -
+    new Date().getFullYear();
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Profile header */}
@@ -196,7 +208,7 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
           <div className="mt-6 sm:mt-0 flex flex-col sm:flex-row gap-2 justify-center sm:justify-end">
             {!isAdmin ? (
               !isCurrentUser && (
-                <Link to={`/ chat / ${investor.userId} `}>
+                <Link to={`/chat/${investor.userId} `}>
                   <Button leftIcon={<MessageCircle size={18} />}>
                     Message
                   </Button>
@@ -268,7 +280,9 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
               <h2 className="text-lg font-medium text-gray-900">About</h2>
               {isCurrentUser && (
                 <button
-                  onClick={() => isEditingBio ? handleSaveBio() : setIsEditingBio(true)}
+                  onClick={() =>
+                    isEditingBio ? handleSaveBio() : setIsEditingBio(true)
+                  }
                   disabled={isSavingBio}
                   className="p-1 hover:bg-gray-100 rounded-full transition-colors text-primary-600"
                   title={isEditingBio ? "Save bio" : "Edit bio"}
@@ -293,10 +307,21 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                     placeholder="Tell us about your investment philosophy..."
                   />
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setIsEditingBio(false); setEditedBio(investor.bio || ""); }}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsEditingBio(false);
+                        setEditedBio(investor.bio || "");
+                      }}
+                    >
                       Cancel
                     </Button>
-                    <Button size="sm" onClick={handleSaveBio} disabled={isSavingBio}>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveBio}
+                      disabled={isSavingBio}
+                    >
                       Save
                     </Button>
                   </div>
@@ -373,22 +398,27 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
               </h2>
               <span className="text-sm text-gray-500">
                 {(investor.portfolio && investor.portfolio.length) ||
-                  (investor.portfolioCompanies && investor.portfolioCompanies.length) ||
+                  (investor.portfolioCompanies &&
+                    investor.portfolioCompanies.length) ||
                   0}{" "}
                 companies
               </span>
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                {(investor.portfolio && investor.portfolio.length > 0) ? (
+                {investor.portfolio && investor.portfolio.length > 0 ? (
                   investor.portfolio.map((company, index) => (
                     <Link
                       to={`/profile/entrepreneur/${company.userId}`}
                       key={index}
                       className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
                     >
-                      <Avatar src={company.avatarUrl} alt={company.startupName} size="md" className="mr-3" />
+                      <Avatar
+                        src={company.avatarUrl}
+                        alt={company.startupName}
+                        size="md"
+                        className="mr-3"
+                      />
                       <div>
                         <h3 className="text-sm font-medium text-gray-900">
                           {company.startupName}
@@ -399,23 +429,29 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                       </div>
                     </Link>
                   ))
-                ) : (
-                  investor.portfolioCompanies && investor.portfolioCompanies.length > 0 ? (
-                    // Legacy fallback
-                    investor.portfolioCompanies.map((company, index) => (
-                      <div key={index} className="flex items-center p-3 border border-gray-200 rounded-md">
-                        <div className="p-3 bg-primary-50 rounded-md mr-3">
-                          <Briefcase size={18} className="text-primary-700" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">{company}</h3>
-                          <p className="text-xs text-gray-500">Legacy Entry</p>
-                        </div>
+                ) : investor.portfolioCompanies &&
+                  investor.portfolioCompanies.length > 0 ? (
+                  // Legacy fallback
+                  investor.portfolioCompanies.map((company, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center p-3 border border-gray-200 rounded-md"
+                    >
+                      <div className="p-3 bg-primary-50 rounded-md mr-3">
+                        <Briefcase size={18} className="text-primary-700" />
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 col-span-2">No investments yet.</p>
-                  )
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          {company}
+                        </h3>
+                        <p className="text-xs text-gray-500">Legacy Entry</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 col-span-2">
+                    No investments yet.
+                  </p>
                 )}
               </div>
             </CardBody>
@@ -439,9 +475,11 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                   </span>
                   <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                     <DollarSign size={16} className="text-red-500" />
-                    {AmountMeasureWithTags((investor.minimumInvestment &&
-                      investor.minimumInvestment) ||
-                      0)}{" "}
+                    {AmountMeasureWithTags(
+                      (investor.minimumInvestment &&
+                        investor.minimumInvestment) ||
+                        0,
+                    )}{" "}
                     - {AmountMeasureWithTags(investor.maximumInvestment) || 0}
                   </p>
                 </div>
@@ -451,7 +489,10 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                     Total Investments
                   </span>
                   <p className="text-md font-medium text-gray-900">
-                    {investor.portfolio?.length || investor.totalInvestments || 0} companies
+                    {investor.portfolio?.length ||
+                      investor.totalInvestments ||
+                      0}{" "}
+                    companies
                   </p>
                 </div>
 
@@ -460,7 +501,7 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                     Typical Investment Timeline
                   </span>
                   <p className="text-md font-medium text-gray-900">
-                    {investor.minTimline || 0}-{investor.maxTimline || 0} years
+                    {investor.minTimline+ " days" || 0}{timeline? " &"+ timeline + " years" : ""}
                   </p>
                 </div>
 
@@ -547,7 +588,11 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                         Avg. ROI
                       </h3>
                       <p className="text-xl font-semibold text-primary-700 mt-1">
-                        {((investor.portfolio?.length || 0) * 1.2 + 1.5).toFixed(1)}x
+                        {(
+                          (investor.portfolio?.length || 0) * 1.2 +
+                          1.5
+                        ).toFixed(1)}
+                        x
                       </p>
                     </div>
                     <BarChart3 size={24} className="text-primary-600" />
@@ -561,9 +606,8 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
                         Active Investments
                       </h3>
                       <p className="text-xl font-semibold text-primary-700 mt-1">
-                        {(investor.portfolio &&
-                          investor.portfolio.length) ||
-                          (investor.portfolioCompanies?.length) ||
+                        {(investor.portfolio && investor.portfolio.length) ||
+                          investor.portfolioCompanies?.length ||
                           0}
                       </p>
                     </div>
@@ -576,70 +620,102 @@ export const InvestorProfile: React.FC<Props> = ({ userId }) => {
         </div>
       </div>
 
-
       {/* Suspend Modal */}
-      {
-        isSuspendModalOpen && (
-          <>
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsSuspendModalOpen(false)}></div>
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
-              <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
-                <h2 className="text-lg font-bold mb-4">Suspend User</h2>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                  <textarea
-                    className="w-full border rounded p-2"
-                    rows={3}
-                    value={suspendReason}
-                    onChange={(e) => setSuspendReason(e.target.value)}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration (days)</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded p-2"
-                    value={suspendDays}
-                    onChange={(e) => setSuspendDays(parseInt(e.target.value))}
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)}>Cancel</Button>
-                  <Button onClick={handleSuspend} className="bg-yellow-600 hover:bg-yellow-700 text-white">Suspend</Button>
-                </div>
+      {isSuspendModalOpen && (
+        <>
+          <div
+            className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md"
+            onClick={() => setIsSuspendModalOpen(false)}
+          ></div>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+            <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
+              <h2 className="text-lg font-bold mb-4">Suspend User</h2>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reason
+                </label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  rows={3}
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Duration (days)
+                </label>
+                <input
+                  type="number"
+                  className="w-full border rounded p-2"
+                  value={suspendDays}
+                  onChange={(e) => setSuspendDays(parseInt(e.target.value))}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSuspendModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSuspend}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  Suspend
+                </Button>
               </div>
             </div>
-          </>
-        )
-      }
+          </div>
+        </>
+      )}
 
       {/* Block Modal */}
-      {
-        isBlockModalOpen && (
-          <>
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md" onClick={() => setIsBlockModalOpen(false)}></div>
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
-              <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
-                <h2 className="text-lg font-bold mb-4 text-red-600">Block User</h2>
-                <p className="text-sm text-gray-500 mb-4">Blocking a user will hide their profile and prevent them from accessing the platform. This action is severe.</p>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                  <textarea
-                    className="w-full border rounded p-2"
-                    rows={3}
-                    value={blockReason}
-                    onChange={(e) => setBlockReason(e.target.value)}
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsBlockModalOpen(false)}>Cancel</Button>
-                  <Button onClick={handleBlock} className="bg-red-600 hover:bg-red-700 text-white">Block User</Button>
-                </div>
+      {isBlockModalOpen && (
+        <>
+          <div
+            className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10001] bg-black/30 backdrop-blur-md"
+            onClick={() => setIsBlockModalOpen(false)}
+          ></div>
+          <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[10002] flex justify-center items-center p-4 pointer-events-none">
+            <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg pointer-events-auto">
+              <h2 className="text-lg font-bold mb-4 text-red-600">
+                Block User
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Blocking a user will hide their profile and prevent them from
+                accessing the platform. This action is severe.
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reason
+                </label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  rows={3}
+                  value={blockReason}
+                  onChange={(e) => setBlockReason(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsBlockModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleBlock}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Block User
+                </Button>
               </div>
             </div>
-          </>
-        )
-      }
-    </div >
+          </div>
+        </>
+      )}
+    </div>
   );
 };

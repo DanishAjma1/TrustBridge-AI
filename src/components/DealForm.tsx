@@ -32,7 +32,7 @@ export const DealForm: React.FC<DealFormProps> = ({
         equityOffered: initialData?.equityOffered || "",
         preMoneyValuation: initialData?.preMoneyValuation || valuation || 0,
         postMoneyValuation: initialData?.postMoneyValuation || 0,
-        investmentType: initialData?.investmentType || "Equity",
+        investmentType: "Equity",
         boardSeat: initialData?.boardSeat || "No",
         votingRights: initialData?.votingRights || "None",
         dividends: initialData?.dividends || "On Exit Only",
@@ -50,7 +50,7 @@ export const DealForm: React.FC<DealFormProps> = ({
         const preMoney = Number(formData.preMoneyValuation) || 0;
         setFormData((prev) => ({
             ...prev,
-            postMoneyValuation: preMoney + amount,
+            postMoneyValuation: preMoney + Number((amount * 0.98).toFixed(2)),
         }));
     }, [formData.investmentAmount, formData.preMoneyValuation]);
 
@@ -252,25 +252,19 @@ export const DealForm: React.FC<DealFormProps> = ({
                             <label className="block text-sm font-medium text-gray-700">
                                 Type of Investment
                             </label>
-                            <select
+                            <input
                                 name="investmentType"
                                 value={formData.investmentType}
-                                onChange={handleChange}
-                                disabled={readOnly}
+                                disabled
                                 className={`mt-1 w-full border border-gray-300 rounded-md p-2 ${readOnly ? "bg-gray-100" : ""}`}
-                            >
-                                <option value="Equity">Equity</option>
-                                {/* <option value="Convertible Note">Convertible Note</option> */}
-                                {/* <option value="SAFE">SAFE</option> */}
-                                {/* <option value="Debt">Debt</option> */}
-                            </select>
+                            />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700">
                                 Funding Stage
                             </label>
                             {/* Make Funding Stage read-only: comment out editable dropdown */}
-                            {/*
+                            
                             <select
                                 name="stage"
                                 value={formData.stage}
@@ -284,14 +278,6 @@ export const DealForm: React.FC<DealFormProps> = ({
                                 <option value="Series B">Series B</option>
                                 <option value="Late Stage">Late Stage</option>
                             </select>
-                            */}
-                            <input
-                                type="text"
-                                name="stage"
-                                value={formData.stage}
-                                readOnly
-                                className="mt-1 w-full bg-gray-100 border-gray-300 rounded-md p-2 text-gray-600 cursor-not-allowed"
-                            />
                         </div>
                     </div>
                 </div>

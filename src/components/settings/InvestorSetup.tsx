@@ -3,51 +3,51 @@ import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import { Investor, UserRole } from "../../types";
 import {
-    getInvestorById,
-    updateInvestorData,
-    createInvestorProfile,
+  getInvestorById,
+  updateInvestorData,
+  createInvestorProfile,
 } from "../../data/users";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-    TrendingUp,
-    Target,
-    Filter,
-    Clock,
-    DollarSign,
-    BarChart3,
-    Plus,
-    X,
-    Save,
-    Trophy,
-    Zap,
-    Globe,
-    Calendar,
-    Sparkles,
-    Check,
-    Loader2,
-    ChevronDown,
-    Search
+  TrendingUp,
+  Target,
+  Filter,
+  Clock,
+  DollarSign,
+  BarChart3,
+  Plus,
+  X,
+  Save,
+  Trophy,
+  Zap,
+  Globe,
+  Calendar,
+  Sparkles,
+  Check,
+  Loader2,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 import axios from "axios";
-import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const COUNTRIES = [
-    { code: 'US', name: 'USA' },
-    { code: 'AU', name: 'AUS' },
-    { code: 'NZ', name: 'NZ' },
-    { code: 'PK', name: 'PAK' },
-    { code: 'DE', name: 'GER' },
-    { code: 'DK', name: 'DEN' },
-    { code: 'ZA', name: 'SA' },
-    { code: 'CA', name: 'CAN' }
+  { code: "US", name: "USA" },
+  { code: "AU", name: "AUS" },
+  { code: "NZ", name: "NZ" },
+  { code: "PK", name: "PAK" },
+  { code: "DE", name: "GER" },
+  { code: "DK", name: "DEN" },
+  { code: "ZA", name: "SA" },
+  { code: "CA", name: "CAN" },
 ];
 
 type User = {
-    name: string;
-    email: string;
-    password: string;
-    role: UserRole;
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
 };
 
 export const InvestorSetup: React.FC = () => {
@@ -110,16 +110,17 @@ export const InvestorSetup: React.FC = () => {
         setInvestorFormData(initialInvestorData);
     }, [initialInvestorData]);
 
-    const handleInvestorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        // Prevent negative and invalid input for number fields
-        if (type === "number") {
+  const handleInvestorChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value,type } = e.target;
+    if (type === "number") {
             // Disallow negative sign and 'e' for all number fields
             if (value.includes("-") || value.includes("e") || value.includes("E")) {
                 return;
             }
             // For integer fields, disallow decimals
-            if (["successfullExits", "minTimline", "maxTimline"].includes(name) && value.includes(".")) {
+            if (["successfullExits", "minTimline"].includes(name) && value.includes(".")) {
                 return;
             }
             // Prevent non-numeric input
@@ -127,503 +128,596 @@ export const InvestorSetup: React.FC = () => {
                 return;
             }
         }
-        setInvestorFormData({ ...investorFormData, [name]: value });
-        validateField(name, value);
-    };
-
-    useEffect(() => {
-        validateField("investmentInterests", investorFormData.investmentInterests);
-        validateField("investmentCriteria", investorFormData.investmentCriteria);
-    }, [investorFormData.investmentInterests, investorFormData.investmentCriteria]);
-
-    const validateField = (name: string, value: any) => {
-        let error = "";
-        if (name === "investmentInterests") {
-            if (!value || (Array.isArray(value) && value.length === 0)) error = "Select at least one industry.";
-            else if (Array.isArray(value) && value.length > 5) error = "You can select up to 5 interests.";
-        } else if (name === "investmentCriteria") {
-            if (!value || (Array.isArray(value) && value.length === 0)) error = "Add at least one investment criteria.";
-            else if (Array.isArray(value) && value.length > 5) error = "You can add up to 5 criteria.";
-        } else if (name === "minimumInvestment" || name === "maximumInvestment") {
-            if (value !== "" && value !== undefined && value !== null) {
-                const num = Number(value);
-                if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
-            }
-            const min = Number(investorFormData.minimumInvestment);
-            const max = Number(investorFormData.maximumInvestment);
-            if (!isNaN(min) && !isNaN(max) && min > max) {
-                if (name === "minimumInvestment") error = "Min cannot be greater than Max.";
-                if (name === "maximumInvestment") error = "Max cannot be less than Min.";
-            }
-        } else if (name === "successfullExits" || name === "minTimline" || name === "maxTimline") {
-            if (value !== "" && value !== undefined && value !== null) {
-                const num = Number(value);
-                if (!Number.isInteger(num) || num < 0) error = "Must be a non-negative integer.";
-            }
-            const minT = Number(investorFormData.minTimline);
-            const maxT = Number(investorFormData.maxTimline);
-            if (!isNaN(minT) && !isNaN(maxT) && minT > maxT) {
-                if (name === "minTimline") error = "Min timeline cannot be greater than Max timeline.";
-                if (name === "maxTimline") error = "Max timeline cannot be less than Min timeline.";
-            }
-        } else if (name === "phoneNumber") {
-            if (!value) error = "Phone number is required.";
-            else if (!isValidPhoneNumber(value)) error = "Invalid phone number format.";
-        } else if (name === "country") {
-            if (!value) error = "Please select a country.";
+      if (value !== "" && value !== undefined && value !== null) {
+        if (name === "maxTimline") {
+          const selectedDate = new Date(value);
+          const now = new Date();
+          const diffTime = selectedDate.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          setInvestorFormData({
+            ...investorFormData,
+            maxTimline: selectedDate,
+            minTimline: diffDays,
+          });
+          validateField(name, value);
+          validateField("minTimline", diffDays);
+        } else {
+          setInvestorFormData({ ...investorFormData, [name]: value });
+          validateField(name, value);
         }
+    }
+  };
 
-        setErrors(prev => {
-            const next = { ...prev };
-            if (error) next[name] = error;
-            else delete next[name];
-            return next;
-        });
+  useEffect(() => {
+    validateField("investmentInterests", investorFormData.investmentInterests);
+    validateField("investmentCriteria", investorFormData.investmentCriteria);
+  }, [
+    investorFormData.investmentInterests,
+    investorFormData.investmentCriteria,
+  ]);
 
-        return error;
-    };
+  const validateField = (name: string, value: any) => {
+    let error = "";
+    if (name === "investmentInterests") {
+      if (!value || (Array.isArray(value) && value.length === 0))
+        error = "Select at least one industry.";
+      else if (Array.isArray(value) && value.length > 5)
+        error = "You can select up to 5 interests.";
+    } else if (name === "investmentCriteria") {
+      if (!value || (Array.isArray(value) && value.length === 0))
+        error = "Add at least one investment criteria.";
+      else if (Array.isArray(value) && value.length > 5)
+        error = "You can add up to 5 criteria.";
+    } else if (name === "minimumInvestment" || name === "maximumInvestment") {
+      if (value !== "" && value !== undefined && value !== null) {
+        const num = Number(value);
+        if (isNaN(num) || num < 0) error = "Must be a non-negative number.";
+      }
+      const min = Number(investorFormData.minimumInvestment);
+      const max = Number(investorFormData.maximumInvestment);
+      if (!isNaN(min) && !isNaN(max) && min > max) {
+        if (name === "minimumInvestment")
+          error = "Min cannot be greater than Max.";
+        if (name === "maximumInvestment")
+          error = "Max cannot be less than Min.";
+      }
+    } else if (
+      name === "successfullExits" ||
+      name === "minTimline" ||
+      name === "maxTimline"
+    ) {
+      if (value !== "" && value !== undefined && value !== null) {
+        if (name === "maxTimline") {
+          const num = new Date(value);
+          if (isNaN(num.getTime()))
+            error = "Must be a valid date.";
+        } if (name === "minTimline") {
+          const num = Number(value);
+          if (!Number.isInteger(num) || num < 0)
+            error = "Must be a non-negative integer.";
+        }
+      }
+      const minT = Number(investorFormData.minTimline);
+      const maxT = new Date(investorFormData.maxTimline ?? new Date());
+      if (minT <= 0 && maxT > new Date()) {
+        if (name === "minTimline")
+          error = "Min timeline must be greater than 1 day.";
+        if (name === "maxTimline")
+          error = "Max timeline cannot be less than Min timeline.";
+      }
+    } else if (name === "phoneNumber") {
+      if (!value) error = "Phone number is required.";
+      else if (!isValidPhoneNumber(value))
+        error = "Invalid phone number format.";
+    } else if (name === "country") {
+      if (!value) error = "Please select a country.";
+    }
 
-    const validateAll = () => {
-        const fields = [
-            "investmentInterests",
-            "investmentCriteria",
-            "minimumInvestment",
-            "maximumInvestment",
-            "successfullExits",
-            "minTimline",
-            "maxTimline",
-            "country",
-            "phoneNumber"
-        ];
-        let hasError = false;
-        fields.forEach(f => {
-            const err = validateField(f, (investorFormData as any)[f]);
-            if (err) hasError = true;
-        });
-        return !hasError;
-    };
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (error) next[name] = error;
+      else delete next[name];
+      return next;
+    });
 
-    const handleInvestorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        if (!validateAll()) {
-            toast.error("Please fix form errors before submitting");
-            setIsSubmitting(false);
-            return;
+    return error;
+  };
+
+  const validateAll = () => {
+    const fields = [
+      "investmentInterests",
+      "investmentCriteria",
+      "minimumInvestment",
+      "maximumInvestment",
+      "successfullExits",
+      "minTimline",
+      "maxTimline",
+      "country",
+      "phoneNumber",
+    ];
+    let hasError = false;
+    fields.forEach((f) => {
+      const err = validateField(f, (investorFormData as any)[f]);
+      if (err) hasError = true;
+    });
+    return !hasError;
+  };
+
+  const handleInvestorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    if (!validateAll()) {
+      toast.error("Please fix form errors before submitting");
+      setIsSubmitting(false);
+      return;
+    }
+    try {
+      if (
+        investorFormData.maximumInvestment === 0 ||
+        investorFormData.minimumInvestment === 0 ||
+        investorFormData.investmentInterests?.length === 0
+      ) {
+        alert("Please input the required data...");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!checkIfSettingPage) {
+        const userInfoString = localStorage.getItem("userInfo");
+        if (!userInfoString) {
+          setIsSubmitting(false);
+          return;
         }
         try {
-            if (
-                investorFormData.maximumInvestment === "" ||
-                investorFormData.minimumInvestment === "" ||
-                investorFormData.investmentInterests?.length === 0
-            ) {
-                alert("Please input the required data...");
-                setIsSubmitting(false);
-                return;
-            }
+          const parsed = JSON.parse(userInfoString) as User;
+          const { name, email, password, role } = parsed;
+          const userId = await register(name, email, password, role, false);
+          console.log(userId);
+          if (userId) {
+            await createInvestorProfile({
+              ...investorFormData,
+              userId: userId,
+            });
 
-            if (!checkIfSettingPage) {
-                const userInfoString = localStorage.getItem("userInfo");
-                if (!userInfoString) {
-                    setIsSubmitting(false);
-                    return;
-                }
-                try {
-                    const parsed = JSON.parse(userInfoString) as User;
-                    const { name, email, password, role } = parsed;
-                    const userId = await register(name, email, password, role, false);
-                    console.log(userId);
-                    if (userId) {
-                        await createInvestorProfile({ ...investorFormData, userId: userId });
+            // Email will be sent from the backend when profile is created/updated
 
-                        // Email will be sent from the backend when profile is created/updated
-
-                        navigate("/account-under-review", { replace: true });
-                    }
-                } catch (e) {
-                    console.error("Failed to parse userInfo from localStorage", e);
-                } finally {
-                    localStorage.removeItem("userInfo");
-                }
-            }
-            else {
-                await updateInvestorData(investorFormData);
-                const {
-                    investmentInterests,
-                    minimumInvestment,
-                    maximumInvestment,
-                    investmentCriteria,
-                    successfullExits,
-                    minTimline,
-                    maxTimline,
-                    country,
-                    phoneNumber
-                } = investorFormData;
-                setInvestor({
-                    ...investor,
-                    investmentInterests,
-                    minimumInvestment,
-                    maximumInvestment,
-                    investmentCriteria,
-                    successfullExits,
-                    minTimline,
-                    maxTimline,
-                    country,
-                    phoneNumber
-                } as Investor);
-                setInvestorFormData(initialInvestorData);
-            }
-        } catch (error) {
-            console.error(error);
+            navigate("/account-under-review", { replace: true });
+          }
+        } catch (e) {
+          console.error("Failed to parse userInfo from localStorage", e);
         } finally {
-            setIsSubmitting(false);
+          localStorage.removeItem("userInfo");
         }
-    };
+      } else {
+        await updateInvestorData(investorFormData);
+        const {
+          investmentInterests,
+          minimumInvestment,
+          maximumInvestment,
+          investmentCriteria,
+          successfullExits,
+          minTimline,
+          maxTimline,
+          country,
+          phoneNumber,
+        } = investorFormData;
+        setInvestor({
+          ...investor,
+          investmentInterests,
+          minimumInvestment,
+          maximumInvestment,
+          investmentCriteria,
+          successfullExits,
+          minTimline,
+          maxTimline,
+          country,
+          phoneNumber,
+        } as Investor);
+        setInvestorFormData(initialInvestorData);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const handleInterests = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        const updatedInterests = [
-            ...investorFormData.investmentInterests,
-            investorFormData.interest,
-        ];
-        setInvestorFormData({
-            ...investorFormData,
-            investmentInterests: updatedInterests,
-            interest: "",
-        });
-        validateField("investmentInterests", updatedInterests);
-    };
+  const handleInterests = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const updatedInterests = [
+      ...investorFormData.investmentInterests,
+      investorFormData.interest,
+    ];
+    setInvestorFormData({
+      ...investorFormData,
+      investmentInterests: updatedInterests,
+      interest: "",
+    });
+    validateField("investmentInterests", updatedInterests);
+  };
 
-    const handleCriteria = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        const updateCriteria = [
-            ...investorFormData.investmentCriteria,
-            investorFormData.criteria,
-        ];
-        setInvestorFormData({
-            ...investorFormData,
-            investmentCriteria: updateCriteria,
-            criteria: "",
-        });
-        validateField("investmentCriteria", updateCriteria);
-    };
+  const handleCriteria = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const updateCriteria = [
+      ...investorFormData.investmentCriteria,
+      investorFormData.criteria,
+    ];
+    setInvestorFormData({
+      ...investorFormData,
+      investmentCriteria: updateCriteria,
+      criteria: "",
+    });
+    validateField("investmentCriteria", updateCriteria);
+  };
 
-    const removeInterest = (index: number) => {
-        const updatedInterests = investorFormData.investmentInterests.filter(
-            (_, i) => i !== index
-        );
-        setInvestorFormData({
-            ...investorFormData,
-            investmentInterests: updatedInterests,
-        });
-    };
+  const removeInterest = (index: number) => {
+    const updatedInterests = investorFormData.investmentInterests.filter(
+      (_, i) => i !== index,
+    );
+    setInvestorFormData({
+      ...investorFormData,
+      investmentInterests: updatedInterests,
+    });
+  };
 
-    const removeCriteria = (index: number) => {
-        const updatedCriteria = investorFormData.investmentCriteria.filter(
-            (_, i) => i !== index
-        );
-        setInvestorFormData({
-            ...investorFormData,
-            investmentCriteria: updatedCriteria,
-        });
-    };
+  const removeCriteria = (index: number) => {
+    const updatedCriteria = investorFormData.investmentCriteria.filter(
+      (_, i) => i !== index,
+    );
+    setInvestorFormData({
+      ...investorFormData,
+      investmentCriteria: updatedCriteria,
+    });
+  };
 
-    return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-3">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-4">
-                    <TrendingUp className="w-8 h-8 text-blue-600" />
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-3">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-4">
+          <TrendingUp className="w-8 h-8 text-blue-600" />
+        </div>
+        <h2 className="text-3xl font-bold text-gray-900">
+          Shape Your Investment Strategy
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Define your preferences to discover the most promising startup
+          opportunities
+        </p>
+      </div>
+
+      {/* Progress Steps */}
+      <div className="flex items-center justify-center space-x-8">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+            <Check className="w-5 h-5" />
+          </div>
+          <span className="font-medium text-gray-900">Sign Up</span>
+        </div>
+        <div className="h-0.5 w-16 bg-blue-400"></div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+            2
+          </div>
+          <span className="font-medium text-gray-700">Criteria</span>
+        </div>
+        <div className="h-0.5 w-16 bg-gray-400"></div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-sm font-medium">
+            3
+          </div>
+          <span className="font-medium text-gray-400">Review By Admin</span>
+        </div>
+      </div>
+      
+
+      <form onSubmit={handleInvestorSubmit} className="space-y-8">
+        {/* Investment Interests */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Target className="w-5 h-5 text-blue-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Investment Interests
+            </h3>
+          </div>
+
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+              <Globe className="w-4 h-4" />
+              <span>What industries interest you?</span>
+              <span className="text-xs text-gray-500">
+                ({investorFormData.investmentInterests.length}/5)
+              </span>
+            </label>
+
+            {/* Selected industries as chips */}
+            <div className="flex flex-wrap gap-3 mb-2">
+              {investorFormData.investmentInterests.length > 0 ? (
+                investorFormData.investmentInterests.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100"
+                  >
+                    <span className="text-blue-700 font-medium">{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeInterest(idx)}
+                      className="text-blue-400 hover:text-blue-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <span className="text-sm text-gray-400">
+                  No industries selected
+                </span>
+              )}
+            </div>
+
+            {/* Dropdown trigger */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowIndustryDropdown((s) => !s)}
+                className="w-full md:w-auto px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-blue-500 focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between"
+              >
+                <span className="text-gray-700">Select industries</span>
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-400 transition-transform ${showIndustryDropdown ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {/* Dropdown menu */}
+              {showIndustryDropdown && (
+                <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg p-3 max-h-72 overflow-y-auto">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Search size={16} className="text-gray-400" />
+                    <input
+                      type="text"
+                      value={industryQuery}
+                      onChange={(e) => setIndustryQuery(e.target.value)}
+                      placeholder="Search industries..."
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  {(industries || [])
+                    .filter((i) =>
+                      i.name
+                        .toLowerCase()
+                        .includes(industryQuery.toLowerCase()),
+                    )
+                    .map((i) => {
+                      const name = i.name;
+                      const isSelected =
+                        investorFormData.investmentInterests.includes(name);
+                      const canAddMore =
+                        investorFormData.investmentInterests.length < 5;
+                      return (
+                        <button
+                          key={i._id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setInvestorFormData((prev) => ({
+                                ...prev,
+                                investmentInterests:
+                                  prev.investmentInterests.filter(
+                                    (ind) => ind !== name,
+                                  ),
+                              }));
+                            } else if (canAddMore) {
+                              setInvestorFormData((prev) => ({
+                                ...prev,
+                                investmentInterests: [
+                                  ...prev.investmentInterests,
+                                  name,
+                                ],
+                              }));
+                            }
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between hover:bg-gray-50 ${isSelected ? "bg-blue-50 text-blue-700" : "text-gray-700"}`}
+                        >
+                          <span>{name}</span>
+                          {isSelected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowIndustryDropdown(false)}
+                      className="text-xs text-gray-600 hover:text-gray-800 underline"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">Shape Your Investment Strategy</h2>
-                <p className="text-gray-600 max-w-2xl mx-auto">
-                    Define your preferences to discover the most promising startup opportunities
+              )}
+              {errors.investmentInterests && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.investmentInterests}
                 </p>
+              )}
+            </div>
+          </div>
+
+          {investorFormData.investmentInterests.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-gray-700">
+                Selected Interests
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {investorFormData.investmentInterests.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100"
+                  >
+                    <span className="text-blue-700 font-medium">{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeInterest(idx)}
+                      className="text-blue-400 hover:text-blue-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <Globe className="w-4 h-4" />
+                <span>Country</span>
+              </label>
+              <select
+                name="country"
+                value={investorFormData.country || ""}
+                onChange={handleInvestorChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-700 hover:border-blue-300"
+              >
+                <option value="">Select Country</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {errors.country && (
+                <p className="text-sm text-red-600 mt-1">{errors.country}</p>
+              )}
             </div>
 
-            {/* Progress Steps */}
-            <div className="flex items-center justify-center space-x-8">
-                <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                        <Check className="w-5 h-5" />
-                    </div>
-                    <span className="font-medium text-gray-900">Sign Up</span>
-                </div>
-                <div className="h-0.5 w-16 bg-blue-400"></div>
-                <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                        2
-                    </div>
-                    <span className="font-medium text-gray-700">Criteria</span>
-                </div>
-                <div className="h-0.5 w-16 bg-gray-400"></div>
-                <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-sm font-medium">
-                        3
-                    </div>
-                    <span className="font-medium text-gray-400">Review By Admin</span>
-                </div>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <span>Phone Number</span>
+              </label>
+              <div className="phone-input-container">
+                <PhoneInput
+                  placeholder="Enter phone number"
+                  value={investorFormData.phoneNumber}
+                  onChange={(value) => {
+                    setInvestorFormData((prev) => ({
+                      ...prev,
+                      phoneNumber: value,
+                    }));
+                    validateField("phoneNumber", value);
+                  }}
+                  countries={["US", "AU", "NZ", "PK", "DE", "DK", "SA", "CA"]}
+                  defaultCountry={
+                    COUNTRIES.find((c) => c.name === investorFormData.country)
+                      ?.code as any
+                  }
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition-all group-hover:border-blue-300"
+                />
+              </div>
+              {errors.phoneNumber && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.phoneNumber}
+                </p>
+              )}
             </div>
+          </div>
+        </div>
 
-            <form onSubmit={handleInvestorSubmit} className="space-y-8">
-                {/* Investment Interests */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-50 rounded-lg">
-                            <Target className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Investment Interests</h3>
-                    </div>
+        {/* Investment Criteria */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-purple-50 rounded-lg">
+              <Filter className="w-5 h-5 text-purple-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Investment Criteria
+            </h3>
+          </div>
 
-                    <div className="space-y-2">
-                        <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                            <Globe className="w-4 h-4" />
-                            <span>What industries interest you?</span>
-                            <span className="text-xs text-gray-500">
-                                ({investorFormData.investmentInterests.length}/5)
-                            </span>
-                        </label>
-
-                        {/* Selected industries as chips */}
-                        <div className="flex flex-wrap gap-3 mb-2">
-                            {investorFormData.investmentInterests.length > 0 ? (
-                                investorFormData.investmentInterests.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100"
-                                    >
-                                        <span className="text-blue-700 font-medium">{item}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeInterest(idx)}
-                                            className="text-blue-400 hover:text-blue-600 transition-colors"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                ))
-                            ) : (
-                                <span className="text-sm text-gray-400">No industries selected</span>
-                            )}
-                        </div>
-
-                        {/* Dropdown trigger */}
-                        <div className="relative">
-                            <button
-                                type="button"
-                                onClick={() => setShowIndustryDropdown((s) => !s)}
-                                className="w-full md:w-auto px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-blue-500 focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between"
-                            >
-                                <span className="text-gray-700">Select industries</span>
-                                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showIndustryDropdown ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {/* Dropdown menu */}
-                            {showIndustryDropdown && (
-                                <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg p-3 max-h-72 overflow-y-auto">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Search size={16} className="text-gray-400" />
-                                        <input
-                                            type="text"
-                                            value={industryQuery}
-                                            onChange={(e) => setIndustryQuery(e.target.value)}
-                                            placeholder="Search industries..."
-                                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    {(industries || []).filter((i) => i.name.toLowerCase().includes(industryQuery.toLowerCase())).map((i) => {
-                                        const name = i.name;
-                                        const isSelected = investorFormData.investmentInterests.includes(name);
-                                        const canAddMore = investorFormData.investmentInterests.length < 5;
-                                        return (
-                                            <button
-                                                key={i._id}
-                                                type="button"
-                                                onClick={() => {
-                                                    if (isSelected) {
-                                                        setInvestorFormData(prev => ({
-                                                            ...prev,
-                                                            investmentInterests: prev.investmentInterests.filter(ind => ind !== name)
-                                                        }));
-                                                    } else if (canAddMore) {
-                                                        setInvestorFormData(prev => ({
-                                                            ...prev,
-                                                            investmentInterests: [...prev.investmentInterests, name]
-                                                        }));
-                                                    }
-                                                }}
-                                                className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between hover:bg-gray-50 ${isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-                                            >
-                                                <span>{name}</span>
-                                                {isSelected && <Check className="w-4 h-4" />}
-                                            </button>
-                                        );
-                                    })}
-                                    <div className="mt-2 flex justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowIndustryDropdown(false)}
-                                            className="text-xs text-gray-600 hover:text-gray-800 underline"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            {errors.investmentInterests && (
-                                <p className="text-sm text-red-600 mt-1">{errors.investmentInterests}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {investorFormData.investmentInterests.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-sm font-medium text-gray-700">Selected Interests</p>
-                            <div className="flex flex-wrap gap-3">
-                                {investorFormData.investmentInterests.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100"
-                                    >
-                                        <span className="text-blue-700 font-medium">{item}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeInterest(idx)}
-                                            className="text-blue-400 hover:text-blue-600 transition-colors"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-                        <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                                <Globe className="w-4 h-4" />
-                                <span>Country</span>
-                            </label>
-                            <select
-                                name="country"
-                                value={investorFormData.country || ""}
-                                onChange={handleInvestorChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-700 hover:border-blue-300"
-                            >
-                                <option value="">Select Country</option>
-                                {COUNTRIES.map(c => (
-                                    <option key={c.code} value={c.name}>{c.name}</option>
-                                ))}
-                            </select>
-                            {errors.country && (
-                                <p className="text-sm text-red-600 mt-1">{errors.country}</p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                                <span>Phone Number</span>
-                            </label>
-                            <div className="phone-input-container">
-                                <PhoneInput
-                                    placeholder="Enter phone number"
-                                    value={investorFormData.phoneNumber}
-                                    onChange={(value) => {
-                                        setInvestorFormData(prev => ({ ...prev, phoneNumber: value }));
-                                        validateField("phoneNumber", value);
-                                    }}
-                                    countries={['US', 'AU', 'NZ', 'PK', 'DE', 'DK', 'SA', 'CA']}
-                                    defaultCountry={COUNTRIES.find(c => c.name === investorFormData.country)?.code as any}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition-all group-hover:border-blue-300"
-                                />
-                            </div>
-                            {errors.phoneNumber && (
-                                <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
-                            )}
-                        </div>
-                    </div>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+              <Zap className="w-4 h-4" />
+              <span>Your investment rules</span>
+              <span className="text-xs text-gray-500">
+                ({investorFormData.investmentCriteria.length}/5)
+              </span>
+            </label>
+            <div className="flex gap-3">
+              <div className="flex-1 relative group">
+                <input
+                  type="text"
+                  name="criteria"
+                  value={investorFormData.criteria}
+                  onChange={handleInvestorChange}
+                  placeholder="e.g., Early-stage, Revenue > $100K, Strong team"
+                  disabled={investorFormData.investmentCriteria.length >= 5}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 disabled:opacity-50 group-hover:border-purple-300"
+                />
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
+                {errors.investmentCriteria && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.investmentCriteria}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleCriteria}
+                disabled={
+                  !investorFormData.criteria ||
+                  investorFormData.investmentCriteria.length >= 5
+                }
+                className="px-6 py-3 bg-purple-50 text-purple-600 font-medium rounded-xl hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all border border-purple-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <Plus className="w-5 h-5" />
+                  <span>Add</span>
                 </div>
+              </button>
+            </div>
+          </div>
 
-                {/* Investment Criteria */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-purple-50 rounded-lg">
-                            <Filter className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Investment Criteria</h3>
-                    </div>
+          {investorFormData.investmentCriteria.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-gray-700">
+                Selected Criteria
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {investorFormData.investmentCriteria.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-xl border border-purple-100"
+                  >
+                    <span className="text-purple-700 font-medium">{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeCriteria(idx)}
+                      className="text-purple-400 hover:text-purple-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
-                    <div className="space-y-2">
-                        <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                            <Zap className="w-4 h-4" />
-                            <span>Your investment rules</span>
-                            <span className="text-xs text-gray-500">
-                                ({investorFormData.investmentCriteria.length}/5)
-                            </span>
-                        </label>
-                        <div className="flex gap-3">
-                            <div className="flex-1 relative group">
-                                <input
-                                    type="text"
-                                    name="criteria"
-                                    value={investorFormData.criteria}
-                                    onChange={handleInvestorChange}
-                                    placeholder="e.g., Early-stage, Revenue > $100K, Strong team"
-                                    disabled={investorFormData.investmentCriteria.length >= 5}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-400 disabled:opacity-50 group-hover:border-purple-300"
-                                />
-                                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-purple-400 pointer-events-none"></div>
-                                {errors.investmentCriteria && (
-                                    <p className="text-sm text-red-600 mt-1">{errors.investmentCriteria}</p>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={handleCriteria}
-                                disabled={!investorFormData.criteria || investorFormData.investmentCriteria.length >= 5}
-                                className="px-6 py-3 bg-purple-50 text-purple-600 font-medium rounded-xl hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all border border-purple-200"
-                            >
-                                <div className="flex items-center space-x-2">
-                                    <Plus className="w-5 h-5" />
-                                    <span>Add</span>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
+        {/* Financial Preferences */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-green-50 rounded-lg">
+              <DollarSign className="w-5 h-5 text-green-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Financial Preferences
+            </h3>
+          </div>
 
-                    {investorFormData.investmentCriteria.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-sm font-medium text-gray-700">Selected Criteria</p>
-                            <div className="flex flex-wrap gap-3">
-                                {investorFormData.investmentCriteria.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-xl border border-purple-100"
-                                    >
-                                        <span className="text-purple-700 font-medium">{item}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeCriteria(idx)}
-                                            className="text-purple-400 hover:text-purple-600 transition-colors"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Financial Preferences */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-green-50 rounded-lg">
-                            <DollarSign className="w-5 h-5 text-green-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Financial Preferences</h3>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="space-y-2">
@@ -768,33 +862,146 @@ export const InvestorSetup: React.FC = () => {
                                     <p className="text-sm text-red-600 mt-1">{errors.maxTimline}</p>
                                 )}
                             </div>
-                        </div>
                     </div>
                 </div>
+                <input
+                  type="number"
+                  name="maximumInvestment"
+                  value={investorFormData.maximumInvestment || ""}
+                  onChange={handleInvestorChange}
+                  placeholder="Maximum amount"
+                  min="0"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
+                />
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                {errors.maximumInvestment && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.maximumInvestment}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                {/* Submit Section */}
-                <div className="flex items-center justify-between pt-8 border-t border-gray-200">
-                    <div className="flex items-center space-x-3 text-gray-600">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="font-medium">Ready to invest?</p>
-                            <p className="text-sm">Complete your profile to start discovering opportunities</p>
-                        </div>
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        <div className="flex items-center space-x-2">
-                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                            <span>{checkIfSettingPage ? (isSubmitting ? "Updating..." : "Update Profile") : (isSubmitting ? "Saving..." : "Save & Send For Review")}</span>
-                        </div>
-                    </button>
-                </div>
-            </form>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <Trophy className="w-4 h-4" />
+                <span>Successful Exits</span>
+              </label>
+              <div className="relative group">
+                <input
+                  type="number"
+                  name="successfullExits"
+                  value={investorFormData.successfullExits || ""}
+                  onChange={handleInvestorChange}
+                  placeholder="Number of exits"
+                  min="0"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
+                />
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                {errors.successfullExits && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.successfullExits}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <Calendar className="w-4 h-4" />
+                <span>Min Timeline</span>
+              </label>
+              <div className="relative group">
+                <input
+                  type="string"
+                  name="minTimline"
+                  value={
+                    investorFormData.minTimline
+                      ? investorFormData.minTimline + " days"
+                      : "0 days"
+                  }
+                  onChange={handleInvestorChange}
+                  placeholder="Minimum months"
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                {errors.minTimline && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.minTimline}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <Calendar className="w-4 h-4" />
+                <span>Max Timeline</span>
+              </label>
+              <div className="relative group">
+                <input
+                  type="date"
+                  name="maxTimline"
+                  value={
+                    investorFormData.maxTimline
+                      ? new Date(investorFormData.maxTimline)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  onChange={handleInvestorChange}
+                  placeholder="Maximum months"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all placeholder-gray-400 group-hover:border-green-300"
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></div>
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-focus-within:border-green-400 pointer-events-none"></div>
+                {errors.maxTimline && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.maxTimline}
+                  </p>
+                )}
+              </div>
+            </div>
+
+        {/* Submit Section */}
+        <div className="flex items-center justify-between pt-8 border-t border-gray-200">
+          <div className="flex items-center space-x-3 text-gray-600">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-medium">Ready to invest?</p>
+              <p className="text-sm">
+                Complete your profile to start discovering opportunities
+              </p>
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center space-x-2">
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Save className="w-5 h-5" />
+              )}
+              <span>
+                {checkIfSettingPage
+                  ? isSubmitting
+                    ? "Updating..."
+                    : "Update Profile"
+                  : isSubmitting
+                    ? "Sending..."
+                    : "Save & Send For Review"}
+              </span>
+            </div>
+          </button>
         </div>
-    );
+      </form>
+    </div>
+  );
 };

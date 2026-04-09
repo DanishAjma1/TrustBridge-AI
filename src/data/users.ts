@@ -44,7 +44,7 @@ export const getEnterpreneurById = async (id) => {
       URL + "/entrepreneur/get-entrepreneur-by-id/" + id,
       {
         withCredentials: true,
-      }
+      },
     );
     const { entrepreneur } = res.data;
     return entrepreneur;
@@ -60,7 +60,7 @@ export const updateEntrepreneurData = async (formData: any) => {
       formData,
       {
         withCredentials: true,
-      }
+      },
     );
     toast.success("User data updated successfully.");
   } catch (err) {
@@ -70,12 +70,13 @@ export const updateEntrepreneurData = async (formData: any) => {
 
 export const updateInvestorData = async (formData: any) => {
   try {
+    console.log(formData);
     await axios.put(
       `${URL}/investor/update-profile/${formData.userId}`,
       formData,
       {
         withCredentials: true,
-      }
+      },
     );
     toast.success("User data updated successfully.");
   } catch (err) {
@@ -90,14 +91,17 @@ export const createInvestorProfile = async (formData: any) => {
       formData,
       {
         withCredentials: true,
-      }
+      },
     );
 
-    toast.success("🎉 Investor profile created successfully! Your account is under review.");
+    toast.success(
+      "Investor profile created successfully! Your account is under review.",
+    );
     return true;
   } catch (err: any) {
     console.log(err);
-    const errorMessage = err.response?.data?.message || "Failed to create profile.";
+    const errorMessage =
+      err.response?.data?.message || "Failed to create profile.";
     toast.error(`Registration failed: ${errorMessage}`);
     throw err;
   }
@@ -110,29 +114,36 @@ export const createEnterProfile = async (formData: any) => {
       formData,
       {
         withCredentials: true,
-      }
+      },
     );
 
-    toast.success("🎉 Entrepreneur profile created successfully! Your account is under review.");
+    toast.success(
+      "🎉 Entrepreneur profile created successfully! Your account is under review.",
+    );
     return true;
   } catch (err: any) {
     console.log(err);
-    const errorMessage = err.response?.data?.message || "Failed to create profile.";
+    const errorMessage =
+      err.response?.data?.message || "Failed to create profile.";
     toast.error(`Registration failed: ${errorMessage}`);
     throw err;
   }
 };
-export const sendMailToUser = async (message: string, sub: string, email: string) => {
+export const sendMailToUser = async (
+  message: string,
+  sub: string,
+  email: string,
+) => {
   try {
     const res = await axios.post(
       `${URL}/auth/send-mail`,
       { email, message, sub },
       {
         withCredentials: true,
-      }
+      },
     );
 
-    if (res.status === 200) toast.success("Email has been sent successfully.");;
+    if (res.status === 200) toast.success("Email has been sent successfully.");
   } catch (err) {
     console.log(err);
   }
@@ -163,6 +174,7 @@ export const getAiRecommendations = async (userId: string) => {
 };
 
 export const getSuccessfulEntrepreneurs = () => { };
+export const getSuccessfulEntrepreneurs = () => {};
 
 export const AmountMeasureWithTags = (amount: number) => {
   if (amount !== 0) {
@@ -186,7 +198,7 @@ export const addTeamMember = async (userId: string, formData: FormData) => {
       {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
     toast.success("Team member added successfully");
     return res.data;
@@ -197,7 +209,11 @@ export const addTeamMember = async (userId: string, formData: FormData) => {
   }
 };
 
-export const updateTeamMember = async (userId: string, memberId: string, formData: FormData) => {
+export const updateTeamMember = async (
+  userId: string,
+  memberId: string,
+  formData: FormData,
+) => {
   try {
     const res = await axios.put(
       `${URL}/entrepreneur/update-team-member/${userId}/${memberId}`,
@@ -205,7 +221,7 @@ export const updateTeamMember = async (userId: string, memberId: string, formDat
       {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
     toast.success("Team member updated successfully");
     return res.data;
@@ -222,7 +238,7 @@ export const deleteTeamMember = async (userId: string, memberId: string) => {
       `${URL}/entrepreneur/delete-team-member/${userId}/${memberId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     toast.success("Team member removed successfully");
     return res.data;

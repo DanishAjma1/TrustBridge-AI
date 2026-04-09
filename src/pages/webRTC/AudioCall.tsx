@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import toast from "react-hot-toast";
-import AgoraRTC, { ILocalTrack, IAgoraRTCClient } from "agora-rtc-sdk-ng";
+import { ILocalTrack, IAgoraRTCClient } from "agora-rtc-sdk-ng";
 import axios from "axios";
+import { initAgora } from "../../utils/agoraInit";
 
 export const AudioCall: React.FC = () => {
   const { roomId, userId, isIncommingCall } = useParams();
@@ -43,10 +44,9 @@ export const AudioCall: React.FC = () => {
 
   useEffect(() => {
     if (!token || !uid) return;
-
-    AgoraRTC.setLogLevel(0);
-
     const init = async () => {
+      const AgoraRTC = await initAgora();
+
       const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
 
@@ -100,7 +100,7 @@ export const AudioCall: React.FC = () => {
     return () => {
       cleanup();
     };
-  }, [CHANNEL, isIncommingCall,APP_ID, user, userId, token, uid, socket]);
+  }, [CHANNEL, isIncommingCall, APP_ID, user, userId, token, uid, socket]);
 
   // === Cleanup ===
   const cleanup = async () => {
@@ -161,7 +161,7 @@ export const AudioCall: React.FC = () => {
       socket?.off("call-rejected");
       socket?.off("call-ended");
     };
-  }, [socket, userId,navigate]);
+  }, [socket, userId, navigate]);
   return (
     <div className="flex h-lvh flex-col items-center bg-white p-3 rounded-xl shadow-lg">
       <h2 className="text-xl font-bold my-4">Agora 1-to-1 Audio Call</h2>

@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "../../components/home/Navbar";
 import { Button } from "../../components/ui/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import { Entrepreneur } from "../../types";
-import { 
-  Loader2, 
-  ChevronLeft, 
-  ChevronRight, 
-  MapPin, 
-  Users, 
-  Target, 
-  Layers, 
-  TrendingUp, 
-  Building2, 
-  Clock, 
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Users,
+  Target,
+  Layers,
+  TrendingUp,
+  Building2,
+  Clock,
   Percent,
   Sparkles,
   Filter,
   Zap,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
+import { AmountMeasureWithTags } from "../../data/users";
 
 interface BusinessCardProps {
   entrepreneur: Entrepreneur;
@@ -34,14 +35,17 @@ export const FundraisePage: React.FC = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [entrepreneurs, setEntrepreneurs] = useState<Entrepreneur[]>([]);
-  const [filteredEntrepreneurs, setFilteredEntrepreneurs] = useState<Entrepreneur[]>([]);
+  const [filteredEntrepreneurs, setFilteredEntrepreneurs] = useState<
+    Entrepreneur[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("All Industries");
+  const [selectedIndustry, setSelectedIndustry] =
+    useState<string>("All Industries");
   const [selectedStage, setSelectedStage] = useState<string>("All Stages");
   const [platformStats, setPlatformStats] = useState({
     totalInvested: 0,
     totalInvestors: 0,
-    activeDeals: 0
+    activeDeals: 0,
   });
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(6); // 6 items for 2 rows of 3
@@ -56,16 +60,16 @@ export const FundraisePage: React.FC = () => {
         const [entRes, statsRes, indRes] = await Promise.all([
           axios.get(`${URL}/entrepreneur/get-entrepreneurs`),
           axios.get(`${URL}/user/platform-stats`),
-          axios.get(`${URL}/industry/get-all`)
+          axios.get(`${URL}/industry/get-all`),
         ]);
 
         setEntrepreneurs(entRes.data.entrepreneurs || []);
         setFilteredEntrepreneurs(entRes.data.entrepreneurs || []);
-        
+
         if (indRes.data) {
-           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-           const industries = indRes.data.map((ind: any) => ind.name);
-           setIndustriesList(industries);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const industries = indRes.data.map((ind: any) => ind.name);
+          setIndustriesList(industries);
         }
 
         if (statsRes.data) {
@@ -84,7 +88,7 @@ export const FundraisePage: React.FC = () => {
     let filtered = [...entrepreneurs];
 
     if (selectedIndustry !== "All Industries") {
-      filtered = filtered.filter(ent => {
+      filtered = filtered.filter((ent) => {
         if (Array.isArray(ent.industry)) {
           return ent.industry.includes(selectedIndustry);
         }
@@ -93,10 +97,21 @@ export const FundraisePage: React.FC = () => {
     }
 
     if (selectedStage !== "All Stages") {
-      filtered = filtered.filter(ent => {
-        if (selectedStage === "Pre-Seed") return ent.preSeedStatus === "completed" || ent.preSeedStatus === "in-progress";
-        if (selectedStage === "Seed") return ent.seedStatus === "completed" || ent.seedStatus === "in-progress";
-        if (selectedStage === "Series A") return ent.seriesAStatus === "completed" || ent.seriesAStatus === "in-progress";
+      filtered = filtered.filter((ent) => {
+        if (selectedStage === "Pre-Seed")
+          return (
+            ent.preSeedStatus === "completed" ||
+            ent.preSeedStatus === "in-progress"
+          );
+        if (selectedStage === "Seed")
+          return (
+            ent.seedStatus === "completed" || ent.seedStatus === "in-progress"
+          );
+        if (selectedStage === "Series A")
+          return (
+            ent.seriesAStatus === "completed" ||
+            ent.seriesAStatus === "in-progress"
+          );
         return true;
       });
     }
@@ -109,26 +124,26 @@ export const FundraisePage: React.FC = () => {
   const totalPages = Math.ceil(filteredEntrepreneurs.length / itemsPerPage);
   const paginatedEntrepreneurs = filteredEntrepreneurs.slice(
     currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
+    (currentPage + 1) * itemsPerPage,
   );
 
   const nextPage = () => {
     if (currentPage < totalPages - 1) {
-      setCurrentPage(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentPage((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const prevPage = () => {
     if (currentPage > 0) {
-      setCurrentPage(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentPage((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Adjust items per page based on screen size
@@ -146,8 +161,8 @@ export const FundraisePage: React.FC = () => {
     };
 
     updateItemsPerPage();
-    window.addEventListener('resize', updateItemsPerPage);
-    return () => window.removeEventListener('resize', updateItemsPerPage);
+    window.addEventListener("resize", updateItemsPerPage);
+    return () => window.removeEventListener("resize", updateItemsPerPage);
   }, []);
 
   const industries = ["All Industries", ...industriesList];
@@ -155,9 +170,15 @@ export const FundraisePage: React.FC = () => {
 
   const BusinessCard: React.FC<BusinessCardProps> = ({ entrepreneur }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const images = entrepreneur.businessThumbnails && entrepreneur.businessThumbnails.length > 0
-      ? entrepreneur.businessThumbnails
-      : [typeof entrepreneur.avatarUrl === 'string' ? entrepreneur.avatarUrl : "/placeholder-startup.jpg"];
+    const images =
+      entrepreneur.businessThumbnails &&
+      entrepreneur.businessThumbnails.length > 0
+        ? entrepreneur.businessThumbnails
+        : [
+            typeof entrepreneur.avatarUrl === "string"
+              ? entrepreneur.avatarUrl
+              : "/placeholder-startup.jpg",
+          ];
 
     useEffect(() => {
       if (images.length <= 1) return;
@@ -174,13 +195,27 @@ export const FundraisePage: React.FC = () => {
 
     const prevImage = (e: React.MouseEvent) => {
       e.stopPropagation();
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      setCurrentImageIndex(
+        (prev) => (prev - 1 + images.length) % images.length,
+      );
     };
 
     const getActiveStage = () => {
-      if (entrepreneur.seriesAStatus === "completed" || entrepreneur.seriesAStatus === "in-progress") return "Series A";
-      if (entrepreneur.seedStatus === "completed" || entrepreneur.seedStatus === "in-progress") return "Seed";
-      if (entrepreneur.preSeedStatus === "completed" || entrepreneur.preSeedStatus === "in-progress") return "Pre-Seed";
+      if (
+        entrepreneur.seriesAStatus === "completed" ||
+        entrepreneur.seriesAStatus === "in-progress"
+      )
+        return "Series A";
+      if (
+        entrepreneur.seedStatus === "completed" ||
+        entrepreneur.seedStatus === "in-progress"
+      )
+        return "Seed";
+      if (
+        entrepreneur.preSeedStatus === "completed" ||
+        entrepreneur.preSeedStatus === "in-progress"
+      )
+        return "Pre-Seed";
       return "Concept";
     };
 
@@ -188,23 +223,32 @@ export const FundraisePage: React.FC = () => {
 
     const getStageColor = (stage: string) => {
       switch (stage) {
-        case "Pre-Seed": return "bg-gradient-to-r from-blue-400 to-blue-500";
-        case "Seed": return "bg-gradient-to-r from-blue-600 to-blue-700";
-        case "Series A": return "bg-gradient-to-r from-emerald-500 to-emerald-600";
-        default: return "bg-gradient-to-r from-gray-500 to-gray-600";
+        case "Pre-Seed":
+          return "bg-gradient-to-r from-blue-400 to-blue-500";
+        case "Seed":
+          return "bg-gradient-to-r from-blue-600 to-blue-700";
+        case "Series A":
+          return "bg-gradient-to-r from-emerald-500 to-emerald-600";
+        default:
+          return "bg-gradient-to-r from-gray-500 to-gray-600";
       }
     };
 
-    const fundingProgress = Math.round(((entrepreneur.totalRaised || 0) / (entrepreneur.fundingNeeded || 1)) * 100);
+    const fundingProgress = Math.round(
+      ((entrepreneur.totalRaised || 0) / (entrepreneur.fundingNeeded || 1)) *
+        100,
+    );
 
     return (
       <div className="group relative bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-2xl overflow-hidden border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 transform hover:-translate-y-1">
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {/* Stage Badge */}
         <div className="absolute top-4 left-4 z-10">
-          <span className={`px-4 py-1.5 text-[11px] uppercase tracking-wider font-bold ${getStageColor(stage)} text-white rounded-full shadow-lg shadow-blue-500/20 flex items-center gap-1.5`}>
+          <span
+            className={`px-4 py-1.5 text-[11px] uppercase tracking-wider font-bold ${getStageColor(stage)} text-white rounded-full shadow-lg shadow-blue-500/20 flex items-center gap-1.5`}
+          >
             <Zap size={12} />
             {stage}
           </span>
@@ -212,15 +256,19 @@ export const FundraisePage: React.FC = () => {
 
         {/* Industry Badge */}
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 items-end">
-          {Array.isArray(entrepreneur.industry) && entrepreneur.industry.length > 0 ? (
+          {Array.isArray(entrepreneur.industry) &&
+          entrepreneur.industry.length > 0 ? (
             entrepreneur.industry.map((ind, index) => (
-              <span key={index} className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg">
+              <span
+                key={index}
+                className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg"
+              >
                 {ind}
               </span>
             ))
           ) : (
             <span className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-gray-900/90 backdrop-blur-sm text-gray-300 rounded-full border border-gray-700 shadow-lg">
-               General
+              General
             </span>
           )}
         </div>
@@ -232,22 +280,31 @@ export const FundraisePage: React.FC = () => {
               key={idx}
               src={img}
               alt={entrepreneur.startupName}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentImageIndex ? "opacity-100" : "opacity-0"}`}
             />
           ))}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80" />
 
           {images.length > 1 && (
             <>
-              <button onClick={prevImage} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110">
+              <button
+                onClick={prevImage}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110"
+              >
                 <ChevronLeft size={20} />
               </button>
-              <button onClick={nextImage} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110">
+              <button
+                onClick={nextImage}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110"
+              >
                 <ChevronRight size={20} />
               </button>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {images.map((_, idx) => (
-                  <div key={idx} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'bg-blue-500 w-4 shadow-md shadow-blue-500/50' : 'bg-white/60'}`} />
+                  <div
+                    key={idx}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === currentImageIndex ? "bg-blue-500 w-4 shadow-md shadow-blue-500/50" : "bg-white/60"}`}
+                  />
                 ))}
               </div>
             </>
@@ -263,8 +320,13 @@ export const FundraisePage: React.FC = () => {
                   {entrepreneur.startupName || "Unnamed Startup"}
                 </h3>
                 <div className="flex items-center text-xs text-gray-400">
-                  <MapPin size={12} className="mr-1.5 text-blue-500 flex-shrink-0" />
-                  <span className="truncate">{entrepreneur.location || "Location not specified"}</span>
+                  <MapPin
+                    size={12}
+                    className="mr-1.5 text-blue-500 flex-shrink-0"
+                  />
+                  <span className="truncate">
+                    {entrepreneur.location || "Location not specified"}
+                  </span>
                 </div>
               </div>
               <div className="flex-shrink-0">
@@ -288,21 +350,25 @@ export const FundraisePage: React.FC = () => {
                   <Users size={16} className="text-blue-500" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-white">{entrepreneur.teamSize || 0}</div>
+                  <div className="text-sm font-semibold text-white">
+                    {entrepreneur.teamSize || 0}
+                  </div>
                   <div className="text-xs text-gray-400">Team</div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
                 <div className="p-2 bg-emerald-500/10 rounded-lg">
                   <Building2 size={16} className="text-emerald-500" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-white">{entrepreneur.foundedYear || "N/A"}</div>
+                  <div className="text-sm font-semibold text-white">
+                    {entrepreneur.foundedYear || "N/A"}
+                  </div>
                   <div className="text-xs text-gray-400">Founded</div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
                 <div className="p-2 bg-purple-500/10 rounded-lg">
                   <Target size={16} className="text-purple-500" />
@@ -314,7 +380,7 @@ export const FundraisePage: React.FC = () => {
                   <div className="text-xs text-gray-400">Target</div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
                 <div className="p-2 bg-amber-500/10 rounded-lg">
                   <Layers size={16} className="text-amber-500" />
@@ -346,25 +412,26 @@ export const FundraisePage: React.FC = () => {
                   />
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-2">
-                  <span>${(entrepreneur.totalRaised || 0).toLocaleString()} raised</span>
-                  <span>${(entrepreneur.fundingNeeded || 0).toLocaleString()} goal</span>
+                  <span>
+                    ${(entrepreneur.totalRaised || 0).toLocaleString()} raised
+                  </span>
+                  <span>
+                    ${(entrepreneur.fundingNeeded || 0).toLocaleString()} goal
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <Link to={`/login`}>
-            <Button className="w-full py-3.5 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:via-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
-              Login As Investor To Contact
-            </Button>
-          </Link>
+          <Button
+            onClick={() => navigate("/login", { state: { role: "investor" } })}
+            className="w-full py-3.5 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:via-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5"
+          >
+            Login As Investor To Contact
+          </Button>
         </div>
       </div>
     );
-  };
-
-  const handleCloseModal = () => {
-    // Unused
   };
 
   return (
@@ -382,15 +449,22 @@ export const FundraisePage: React.FC = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 backdrop-blur-sm rounded-full border border-blue-500/20 mb-6">
               <Sparkles size={16} className="text-blue-400" />
-              <span className="text-sm font-semibold text-blue-400">Invest in Innovation</span>
+              <span className="text-sm font-semibold text-blue-400">
+                Invest in Innovation
+              </span>
             </div>
-            
+
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Invest in the <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient">Future</span> of Business
+              Invest in the{" "}
+              <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient">
+                Future
+              </span>{" "}
+              of Business
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed">
-              Discover high-growth startups and innovative businesses seeking investment.
-              Become a part of their journey and share in their success.
+              Discover high-growth startups and innovative businesses seeking
+              investment. Become a part of their journey and share in their
+              success.
             </p>
 
             {/* Authentication Status */}
@@ -400,7 +474,9 @@ export const FundraisePage: React.FC = () => {
                   <>
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                      <span className="text-green-400 font-semibold text-lg">Active Investor</span>
+                      <span className="text-green-400 font-semibold text-lg">
+                        Active Investor
+                      </span>
                     </div>
                     <Button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg">
                       View Dashboard
@@ -410,7 +486,9 @@ export const FundraisePage: React.FC = () => {
                   <>
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse" />
-                      <span className="text-yellow-400 font-semibold text-lg">Join as an Investor</span>
+                      <span className="text-yellow-400 font-semibold text-lg">
+                        Join as an Investor
+                      </span>
                     </div>
                     <div className="flex gap-3">
                       <Link to="/login">
@@ -436,9 +514,13 @@ export const FundraisePage: React.FC = () => {
                   <div className="p-3 bg-blue-500/10 rounded-xl">
                     <Building2 size={24} className="text-blue-500" />
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-blue-500">{platformStats.activeDeals || entrepreneurs.length}+</div>
+                  <div className="text-3xl md:text-4xl font-bold text-blue-500">
+                    {platformStats.activeDeals || entrepreneurs.length}+
+                  </div>
                 </div>
-                <div className="text-lg text-gray-300 font-medium">Active Deals</div>
+                <div className="text-lg text-gray-300 font-medium">
+                  Active Deals
+                </div>
               </div>
               <div className="flex-1 min-w-[240px] max-w-[320px] bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-gray-800 shadow-xl hover:shadow-green-500/10 transition-all duration-300">
                 <div className="flex items-center justify-center gap-3 mb-3">
@@ -446,19 +528,25 @@ export const FundraisePage: React.FC = () => {
                     <TrendingUp size={24} className="text-green-500" />
                   </div>
                   <div className="text-3xl md:text-4xl font-bold text-green-500">
-                    ${(platformStats.totalInvested / 1000000).toFixed(1)}M+
+                    ${AmountMeasureWithTags(platformStats.totalInvested??0)}
                   </div>
                 </div>
-                <div className="text-lg text-gray-300 font-medium">Total Invested</div>
+                <div className="text-lg text-gray-300 font-medium">
+                  Total Invested
+                </div>
               </div>
               <div className="flex-1 min-w-[240px] max-w-[320px] bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-gray-800 shadow-xl hover:shadow-purple-500/10 transition-all duration-300">
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <div className="p-3 bg-purple-500/10 rounded-xl">
                     <Users size={24} className="text-purple-500" />
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-purple-500">{platformStats.totalInvestors}+</div>
+                  <div className="text-3xl md:text-4xl font-bold text-purple-500">
+                    {platformStats.totalInvestors}+
+                  </div>
                 </div>
-                <div className="text-lg text-gray-300 font-medium">Investors</div>
+                <div className="text-lg text-gray-300 font-medium">
+                  Investors
+                </div>
               </div>
             </div>
           </div>
@@ -471,23 +559,33 @@ export const FundraisePage: React.FC = () => {
         <div className="mb-12">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-3">Explore Opportunities</h2>
-              <p className="text-gray-400">Filter by industry and funding stage to find perfect matches</p>
+              <h2 className="text-3xl font-bold text-white mb-3">
+                Explore Opportunities
+              </h2>
+              <p className="text-gray-400">
+                Filter by industry and funding stage to find perfect matches
+              </p>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <Filter size={20} className="text-blue-500" />
               <div className="flex flex-col sm:flex-row gap-4">
-            {/* Industry Filter */}
+                {/* Industry Filter */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-gray-300 text-sm font-medium">Industry</span>
+                  <span className="text-gray-300 text-sm font-medium">
+                    Industry
+                  </span>
                   <select
                     value={selectedIndustry}
                     onChange={(e) => setSelectedIndustry(e.target.value)}
                     className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors min-w-[200px]"
                   >
                     {industries.map((ind) => (
-                      <option key={ind} value={ind} className="bg-gray-900 text-gray-300">
+                      <option
+                        key={ind}
+                        value={ind}
+                        className="bg-gray-900 text-gray-300"
+                      >
                         {ind}
                       </option>
                     ))}
@@ -496,16 +594,19 @@ export const FundraisePage: React.FC = () => {
 
                 {/* Stage Filter */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-gray-300 text-sm font-medium">Stage</span>
+                  <span className="text-gray-300 text-sm font-medium">
+                    Stage
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {stages.map((stage) => (
                       <button
                         key={stage}
                         onClick={() => setSelectedStage(stage)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedStage === stage
-                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-                          : "bg-gray-900 text-gray-300 hover:text-white hover:bg-gray-800 border border-gray-800"
-                          }`}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          selectedStage === stage
+                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
+                            : "bg-gray-900 text-gray-300 hover:text-white hover:bg-gray-800 border border-gray-800"
+                        }`}
                       >
                         {stage}
                       </button>
@@ -520,12 +621,18 @@ export const FundraisePage: React.FC = () => {
         {/* Results Summary */}
         <div className="flex justify-between items-center mb-8">
           <div className="text-gray-400">
-            Showing <span className="text-white font-semibold">{filteredEntrepreneurs.length}</span> opportunities
+            Showing{" "}
+            <span className="text-white font-semibold">
+              {filteredEntrepreneurs.length}
+            </span>{" "}
+            opportunities
             {selectedIndustry !== "All Industries" && ` in ${selectedIndustry}`}
             {selectedStage !== "All Stages" && ` at ${selectedStage} stage`}
           </div>
           <div className="text-sm text-gray-500">
-            Page <span className="text-white font-semibold">{currentPage + 1}</span> of <span className="text-white font-semibold">{totalPages}</span>
+            Page{" "}
+            <span className="text-white font-semibold">{currentPage + 1}</span>{" "}
+            of <span className="text-white font-semibold">{totalPages}</span>
           </div>
         </div>
 
@@ -534,14 +641,19 @@ export const FundraisePage: React.FC = () => {
           <div className="flex h-96 items-center justify-center">
             <div className="text-center">
               <Loader2 className="h-16 w-16 animate-spin text-blue-500 mx-auto mb-6" />
-              <p className="text-gray-400 text-lg">Loading investment opportunities...</p>
+              <p className="text-gray-400 text-lg">
+                Loading investment opportunities...
+              </p>
             </div>
           </div>
         ) : filteredEntrepreneurs.length > 0 ? (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 justify-items-center max-w-[1800px] mx-auto mb-12">
               {paginatedEntrepreneurs.map((ent) => (
-                <div key={ent.userId || ent._id} className="w-full max-w-[500px]">
+                <div
+                  key={ent.userId || ent._id}
+                  className="w-full max-w-[500px]"
+                >
                   <BusinessCard entrepreneur={ent} />
                 </div>
               ))}
@@ -552,9 +664,23 @@ export const FundraisePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-16 pt-8 border-t border-gray-800/50">
                 {/* Page Info */}
                 <div className="text-gray-400 text-sm">
-                  Showing <span className="text-white font-semibold">
-                    {Math.min((currentPage * itemsPerPage) + 1, filteredEntrepreneurs.length)}-{Math.min((currentPage + 1) * itemsPerPage, filteredEntrepreneurs.length)}
-                  </span> of <span className="text-white font-semibold">{filteredEntrepreneurs.length}</span> opportunities
+                  Showing{" "}
+                  <span className="text-white font-semibold">
+                    {Math.min(
+                      currentPage * itemsPerPage + 1,
+                      filteredEntrepreneurs.length,
+                    )}
+                    -
+                    {Math.min(
+                      (currentPage + 1) * itemsPerPage,
+                      filteredEntrepreneurs.length,
+                    )}
+                  </span>{" "}
+                  of{" "}
+                  <span className="text-white font-semibold">
+                    {filteredEntrepreneurs.length}
+                  </span>{" "}
+                  opportunities
                 </div>
 
                 {/* Pagination Buttons */}
@@ -571,42 +697,46 @@ export const FundraisePage: React.FC = () => {
 
                   {/* Page Numbers */}
                   <div className="flex items-center gap-2">
-                    {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
-                      // Show 5 page numbers around current page
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = idx;
-                      } else if (currentPage <= 2) {
-                        pageNum = idx;
-                      } else if (currentPage >= totalPages - 3) {
-                        pageNum = totalPages - 5 + idx;
-                      } else {
-                        pageNum = currentPage - 2 + idx;
-                      }
+                    {Array.from({ length: Math.min(5, totalPages) }).map(
+                      (_, idx) => {
+                        // Show 5 page numbers around current page
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = idx;
+                        } else if (currentPage <= 2) {
+                          pageNum = idx;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNum = totalPages - 5 + idx;
+                        } else {
+                          pageNum = currentPage - 2 + idx;
+                        }
 
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => goToPage(pageNum)}
-                          className={`w-10 h-10 rounded-xl font-medium transition-all flex items-center justify-center ${currentPage === pageNum
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
-                            : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => goToPage(pageNum)}
+                            className={`w-10 h-10 rounded-xl font-medium transition-all flex items-center justify-center ${
+                              currentPage === pageNum
+                                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
+                                : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
                             }`}
-                        >
-                          {pageNum + 1}
-                        </button>
-                      );
-                    })}
+                          >
+                            {pageNum + 1}
+                          </button>
+                        );
+                      },
+                    )}
 
                     {totalPages > 5 && (
                       <>
                         <span className="text-gray-600 mx-1">...</span>
                         <button
                           onClick={() => goToPage(totalPages - 1)}
-                          className={`w-10 h-10 rounded-xl font-medium transition-all flex items-center justify-center ${currentPage === totalPages - 1
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
-                            : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
-                            }`}
+                          className={`w-10 h-10 rounded-xl font-medium transition-all flex items-center justify-center ${
+                            currentPage === totalPages - 1
+                              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
+                              : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
+                          }`}
                         >
                           {totalPages}
                         </button>
@@ -652,8 +782,12 @@ export const FundraisePage: React.FC = () => {
               <div className="p-6 bg-gray-900/50 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                 <Building2 size={40} className="text-gray-600" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">No matches found</h3>
-              <p className="text-gray-400 mb-6">Try adjusting your filters to see more opportunities</p>
+              <h3 className="text-2xl font-bold text-white mb-3">
+                No matches found
+              </h3>
+              <p className="text-gray-400 mb-6">
+                Try adjusting your filters to see more opportunities
+              </p>
               <div className="flex gap-3 justify-center">
                 <Button
                   onClick={() => setSelectedIndustry("All Industries")}
@@ -676,7 +810,9 @@ export const FundraisePage: React.FC = () => {
         <div className="text-center mt-20">
           <div className="inline-block bg-gradient-to-br from-gray-900/80 via-black/80 to-gray-900/80 backdrop-blur-sm rounded-3xl p-12 border border-gray-800 shadow-2xl max-w-4xl">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              {currentUser ? "Ready to Make Your First Investment?" : "Ready to Start Investing?"}
+              {currentUser
+                ? "Ready to Make Your First Investment?"
+                : "Ready to Start Investing?"}
             </h2>
             <p className="text-gray-300 mb-8 max-w-2xl mx-auto text-lg">
               {currentUser
