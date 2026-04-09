@@ -14,59 +14,59 @@ import { Badge } from "../../components/ui/Badge";
 import { CollaborationRequestCard } from "../../components/collaboration/CollaborationRequestCard";
 import { InvestorCard } from "../../components/investor/InvestorCard";
 import { useAuth } from "../../context/AuthContext";
-import { CollaborationRequest } from "../../types";
+import { CollaborationRequest, Investor } from "../../types";
 import { getRequestsForEntrepreneur, updateRequestStatus } from "../../data/collaborationRequests";
-import { getInvestorsFromDb } from "../../data/users";
+import { getAiRecommendations, getInvestorsFromDb } from "../../data/users";
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
-  console.log(user)
   const [collaborationRequests, setCollaborationRequests] = useState<
     CollaborationRequest[]
   >([]);
-  const [recommendedInvestors, setRecommendedInvestors] = useState([]);
-  const [aiRecommendedInvestors, setAiRecommendedInvestors] = useState([]);
+  const [recommendedInvestors, setRecommendedInvestors] = useState<Investor[]>([]);
+  const [aiRecommendedInvestors, setAiRecommendedInvestors] = useState<Investor[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (user) {
-        const investors = await getInvestorsFromDb();
-        setRecommendedInvestors(investors);
+    const userId = user?.userId;
+    if (!userId) return;
 
-        // Fetch AI recommendations
-        setIsAiLoading(true);
-        try {
-          const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/ai/recommendations/${user.userId}`);
-          if (res.data.success) {
-            setAiRecommendedInvestors(res.data.recommendations);
-          }
-        } catch (error) {
-          console.error("AI Recommendation fetch failed", error);
-        } finally {
-          setIsAiLoading(false);
-        }
+    const fetchData = async () => {
+      const investors = await getInvestorsFromDb();
+      setRecommendedInvestors(Array.isArray(investors) ? investors : []);
+
+      // Fetch AI recommendations
+      setIsAiLoading(true);
+      try {
+        const recommendations = await getAiRecommendations(userId);
+        setAiRecommendedInvestors(recommendations);
+      } catch (error) {
+        console.error("AI Recommendation fetch failed", error);
+      } finally {
+        setIsAiLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    const userId = user?.userId;
+    if (!userId) return;
+
+    const fetchRequests = async () => {
+      const requests = await getRequestsForEntrepreneur(userId);
+      setCollaborationRequests(Array.isArray(requests) ? requests : []);
+    };
+
+    fetchRequests();
+  }, [user]);
 
   if (!user) return null;
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      const requests = await getRequestsForEntrepreneur(user?.userId);
-      setCollaborationRequests(Array.isArray(requests) ? requests : []);
-    };
-    fetchRequests();
-  }, [user?.userId]);
-
-  const pendingRequests =
-    collaborationRequests.length > 0 &&
-      Array.isArray(collaborationRequests) &&
-      collaborationRequests.length > 0
-      ? collaborationRequests.filter((req) => req.requestStatus === "pending")
-      : [];
+  const pendingRequests = Array.isArray(collaborationRequests)
+    ? collaborationRequests.filter((req) => req.requestStatus === "pending")
+    : [];
 
   const handleRequestStatusUpdate = (
     requestId: string,
@@ -241,7 +241,7 @@ export const EntrepreneurDashboard: React.FC = () => {
                   <p className="text-xs text-indigo-400 font-medium animate-pulse">Finding your perfect matches...</p>
                 </div>
               ) : aiRecommendedInvestors && aiRecommendedInvestors.length > 0 ? (
-                aiRecommendedInvestors.map((item: any, i) => (
+                aiRecommendedInvestors.map((item: Investor, i) => (
                   <div key={i} className="hover:scale-[1.02] transition-transform">
                     <InvestorCard investor={item} />
                   </div>

@@ -8,7 +8,7 @@ import { Badge } from "../../components/ui/Badge";
 import { EntrepreneurCard } from "../../components/entrepreneur/EntrepreneurCard";
 import { useAuth } from "../../context/AuthContext";
 import { getRequestsFromInvestor } from "../../data/collaborationRequests";
-import { getEnterprenuerFromDb } from "../../data/users";
+import { getAiRecommendations, getEnterprenuerFromDb } from "../../data/users";
 import { CollaborationRequest, Entrepreneur } from "../../types";
 import axios from "axios";
 
@@ -21,7 +21,7 @@ export const InvestorDashboard: React.FC = () => {
   const [industries, setIndustries] = useState<string[]>([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
-  const [aiRecommendedStartups, setAiRecommendedStartups] = useState([]);
+  const [aiRecommendedStartups, setAiRecommendedStartups] = useState<any[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   if (!user) return null;
 
@@ -38,10 +38,8 @@ export const InvestorDashboard: React.FC = () => {
         // Fetch AI recommendations
         setIsAiLoading(true);
         try {
-          const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/ai/recommendations/${user.userId}`);
-          if (res.data.success) {
-            setAiRecommendedStartups(res.data.recommendations);
-          }
+          const recommendations = await getAiRecommendations(user.userId);
+          setAiRecommendedStartups(recommendations);
         } catch (error) {
           console.error("AI Recommendation fetch failed", error);
         } finally {
@@ -50,7 +48,7 @@ export const InvestorDashboard: React.FC = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [user?.userId]);
 
   // Fetch industries from backend (all available in DB)
   useEffect(() => {

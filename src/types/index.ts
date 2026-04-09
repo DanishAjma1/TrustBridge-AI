@@ -91,6 +91,7 @@ export interface ChatConversation {
 }
 
 export interface CollaborationRequest {
+  _id: string;
   inves_id: string;
   enter_id: string;
   message: string;

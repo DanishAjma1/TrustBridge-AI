@@ -15,8 +15,6 @@ export const TrustBridgeAIChatbot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const [aiGeneratedResult, setAiGeneratedResult] = useState<{ title: string; description: string } | null>(null);
-
   const { user } = useAuth();
   const location = useLocation();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -51,6 +49,13 @@ export const TrustBridgeAIChatbot: React.FC = () => {
     }
   }, [chatHistory, isLoading]);
 
+  useEffect(() => {
+    // Always reset widget visibility when auth identity changes.
+    setIsOpen(false);
+    setIsMinimized(false);
+    setMessage("");
+  }, [user?.userId, user?.email, user?.role]);
+
   // Don't show the chatbot for admins or on specific restricted pages
   if (user?.role === "admin" || hiddenPaths.some(path => location.pathname.startsWith(path))) {
     return null;
@@ -66,9 +71,12 @@ export const TrustBridgeAIChatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.post(`${BACKEND_URL}/ai/chat/chat`, {
         message: userMessage.content,
         history: chatHistory.slice(-6), // Send last 3 pairs for context
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
       if (response.data.success) {
