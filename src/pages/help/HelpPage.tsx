@@ -282,7 +282,7 @@ export const HelpPage: React.FC = () => {
                   <Book size={20} className="text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Documentation Video</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Dashboard Video</h2>
                   <p className="text-sm text-gray-600">
                     {currentRole === 'entrepreneur' ? 'For Entrepreneur' : 'For Investor'}
                   </p>
@@ -301,7 +301,7 @@ export const HelpPage: React.FC = () => {
                 {isDocsVideoLoading && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-gray-900/80 text-white">
                     <Loader2 size={28} className="animate-spin" />
-                    <p className="text-sm font-medium">Loading documentation video...</p>
+                    <p className="text-sm font-medium">Loading dashboard video...</p>
                     <div className="h-1.5 w-44 overflow-hidden rounded-full bg-white/20">
                       <div className="h-full w-1/2 animate-pulse rounded-full bg-white/70"></div>
                     </div>
@@ -330,7 +330,7 @@ export const HelpPage: React.FC = () => {
                 <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
                   {currentRole === 'investor'
                     ? 'Investor video not found at /videos/Investor.mp4. Add the file to public/videos to show investor-specific docs.'
-                    : 'Unable to load this documentation video right now. Please try again.'}
+                    : 'Unable to load this dashboard video right now. Please try again.'}
                 </div>
               )}
 
