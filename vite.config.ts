@@ -4,11 +4,28 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   build:{
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          if (id.includes('node_modules/agora-rtc-sdk-ng')) {
+            return 'agora-sdk';
+          }
+
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
+            return 'charts';
+          }
+
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas') || id.includes('node_modules/canvg')) {
+            return 'pdf-tools';
+          }
+
+          if (id.includes('node_modules/socket.io-client') || id.includes('node_modules/engine.io-client')) {
+            return 'realtime';
+          }
+
+          if (id.includes('node_modules/react-phone-number-input') || id.includes('node_modules/libphonenumber-js')) {
+            return 'phone-input';
           }
         },
       },

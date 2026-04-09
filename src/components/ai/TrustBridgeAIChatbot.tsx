@@ -19,28 +19,39 @@ export const TrustBridgeAIChatbot: React.FC = () => {
   const location = useLocation();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Paths where the chatbot should be hidden
-  const hiddenPaths = [
-    "/login", 
-    "/register", 
-    "/forgot-password", 
-    "/reset-password", 
-    "/account-under-review", 
-    "/account-rejected", 
-    "/account-suspended", 
+  // Routes where chatbot should not appear.
+  const normalizedPath = location.pathname.toLowerCase();
+  const hiddenExactPaths = new Set([
+    "/",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/account-under-review",
+    "/account-rejected",
+    "/account-suspended",
     "/account-blocked",
     "/verify-2fa",
     "/terms",
-    "/guidelines"
-  ];
+    "/guidelines",
+    "/all-campaigns",
+    "/fundraises",
+  ]);
+  const shouldHideChatbot =
+    user?.role === "admin" ||
+    hiddenExactPaths.has(normalizedPath) ||
+    normalizedPath.startsWith("/campaigns/");
 
   useEffect(() => {
     if (!user) {
       localStorage.removeItem("trustbridge_chat_history");
-      setChatHistory([]);
-    } else {
-      localStorage.setItem("trustbridge_chat_history", JSON.stringify(chatHistory));
+      if (chatHistory.length > 0) {
+        setChatHistory([]);
+      }
+      return;
     }
+
+    localStorage.setItem("trustbridge_chat_history", JSON.stringify(chatHistory));
   }, [chatHistory, user]);
 
   useEffect(() => {
@@ -56,8 +67,7 @@ export const TrustBridgeAIChatbot: React.FC = () => {
     setMessage("");
   }, [user?.userId, user?.email, user?.role]);
 
-  // Don't show the chatbot for admins or on specific restricted pages
-  if (user?.role === "admin" || hiddenPaths.some(path => location.pathname.startsWith(path))) {
+  if (shouldHideChatbot) {
     return null;
   }
 

@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
 import { NotificationProvider } from "./context/NotificationContext";
@@ -37,12 +38,12 @@ import { HelpPage } from "./pages/help/HelpPage";
 import { ChatPage } from "./pages/chat/ChatPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
-const VideoCall = React.lazy(() =>
+const VideoCall = lazy(() =>
   import("./pages/webRTC/Videocall").then((module) => ({
     default: module.VideoCall,
   })),
 );
-const AudioCall = React.lazy(() =>
+const AudioCall = lazy(() =>
   import("./pages/webRTC/AudioCall").then((module) => ({
     default: module.AudioCall,
   })),
@@ -79,7 +80,7 @@ import { AdminDealsPage } from "./pages/admin/AdminDealsPage";
 import { AdminDealPayments } from "./pages/admin/AdminDealPayments";
 import { PWAInstallPrompt } from "./components/pwa/PWAInstallPrompt";
 import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
-import React, { Suspense } from "react";
+import { TrustBridgeAIChatbot } from "./components/ai/TrustBridgeAIChatbot";
 
 function App() {
   useDynamicFavicon();
