@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Book, MessageCircle, Phone, Mail, ExternalLink, X, Send, FileText, Settings, Users, Shield, ChevronRight } from 'lucide-react';
+import { Book, MessageCircle, Phone, Mail, ExternalLink, X, Send, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const faqs = [
@@ -25,6 +26,7 @@ const faqs = [
 ];
 
 export const HelpPage: React.FC = () => {
+  const { user } = useAuth();
   const URL = import.meta.env.VITE_BACKEND_URL;
   const [formData, setFormData] = useState({
     name: '',
@@ -37,6 +39,8 @@ export const HelpPage: React.FC = () => {
     { sender: 'support', text: 'Hello! How can we help you today?' }
   ]);
   const [chatInput, setChatInput] = useState('');
+  const [isDocsVideoLoading, setIsDocsVideoLoading] = useState(false);
+  const [docsVideoError, setDocsVideoError] = useState(false);
 
   // Only allow letters and spaces in name dynamically
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,50 +135,17 @@ export const HelpPage: React.FC = () => {
     }, 1000);
   };
 
-  const documentationSections = [
-    {
-      title: 'Getting Started',
-      icon: FileText,
-      articles: [
-        { title: 'Creating your account', image: '/docs/getting-started/account.png' },
-        { title: 'Setting up your profile', image: '/docs/getting-started/profile.png' },
-        { title: 'Understanding the dashboard', image: '/docs/getting-started/dashboard.png' },
-        { title: 'First steps for entrepreneurs', image: '/docs/getting-started/first-steps.png' }
-      ]
+  const currentRole = user?.role === 'investor' ? 'investor' : 'entrepreneur';
+  const docsVideoByRole: Record<'entrepreneur' | 'investor', { title: string; src: string }> = {
+    entrepreneur: {
+      title: 'Entrepreneur Dashboard Walkthrough',
+      src: '/videos/Enterpreneur.mp4'
     },
-    {
-      title: 'For Entrepreneurs',
-      icon: Users,
-      articles: [
-        { title: 'Building your startup profile', image: '/docs/entrepreneurs/profile.png' },
-        { title: 'Connecting with investors', image: '/docs/entrepreneurs/connect.png' },
-        { title: 'Managing collaboration requests', image: '/docs/entrepreneurs/collab.png' },
-        { title: 'Sharing documents securely', image: '/docs/entrepreneurs/documents.png' }
-      ]
-    },
-    {
-      title: 'For Investors',
-      icon: Shield,
-      articles: [
-        { title: 'Finding startups to invest in', image: '/docs/investors/find-startups.png' },
-        { title: 'Reviewing startup profiles', image: '/docs/investors/review-profiles.png' },
-        { title: 'Sending collaboration requests', image: '/docs/investors/requests.png' },
-        { title: 'Due diligence best practices', image: '/docs/investors/due-diligence.png' }
-      ]
-    },
-    {
-      title: 'Platform Features',
-      icon: Settings,
-      articles: [
-        { title: 'Using the messaging system', image: '/docs/features/messaging.png' },
-        { title: 'Document management', image: '/docs/features/documents.png' },
-        { title: 'Video calls and meetings', image: '/docs/features/video.png' },
-        { title: 'Notifications and alerts', image: '/docs/features/notifications.png' }
-      ]
+    investor: {
+      title: 'Investor Dashboard Walkthrough',
+      src: '/videos/Investor.mp4'
     }
-  ];
-
-  const [selectedDoc, setSelectedDoc] = useState<{ title: string; image: string } | null>(null);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -185,44 +156,33 @@ export const HelpPage: React.FC = () => {
       </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardBody className="text-center p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full items-stretch">
+        <Card className="h-full">
+          <CardBody className="flex h-full flex-col items-center justify-between text-center p-6">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-50 rounded-lg mb-4">
               <Book size={24} className="text-primary-600" />
             </div>
-            <h2 className="text-lg font-medium text-gray-900">Documentation</h2>
+            <h2 className="text-lg font-medium text-gray-900">Dashboard View</h2>
             <p className="text-sm text-gray-600 mt-2">
-              Browse our detailed documentation and guides
+              See our Dashboard full
             </p>
             <Button
               variant="outline"
               className="mt-4"
               rightIcon={<ExternalLink size={16} />}
-              onClick={() => setActiveModal('docs')}
+              onClick={() => {
+                setActiveModal('docs');
+                setIsDocsVideoLoading(true);
+                setDocsVideoError(false);
+              }}
             >
               View Docs
             </Button>
           </CardBody>
         </Card>
 
-        <Card>
-          <CardBody className="text-center p-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-50 rounded-lg mb-4">
-              <MessageCircle size={24} className="text-primary-600" />
-            </div>
-            <h2 className="text-lg font-medium text-gray-900">Live Chat</h2>
-            <p className="text-sm text-gray-600 mt-2">
-              Chat with our support team in real-time
-            </p>
-            <Button className="mt-4" onClick={() => setActiveModal('chat')}>
-              Start Chat
-            </Button>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="text-center p-6">
+        <Card className="h-full">
+          <CardBody className="flex h-full flex-col items-center justify-between text-center p-6">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-50 rounded-lg mb-4">
               <Phone size={24} className="text-primary-600" />
             </div>
@@ -315,78 +275,68 @@ export const HelpPage: React.FC = () => {
       {/* Documentation Modal */}
       {activeModal === 'docs' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex">
-            <div className="w-2/3 border-r border-gray-200 flex flex-col">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Book size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">Documentation</h2>
-                    <p className="text-sm text-gray-600">Click an article to preview its image</p>
-                  </div>
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[105vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Book size={20} className="text-blue-600" />
                 </div>
-                <button
-                  onClick={() => {
-                    setActiveModal(null);
-                    setSelectedDoc(null);
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="p-6 overflow-y-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {documentationSections.map((section, idx) => (
-                    <Card key={idx} className="hover:shadow-md transition-shadow">
-                      <CardBody className="p-4">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <section.icon size={18} className="text-blue-600" />
-                          </div>
-                          <h3 className="text-md font-semibold text-gray-900">{section.title}</h3>
-                        </div>
-                        <ul className="space-y-2">
-                          {section.articles.map((article, articleIdx) => (
-                            <li key={articleIdx}>
-                              <button
-                                className="flex items-center justify-between w-full text-left p-2 hover:bg-gray-50 rounded-lg transition-colors group"
-                                onClick={() => setSelectedDoc(article)}
-                              >
-                                <span className="text-sm text-gray-700 group-hover:text-blue-600">{article.title}</span>
-                                <ChevronRight size={16} className="text-gray-400 group-hover:text-blue-600" />
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardBody>
-                    </Card>
-                  ))}
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Documentation Video</h2>
+                  <p className="text-sm text-gray-600">
+                    {currentRole === 'entrepreneur' ? 'For Entrepreneur' : 'For Investor'}
+                  </p>
                 </div>
               </div>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <div className="w-1/3 bg-gray-50 flex flex-col">
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-800">Preview</h3>
-                <p className="text-xs text-gray-500">Image paths to be added later</p>
-              </div>
-              <div className="flex-1 flex items-center justify-center p-4">
-                {selectedDoc ? (
-                  <div className="text-center space-y-3">
-                    <p className="text-sm font-semibold text-gray-800">{selectedDoc.title}</p>
-                    <div className="w-full h-48 bg-white border border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xs text-gray-500">
-                      {selectedDoc.image}
+            <div className="p-6 bg-gray-50">
+              <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-black">
+                {isDocsVideoLoading && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-gray-900/80 text-white">
+                    <Loader2 size={28} className="animate-spin" />
+                    <p className="text-sm font-medium">Loading documentation video...</p>
+                    <div className="h-1.5 w-44 overflow-hidden rounded-full bg-white/20">
+                      <div className="h-full w-1/2 animate-pulse rounded-full bg-white/70"></div>
                     </div>
-                    <p className="text-xs text-gray-500">Add your image at the above path.</p>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-500">Select an article to see its image path.</p>
                 )}
+
+                <video
+                  key={docsVideoByRole[currentRole].src}
+                  className="w-full h-[280px] md:h-[440px] object-cover"
+                  controls
+                  preload="metadata"
+                  onCanPlay={() => setIsDocsVideoLoading(false)}
+                  onLoadedData={() => setIsDocsVideoLoading(false)}
+                  onWaiting={() => setIsDocsVideoLoading(true)}
+                  onError={() => {
+                    setIsDocsVideoLoading(false);
+                    setDocsVideoError(true);
+                  }}
+                >
+                  <source src={docsVideoByRole[currentRole].src} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
+
+              {docsVideoError && (
+                <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                  {currentRole === 'investor'
+                    ? 'Investor video not found at /videos/Investor.mp4. Add the file to public/videos to show investor-specific docs.'
+                    : 'Unable to load this documentation video right now. Please try again.'}
+                </div>
+              )}
+
+              <p className="mt-4 text-sm text-gray-700 font-medium">
+                {docsVideoByRole[currentRole].title}
+              </p>
             </div>
           </div>
         </div>
