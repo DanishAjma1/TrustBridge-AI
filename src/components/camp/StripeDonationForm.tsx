@@ -162,7 +162,7 @@ export const StripeDonationForm: React.FC<StripeDonationFormProps> = ({
                             value={guestPhone}
                             onChange={(e) => setGuestPhone(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                            placeholder="+1 (555) 123-4567"
+                            placeholder="+92 322 6409363"
                             required
                         />
                     </div>

@@ -243,7 +243,7 @@ export const EntrepreneurDashboard: React.FC = () => {
               ) : aiRecommendedInvestors && aiRecommendedInvestors.length > 0 ? (
                 aiRecommendedInvestors.map((item: Investor, i) => (
                   <div key={i} className="hover:scale-[1.02] transition-transform">
-                    <InvestorCard investor={item} />
+                    <InvestorCard investor={item} isRecommended={true} />
                   </div>
                 ))
               ) : (
@@ -269,7 +269,7 @@ export const EntrepreneurDashboard: React.FC = () => {
 
             <CardBody className="space-y-4">
               {recommendedInvestors && recommendedInvestors.length > 0 ? (
-                recommendedInvestors.slice(0, 3).map((investor, i) => (
+                recommendedInvestors.slice(0, 2).map((investor, i) => (
                   <div key={i}>
                     <InvestorCard investor={investor} />
                   </div>
