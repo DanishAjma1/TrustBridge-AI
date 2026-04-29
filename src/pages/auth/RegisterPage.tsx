@@ -34,9 +34,9 @@ export const RegisterPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [pageTransition, setPageTransition] = useState({
     direction: "enter-left",
-    isTransitioning: false
+    isTransitioning: false,
   });
-   const URL = import.meta.env.VITE_BACKEND_URL;
+  const URL = import.meta.env.VITE_BACKEND_URL;
   const [showVerify, setShowVerify] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,8 +47,8 @@ export const RegisterPage: React.FC = () => {
       setIsMobile(window.innerWidth < 888);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Handle page transition based on navigation
@@ -77,7 +77,8 @@ export const RegisterPage: React.FC = () => {
       setError("Email is required");
       return false;
     }
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|icloud|outlook|hotmail|aol|protonmail|live|msn|comcast)\.com$/;
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|icloud|outlook|hotmail|aol|protonmail|live|msn|comcast)\.com$/;
     if (!emailRegex.test(email)) {
       setError("Invalid Email");
       return false;
@@ -88,10 +89,10 @@ export const RegisterPage: React.FC = () => {
       return false;
     }
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_'+=\-|~.,`?><[\]{}\\;:'"""<>/])[A-Za-z\d!@#$%^&*()_'+=\-|~.,`?><\[\]{}\\;:'"""<>\/]{8,}$/;
     if (!passwordRegex.test(password)) {
       setError(
-        "Password must be at least 8 characters, include uppercase, lowercase, number and special character"
+        "Password must be at least 8 characters, include uppercase, lowercase, number and special character",
       );
       return false;
     }
@@ -124,17 +125,19 @@ export const RegisterPage: React.FC = () => {
       // Save user info locally for next step
       localStorage.setItem(
         "userInfo",
-        JSON.stringify({ name, email, password, role })
+        JSON.stringify({ name, email, password, role }),
       );
       // Send OTP to email before showing verify page
       const res = await fetch(`${URL}/otp/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.message || "Failed to send verification code. Try again.");
+        setError(
+          data.message || "Failed to send verification code. Try again.",
+        );
         setIsLoading(false);
         return;
       }
@@ -153,7 +156,7 @@ export const RegisterPage: React.FC = () => {
 
     setTimeout(() => {
       navigate("/login", {
-        state: { fromRegister: true }
+        state: { fromRegister: true },
       });
     }, 400);
   };
@@ -164,11 +167,16 @@ export const RegisterPage: React.FC = () => {
     if (!isTransitioning) return "";
 
     switch (direction) {
-      case "enter-left": return "animate-slide-in-left";
-      case "enter-right": return "animate-slide-in-right";
-      case "exit-left": return "animate-slide-out-left";
-      case "exit-right": return "animate-slide-out-right";
-      default: return "";
+      case "enter-left":
+        return "animate-slide-in-left";
+      case "enter-right":
+        return "animate-slide-in-right";
+      case "exit-left":
+        return "animate-slide-out-left";
+      case "exit-right":
+        return "animate-slide-out-right";
+      default:
+        return "";
     }
   };
 
@@ -186,7 +194,9 @@ export const RegisterPage: React.FC = () => {
 
   // Desktop Version
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 transition-all duration-400 ${getTransitionClass()}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 transition-all duration-400 ${getTransitionClass()}`}
+    >
       <div className="w-full max-w-4xl flex flex-col lg:flex-row bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Left side - Brand/Info */}
         <div className="lg:w-2/5 bg-gradient-to-br from-primary-600 to-primary-800 p-8 lg:p-12 text-white relative overflow-hidden">
@@ -206,7 +216,8 @@ export const RegisterPage: React.FC = () => {
                 Join the Future of Business Connections
               </h1>
               <p className="text-primary-100 mb-8">
-                Connect with verified entrepreneurs, investors, and business partners in a trusted ecosystem.
+                Connect with verified entrepreneurs, investors, and business
+                partners in a trusted ecosystem.
               </p>
 
               <div className="space-y-4">
@@ -233,9 +244,12 @@ export const RegisterPage: React.FC = () => {
 
             <div className="mt-12 pt-8 border-t border-white/20">
               <p className="text-primary-100 text-sm">
-                "TrustBridge AI transformed how we find and vet potential partners. The quality of connections is unmatched."
+                "TrustBridge AI transformed how we find and vet potential
+                partners. The quality of connections is unmatched."
               </p>
-              <p className="text-sm font-medium mt-2">— Sarah Chen, CEO at TechVentures</p>
+              <p className="text-sm font-medium mt-2">
+                — Sarah Chen, CEO at TechVentures
+              </p>
             </div>
           </div>
         </div>
@@ -251,7 +265,10 @@ export const RegisterPage: React.FC = () => {
 
           {error && (
             <div className="mb-6 bg-error-50 border border-error-200 rounded-xl p-4 flex items-start gap-3">
-              <AlertCircle size={20} className="text-error-500 flex-shrink-0 mt-0.5" />
+              <AlertCircle
+                size={20}
+                className="text-error-500 flex-shrink-0 mt-0.5"
+              />
               <span className="text-error-700 text-sm">{error}</span>
             </div>
           )}
@@ -265,26 +282,38 @@ export const RegisterPage: React.FC = () => {
               <div className="flex justify-center gap-6 max-w-md mx-auto">
                 <button
                   type="button"
-                  className={`relative p-6 border-2 rounded-xl flex flex-col items-center justify-center transition-all duration-200 flex-1 max-w-[180px] ${role === "entrepreneur"
-                    ? "border-primary-500 bg-primary-50"
-                    : "border-gray-200 hover:border-gray-300"
-                    }`}
+                  className={`relative p-6 border-2 rounded-xl flex flex-col items-center justify-center transition-all duration-200 flex-1 max-w-[180px] ${
+                    role === "entrepreneur"
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
                   onClick={() => setRole("entrepreneur")}
                 >
-                  <Building2 size={28} className={`mb-3 ${role === "entrepreneur" ? "text-primary-600" : "text-gray-500"}`} />
-                  <span className="font-medium text-gray-900">Entrepreneur</span>
-                  <span className="text-xs text-gray-500 mt-1">Business Owner</span>
+                  <Building2
+                    size={28}
+                    className={`mb-3 ${role === "entrepreneur" ? "text-primary-600" : "text-gray-500"}`}
+                  />
+                  <span className="font-medium text-gray-900">
+                    Entrepreneur
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Business Owner
+                  </span>
                 </button>
 
                 <button
                   type="button"
-                  className={`relative p-6 border-2 rounded-xl flex flex-col items-center justify-center transition-all duration-200 flex-1 max-w-[180px] ${role === "investor"
-                    ? "border-primary-500 bg-primary-50"
-                    : "border-gray-200 hover:border-gray-300"
-                    }`}
+                  className={`relative p-6 border-2 rounded-xl flex flex-col items-center justify-center transition-all duration-200 flex-1 max-w-[180px] ${
+                    role === "investor"
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
                   onClick={() => setRole("investor")}
                 >
-                  <CircleDollarSign size={28} className={`mb-3 ${role === "investor" ? "text-primary-600" : "text-gray-500"}`} />
+                  <CircleDollarSign
+                    size={28}
+                    className={`mb-3 ${role === "investor" ? "text-primary-600" : "text-gray-500"}`}
+                  />
                   <span className="font-medium text-gray-900">Investor</span>
                   <span className="text-xs text-gray-500 mt-1">Angel/VC</span>
                 </button>
@@ -406,7 +435,10 @@ export const RegisterPage: React.FC = () => {
                 className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded-lg mt-0.5"
               />
               <div>
-                <label htmlFor="terms" className="block text-sm font-medium text-gray-900">
+                <label
+                  htmlFor="terms"
+                  className="block text-sm font-medium text-gray-900"
+                >
                   I agree to the{" "}
                   <Link
                     to="/terms"
@@ -425,7 +457,8 @@ export const RegisterPage: React.FC = () => {
                   </Link>
                 </label>
                 <p className="text-xs text-gray-500 mt-1">
-                  By creating an account, you agree to our terms and acknowledge our privacy practices.
+                  By creating an account, you agree to our terms and acknowledge
+                  our privacy practices.
                 </p>
               </div>
             </div>
@@ -450,7 +483,10 @@ export const RegisterPage: React.FC = () => {
                   className="font-semibold text-primary-600 hover:text-primary-700 inline-flex items-center gap-1 transition-all duration-200"
                 >
                   Sign in here
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight
+                    size={16}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
                 </Link>
               </p>
             </div>

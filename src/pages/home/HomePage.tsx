@@ -581,7 +581,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ── FEATURED EXITS ────────────────────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 hidden">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">

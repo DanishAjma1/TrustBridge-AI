@@ -10,11 +10,13 @@ import { AmountMeasureWithTags } from "../../data/users";
 interface EntrepreneurCardProps {
   entrepreneur: Entrepreneur;
   showActions?: boolean;
+  isRecommended?: boolean;
 }
 
 export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
   entrepreneur,
-  showActions = true
+  showActions = true,
+  isRecommended = false
 }) => {
   const navigate = useNavigate();
 
@@ -34,6 +36,13 @@ export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
       onClick={handleViewProfile}
     >
       <CardBody className="flex flex-col">
+        {isRecommended && (
+        <div className="absolute top-6 right-0 transform rotate-45">
+          <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 px-6 py-1 text-[10px] font-bold shadow-lg whitespace-nowrap">
+            ⭐ FEATURED
+          </div>
+        </div>
+        )}
         <div className="flex items-start">
           <Avatar
             src={entrepreneur.avatarUrl}

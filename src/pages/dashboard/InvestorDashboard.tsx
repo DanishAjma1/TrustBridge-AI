@@ -48,7 +48,7 @@ export const InvestorDashboard: React.FC = () => {
       }
     };
     fetchData();
-  }, [user?.userId]);
+  }, [user]);
 
   // Fetch industries from backend (all available in DB)
   useEffect(() => {
@@ -318,7 +318,7 @@ export const InvestorDashboard: React.FC = () => {
           </div>
           <div>
             <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">TrustBridge AI Recommendations</h2>
-            <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">Hand-picked for you</p>
+            <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">We-picked for you</p>
           </div>
         </div>
 
@@ -336,7 +336,7 @@ export const InvestorDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {aiRecommendedStartups.map((entrepreneur: any) => (
               <div key={entrepreneur._id} className="hover:translate-y-[-8px] transition-all duration-300">
-                <EntrepreneurCard entrepreneur={entrepreneur} />
+                <EntrepreneurCard entrepreneur={entrepreneur} isRecommended={true} />
               </div>
             ))}
           </div>
@@ -354,14 +354,14 @@ export const InvestorDashboard: React.FC = () => {
         <Card>
           <CardHeader>
             <h2 className="text-lg font-medium text-gray-900">
-              Featured Startups
+              Startups
             </h2>
           </CardHeader>
 
           <CardBody>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEntrepreneurs.length > 0 ? (
-                filteredEntrepreneurs.map((entrepreneur) => (
+                filteredEntrepreneurs.slice(0,6).map((entrepreneur) => (
                   <div key={entrepreneur._id}>
                     <EntrepreneurCard entrepreneur={entrepreneur} />
                   </div>
@@ -384,6 +384,13 @@ export const InvestorDashboard: React.FC = () => {
                 </div>
               )}
             </div>
+            {filteredEntrepreneurs.length > 6 && (
+              <div className="mt-6 text-center">
+                <Link to="/entrepreneurs">
+                  <Button variant="outline">View all startups</Button>
+                </Link>
+              </div>
+            )}
           </CardBody>
         </Card>
       </div>
