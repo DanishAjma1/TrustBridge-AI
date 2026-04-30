@@ -44,6 +44,16 @@ export const Campaigns: React.FC = () => {
   };
 
   const updateStatus = async (id: string, status: string) => {
+    const camp = campaigns.find((c) => c._id === id);
+    if (!camp) {
+      toast.error("Campaign not found");
+      return;
+    }
+    if (new Date(camp.endDate) < new Date()) {
+      toast.error("Cannot activate a campaign that has already ended");
+      return;
+    }
+
     try {
       await axios.put(`${URL}/admin/campaigns/${id}/status`, {
         status,

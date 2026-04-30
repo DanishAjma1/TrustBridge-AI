@@ -111,9 +111,6 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
     // Title: only letters and spaces
     if (name === "title" && !/^[A-Za-z\s]*$/.test(value)) return;
 
-    // Description: letters, numbers, spaces, and basic punctuation
-    if (name === "description" && !/^[A-Za-z0-9\s.,!]*$/.test(value)) return;
-
     // Category: only letters and spaces
     if (name === "category" && !/^[A-Za-z\s]*$/.test(value)) return;
 
@@ -215,10 +212,6 @@ const CampForm: React.FC<CampFormProps> = ({ onSuccess, initialData }) => {
 
     if (!description.trim()) {
       toast.error("Description is required");
-      return false;
-    }
-    if (!/^[A-Za-z0-9\s.,!]+$/.test(description)) {
-      toast.error("Description can contain only letters, numbers, spaces, and basic punctuation (., !)");
       return false;
     }
 
