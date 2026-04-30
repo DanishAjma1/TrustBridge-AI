@@ -454,7 +454,7 @@ export const HelpPage: React.FC = () => {
                         <h3 className="font-semibold text-gray-900 mb-1">Phone Support</h3>
                         <p className="text-sm text-gray-600 mb-3">Mon-Fri, 9AM-6PM EST</p>
                         <a href="tel:+1234567890" className="text-sm font-medium text-green-600 hover:text-green-700">
-                          +1 (234) 567-890
+                          +92 322 6409363
                         </a>
                       </div>
                     </div>

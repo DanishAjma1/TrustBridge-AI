@@ -34,8 +34,8 @@ export const Footer: React.FC = () => {
 
   const contactInfo = [
     { icon: Mail, text: "aitrustbridge@gmail.com", label: "Email" },
-    { icon: Phone, text: "+1 (555) 123-4567", label: "Phone" },
-    { icon: MapPin, text: "San Francisco, CA, USA", label: "Address" },
+    { icon: Phone, text: "+92 322 6409363", label: "Phone" },
+    { icon: MapPin, text: "River Garden, Gujrat, Pakistan", label: "Address" },
   ];
 
   return (
