@@ -380,7 +380,7 @@ export const Campaigns: React.FC = () => {
               </p>
               <p>
                 <span className="font-semibold text-purple-600">End:</span>{" "}
-                {new Date(c.endDate).toLocaleDateString()}
+                {c.endDate ? new Date(c.endDate).toLocaleDateString() : "Lifetime"}
               </p>
             </div>
 
