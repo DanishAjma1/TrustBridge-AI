@@ -581,53 +581,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ── FEATURED EXITS ────────────────────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Success Stories
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Companies that found success through our platform and achieved remarkable exits.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                company: "AgriTech Innovations",
-                label: "Trending",
-                description:
-                  "AI-driven farming solutions boosted yields by 40%. Secured $8M in funding and successfully exited with a 3x return.",
-                image: "app logo.jpeg",
-              },
-              {
-                company: "HealthAI Diagnostics",
-                label: "Popular",
-                description:
-                  "Revolutionary AI for disease detection. Raised $12M from top VCs and achieved a successful exit to a healthcare leader.",
-                image: "app logo.jpeg",
-              },
-              {
-                company: "FinSecure Blockchain",
-                label: "Success",
-                description:
-                  "Secure blockchain for finance raised $15M and completed a blockbuster exit to a major banking institution.",
-                image: "app logo.jpeg",
-              },
-            ].map((s, i) => (
-              <SuccessCard
-                key={i}
-                image={s.image}
-                company={s.company}
-                description={s.description}
-                label={s.label}
-                exits={0}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* ── TESTIMONIALS ──────────────────────────────────────────────────── */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
