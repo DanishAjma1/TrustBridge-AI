@@ -31,13 +31,19 @@ export const Campaigns: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [campaignToDelete, setCampaignToDelete] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState<string>("active");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchCampaigns = async () => {
     try {
       const res = await axios.get(`${URL}/admin/campaigns`);
       setCampaigns(res.data);
-      setFiltered(res.data);
+      // initialize filtered list respecting current filters (default status = active)
+      const initial = res.data.filter(
+        (c: Campaign) => (selectedCategory === "All" || c.category === selectedCategory) &&
+          (selectedStatus === "All" || c.status === selectedStatus),
+      );
+      setFiltered(initial);
     } catch {
       toast.error("Failed to fetch campaigns");
     }
@@ -98,15 +104,37 @@ export const Campaigns: React.FC = () => {
     fetchCampaigns();
   }, []);
 
+  useEffect(() => {
+    applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaigns, query, selectedCategory, selectedStatus]);
+
   const handleSearch = (e: any) => {
     e.preventDefault();
-    const q = query.toLowerCase();
-    const result = campaigns.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q),
-    );
+    applyFilters();
+  };
+
+  const applyFilters = () => {
+    const q = query.toLowerCase().trim();
+    let result = campaigns.slice();
+
+    if (q) {
+      result = result.filter(
+        (c) =>
+          c.title.toLowerCase().includes(q) ||
+          c.description.toLowerCase().includes(q) ||
+          c.category.toLowerCase().includes(q),
+      );
+    }
+
+    if (selectedCategory !== "All") {
+      result = result.filter((c) => c.category === selectedCategory);
+    }
+
+    if (selectedStatus !== "All") {
+      result = result.filter((c) => c.status === selectedStatus);
+    }
+
     setFiltered(result);
   };
 
@@ -164,7 +192,6 @@ export const Campaigns: React.FC = () => {
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              if (e.target.value === "") setFiltered(campaigns);
             }}
             className="flex-grow px-4 py-2 bg-transparent focus:outline-none text-gray-700 placeholder-gray-400"
           />
@@ -255,16 +282,36 @@ export const Campaigns: React.FC = () => {
         </Card>
       </div>
 
+      {/* Status filter: clicking the cards below will act as filters */}
+
       <div className="bg-white rounded-xl shadow p-3 mb-6 flex justify-around text-center">
-        <div>
+        <div
+          role="button"
+          onClick={() => setSelectedStatus("All")}
+          className={`cursor-pointer px-4 py-2 rounded-lg transition-transform transform hover:scale-105 ${
+            selectedStatus === "All" ? "ring-2 ring-indigo-200 bg-indigo-50" : ""
+          }`}
+        >
           <p className="text-gray-500 text-sm">Total Campaigns</p>
           <p className="text-lg font-bold text-indigo-700">{total}</p>
         </div>
-        <div>
+        <div
+          role="button"
+          onClick={() => setSelectedStatus("active")}
+          className={`cursor-pointer px-4 py-2 rounded-lg transition-transform transform hover:scale-105 ${
+            selectedStatus === "active" ? "ring-2 ring-green-200 bg-green-50" : ""
+          }`}
+        >
           <p className="text-gray-500 text-sm">Active</p>
           <p className="text-lg font-bold text-green-500">{active}</p>
         </div>
-        <div>
+        <div
+          role="button"
+          onClick={() => setSelectedStatus("stopped")}
+          className={`cursor-pointer px-4 py-2 rounded-lg transition-transform transform hover:scale-105 ${
+            selectedStatus === "stopped" ? "ring-2 ring-red-200 bg-red-50" : ""
+          }`}
+        >
           <p className="text-gray-500 text-sm">Stopped</p>
           <p className="text-lg font-bold text-red-500">{stopped}</p>
         </div>

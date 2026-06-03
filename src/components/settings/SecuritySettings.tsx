@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNotification } from '../../context/NotificationContext';
 import { Card, CardHeader, CardBody } from "../ui/Card";
 import { Input } from "../ui/Input";
@@ -67,6 +67,10 @@ export const SecuritySettings: React.FC = () => {
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [secretData, setSecretData] = useState<any>(null);
   const [isSettingUp2FA, setIsSettingUp2FA] = useState(false);
+  const [showDisable2FA, setShowDisable2FA] = useState(false);
+  const [disableCode, setDisableCode] = useState("");
+  const [disableUsingBackupCode, setDisableUsingBackupCode] = useState(false);
+  const [isDisabling2FA, setIsDisabling2FA] = useState(false);
 
   const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>([]);
   const [securitySettings, setSecuritySettings] = useState({
@@ -77,35 +81,6 @@ export const SecuritySettings: React.FC = () => {
 
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const navigate = useNavigate();
-
-  const ClickOutsideToast = ({ children, onClose }) => {
-    const toastRef = useRef(null);
-
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (toastRef.current && !toastRef.current.contains(event.target)) {
-          onClose();
-        }
-      };
-
-      // Add event listener with a small delay to avoid immediate dismissal
-      setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-      }, 100);
-
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, [onClose]);
-
-    return (
-      <div ref={toastRef}>
-        {children}
-      </div>
-    );
-  };
-
-
 
   // Load user's 2FA status and trusted devices
   useEffect(() => {
@@ -274,42 +249,34 @@ export const SecuritySettings: React.FC = () => {
   };
 
   const handleDisable2FA = async () => {
-    toast(
-      <ClickOutsideToast onClose={() => toast.dismiss()}>
-        <div>
-          <p>Are you sure you want to disable two-factor authentication?</p>
-          <p className="text-sm text-gray-600 mt-1">
-            This will make your account less secure.
-          </p>
-          <div className="flex justify-end space-x-2 mt-3">
-            <button
-              onClick={() => {
-                toast.dismiss();
-                disable2FAHandler();
-              }}
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Disable
-            </button>
-            <button
-              onClick={() => toast.dismiss()}
-              className="px-3 py-1 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </ClickOutsideToast>,
-      {
-        duration: Infinity,
-        position: 'top-center',
-      }
-    );
+    setDisableCode("");
+    setDisableUsingBackupCode(false);
+    setShowDisable2FA(true);
   };
 
   // Separate handler for the actual disabling logic
   const disable2FAHandler = async () => {
     try {
+      if (!disableCode || disableCode.length < (disableUsingBackupCode ? 10 : 6)) {
+        toast.error("Please enter a valid verification code");
+        return;
+      }
+
+      setIsDisabling2FA(true);
+
+      // Verify code and disable 2FA
+      await axios.post(
+        `${URL}/auth/disable-2fa`,
+        {
+          userId: user?.userId,
+          code: disableCode,
+          useBackupCode: disableUsingBackupCode,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }
+      );
+
       // First, clear all trusted devices from backend
       if (trustedDevices.length > 0) {
         await axios.delete(
@@ -320,23 +287,14 @@ export const SecuritySettings: React.FC = () => {
         );
       }
 
-      // Then disable 2FA
-      const response = await axios.post(
-        `${URL}/auth/disable-2fa`,
-        { userId: user?.userId },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        }
-      );
-
       // Clear local state
       setTwoFactorEnabled(false);  // This will change button to "Enable 2FA"
       setBackupCodes([]);
       setShowBackupCodes(false);
       setTrustedDevices([]);  // This will clear trusted devices section
+      setShowDisable2FA(false);
+      setDisableCode("");
       loadSecurityData();
-      // Dismiss the confirmation toast
-      toast.dismiss();
 
       toast.success("Two-factor authentication disabled successfully.");
 
@@ -348,8 +306,9 @@ export const SecuritySettings: React.FC = () => {
         toast.success("Please log in again to continue.");
       }, 1500);
     } catch (error: any) {
-      toast.dismiss(); // Also dismiss on error
       toast.error(error.response?.data?.message || "Failed to disable 2FA");
+    } finally {
+      setIsDisabling2FA(false);
     }
   };
 
@@ -700,6 +659,60 @@ ${codesText}`;
                         Cancel
                       </Button>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showDisable2FA && twoFactorEnabled && (
+            <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-red-600 mt-1" size={20} />
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-red-900 mb-2">
+                    Disable Two-Factor Authentication
+                  </h3>
+                  <p className="text-sm text-red-800 mb-3">
+                    Enter your authenticator code to confirm disabling 2FA.
+                  </p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <label className="text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={disableUsingBackupCode}
+                        onChange={(e) => setDisableUsingBackupCode(e.target.checked)}
+                        className="mr-2"
+                      />
+                      Use backup code instead
+                    </label>
+                  </div>
+                  <Input
+                    label={disableUsingBackupCode ? "Backup Code" : "Verification Code"}
+                    placeholder={disableUsingBackupCode ? "XXXXXXXXXX" : "000000"}
+                    value={disableCode}
+                    onChange={(e) => setDisableCode(e.target.value)}
+                    maxLength={disableUsingBackupCode ? 10 : 6}
+                    disabled={isDisabling2FA}
+                  />
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      onClick={disable2FAHandler}
+                      disabled={isDisabling2FA || disableCode.length < (disableUsingBackupCode ? 10 : 6)}
+                    >
+                      {isDisabling2FA ? "Disabling..." : "Confirm Disable"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowDisable2FA(false);
+                        setDisableCode("");
+                        setDisableUsingBackupCode(false);
+                      }}
+                      disabled={isDisabling2FA}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               </div>

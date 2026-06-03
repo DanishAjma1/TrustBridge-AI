@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, ExternalLink } from 'lucide-react';
 import { Entrepreneur } from '../../types';
+import axios from 'axios';
 import { Card, CardBody, CardFooter } from '../ui/Card';
 import { Avatar } from '../ui/Avatar';
 import { Badge } from '../ui/Badge';
@@ -20,8 +21,20 @@ export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const handleViewProfile = () => {
-    navigate(`/profile/entrepreneur/${entrepreneur.userId || entrepreneur._id}`);
+  const handleViewProfile = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const id = entrepreneur.userId || entrepreneur._id;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/profile-visit/${id}`,
+        {},
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+    } catch (err) {
+      console.error('Failed to record profile visit', err);
+    }
+    navigate(`/profile/entrepreneur/${id}`);
   };
 
   const handleMessage = (e: React.MouseEvent) => {
