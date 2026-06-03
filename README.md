@@ -1,6 +1,6 @@
-# TrustBridgeAI Backend
+# TrustBridge AI Frontend
 
-A robust, AI-powered Node.js/Express backend for the TrustBridge platform — a full-featured web application that integrates real-time communication, AI assistance, payments, authentication, and push notifications into a single cohesive API.
+The TrustBridge frontend is a React + Vite application that delivers the full product UI for collaboration, investment workflows, real-time chat, and AI-assisted features. It connects to the TrustBridgeAI backend API for auth, data, payments, and realtime events.
 
 ---
 
@@ -14,15 +14,14 @@ A robust, AI-powered Node.js/Express backend for the TrustBridge platform — a 
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [Available Scripts](#available-scripts)
-- [API Modules](#api-modules)
-- [Deployment](#deployment)
+- [Backend Notes](#backend-notes)
 - [Contributing](#contributing)
 
 ---
 
 ## Overview
 
-TrustBridgeAI Backend serves as the server-side engine for the TrustBridge web application. It exposes a RESTful API and a real-time WebSocket layer, handling everything from user authentication and AI-driven features to video calling, payments, and two-factor security.
+This client app powers the TrustBridge user experience, including dashboards, deals, campaigns, messaging, notifications, and settings. It is built as a PWA and uses WebRTC, Stripe, and Socket.IO for realtime and media experiences.
 
 ---
 
@@ -30,60 +29,51 @@ TrustBridgeAI Backend serves as the server-side engine for the TrustBridge web a
 
 | Category | Technology |
 |---|---|
-| Runtime | Node.js (ESM modules) |
-| Framework | Express 5 |
-| Database | MongoDB via Mongoose |
-| Real-time | Socket.IO + Redis Adapter |
-| Cache / Pub-Sub | Redis |
-| AI | OpenAI SDK |
-| Payments | Stripe |
-| Video Calling | Agora |
-| Auth | JWT, Auth0 (express-openid-connect), bcrypt |
-| Email | Nodemailer |
-| File Uploads | Multer |
-| 2FA | Speakeasy (TOTP), QRCode |
-| Push Notifications | Web Push |
-| Calendar Integration | Google APIs |
-| Dev Tooling | Nodemon |
+| Framework | React 18 + TypeScript |
+| Build Tool | Vite |
+| Styling | Tailwind CSS, PostCSS |
+| Routing | React Router |
+| Forms / Validation | React Hook Form, Yup, Valibot |
+| Realtime | socket.io-client |
+| Payments | Stripe JS |
+| Media | Agora WebRTC SDK |
+| Charts | Recharts |
+| PWA | vite-plugin-pwa |
+| Testing | Vitest + Testing Library |
 
 ---
 
 ## Features
 
-- **AI Integration** — OpenAI-powered endpoints for intelligent features within the platform.
-- **Real-time Communication** — Socket.IO with a Redis adapter for scalable, multi-instance WebSocket support.
-- **Video Calling** — Agora Access Token generation for in-app audio/video calls.
-- **Authentication & Security** — JWT-based auth, Auth0 OIDC integration, bcrypt password hashing, and TOTP-based two-factor authentication (2FA) with QR code generation.
-- **Payments** — Stripe integration for subscriptions or one-time payments.
-- **Email** — Transactional email delivery via Nodemailer.
-- **File Uploads** — Multer-handled file uploads stored in the uploads/ directory.
-- **Push Notifications** — Web Push API support for browser-based push notifications.
-- **Google Calendar** — Integration with the Google APIs for calendar functionality.
-- **Phone Validation** — libphonenumber-js for international phone number parsing and validation.
-- **Caching** — Redis for session caching and pub/sub.
+- **Authentication UI** — login, registration, OTP flows, 2FA, and security settings.
+- **Dashboards** — role-based views for entrepreneurs, investors, and admins.
+- **Deals & Negotiation** — deal creation, negotiation modals, receipts, and payment flows.
+- **Campaigns & Fundraises** — create and browse fundraising campaigns.
+- **Messaging & Notifications** — realtime chat and notification centers.
+- **Documents** — upload and view documents tied to deals and profiles.
+- **AI Experiences** — AI chat and recommendation screens.
+- **Video / WebRTC** — in-app media calling UI.
+- **PWA Support** — offline caching and installable app shell.
 
 ---
 
 ## Project Structure
 
 ```
-TrustBridgeAI-Backend/
-├── .github/
-│   └── workflows/          # CI/CD GitHub Actions workflows
-├── app/                    # Core application logic
-│   ├── routes/             # Express route definitions
-│   ├── models/             # Mongoose data models
-│   ├── middleware/         # Auth guards, error handling, etc.
-│   ├── utils/              # Shared helpers and background jobs
-│   └── config/             # Service configs (Agora, etc.)
-├── uploads/                # Uploaded files (served statically)
-├── index.js                # App entry point
-├── loadEnv.js              # Environment variable loader
-├── seedIndustries.js       # Database seeder for industry data
-├── debugOpenAI.js          # OpenAI debug/testing utility
-├── testOpenAI.js           # OpenAI integration test script
-├── package.json
-└── .gitignore
+TrustBridge/
+├── public/
+├── src/
+│   ├── components/         # Reusable UI + domain components
+│   ├── pages/              # Route-level screens
+│   ├── context/            # App state providers
+│   ├── hooks/              # Custom hooks
+│   ├── types/              # TypeScript types
+│   ├── utils/              # Shared helpers
+│   └── __tests__/          # Frontend tests
+├── dev-dist/               # PWA build outputs for dev
+├── vite.config.ts
+├── tailwind.config.js
+└── package.json
 ```
 
 ---
@@ -91,9 +81,7 @@ TrustBridgeAI-Backend/
 ## Prerequisites
 
 - **Node.js** v18 or higher
-- **MongoDB** instance (local or Atlas)
-- **Redis** instance (local or managed)
-- API keys for: OpenAI, Stripe, Agora, Auth0, Google APIs, and a web push key pair
+- Backend API running (see Backend Notes)
 
 ---
 
@@ -102,8 +90,8 @@ TrustBridgeAI-Backend/
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/DanishAjma1/TrustBridgeAI-Backend.git
-cd TrustBridgeAI-Backend
+git clone https://github.com/DanishAjma1/TrustBridge-AI.git
+cd TrustBridge-AI/frontend/TrustBridge
 ```
 
 **2. Install dependencies**
@@ -112,76 +100,25 @@ cd TrustBridgeAI-Backend
 npm install
 ```
 
-**3. Set up environment variables**
+**3. Configure environment variables**
 
-Copy the example below into a .env file at the project root and fill in your values (see [Environment Variables](#environment-variables)).
+Create a .env file in this folder and set values (see [Environment Variables](#environment-variables)).
 
-**4. (Optional) Seed the database**
-
-```bash
-node seedIndustries.js
-```
-
-**5. Start the development server**
+**4. Start the dev server**
 
 ```bash
 npm run dev
 ```
 
-The server will start with hot-reload via Nodemon.
-
 ---
 
 ## Environment Variables
 
-Create a .env file in the project root. Typical variables include:
+Create a .env file in this folder. Typical variables include:
 
 ```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# MongoDB
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/<dbname>
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# JWT
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-
-# Auth0 (OIDC)
-AUTH0_DOMAIN=your-tenant.auth0.com
-AUTH0_CLIENT_ID=your_client_id
-AUTH0_CLIENT_SECRET=your_client_secret
-AUTH0_BASE_URL=http://localhost:5000
-
-# OpenAI
-OPENAI_API_KEY=sk-...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Agora (Video Calling)
-AGORA_APP_ID=your_agora_app_id
-AGORA_APP_CERTIFICATE=your_agora_certificate
-
-# Nodemailer (Email)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your@email.com
-SMTP_PASS=your_smtp_password
-
-# Google APIs
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Web Push
-VAPID_PUBLIC_KEY=your_vapid_public_key
-VAPID_PRIVATE_KEY=your_vapid_private_key
-VAPID_EMAIL=mailto:your@email.com
+VITE_BACKEND_URL=http://localhost:5000
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
 ---
@@ -190,45 +127,17 @@ VAPID_EMAIL=mailto:your@email.com
 
 | Script | Command | Description |
 |---|---|---|
-| Development | npm run dev | Starts server with Nodemon (hot reload) |
-| Debug | npm run debug | Starts server with Node inspector attached |
-| Production | npm start | Starts server with plain Node |
-| Seed DB | node seedIndustries.js | Seeds industry categories into MongoDB |
-| Test OpenAI | node testOpenAI.js | Runs OpenAI integration test |
-| Debug OpenAI | node debugOpenAI.js | Runs OpenAI debug utility |
+| Dev | npm run dev | Starts Vite dev server |
+| Build | npm run build | Production build |
+| Preview | npm run preview | Preview the build |
+| Lint | npm run lint | Lint frontend sources |
+| Test | npm run test | Run unit tests |
 
 ---
 
-## API Modules
+## Backend Notes
 
-The backend is organized around the following functional modules:
-
-| Module | Description |
-|---|---|
-| **Auth** | Registration, login, JWT issuance, Auth0 OIDC flow |
-| **Users** | Profile management, avatar uploads |
-| **2FA** | TOTP setup (QR code), verify, disable |
-| **AI** | OpenAI-powered endpoints |
-| **Video** | Agora token generation for calls |
-| **Payments** | Stripe checkout sessions, webhooks |
-| **Messaging** | Real-time chat via Socket.IO |
-| **Notifications** | Web push subscriptions and dispatch |
-| **Calendar** | Google Calendar read/write |
-| **Industries** | Industry category data (seeded) |
-| **Email** | Transactional email sending |
-
----
-
-## Deployment
-
-The repository includes a .github/workflows/ directory for CI/CD automation. For manual deployment:
-
-1. Set all environment variables on your server or hosting platform.
-2. Run npm install --production.
-3. Start the server with npm start.
-4. Ensure MongoDB and Redis are reachable from your server.
-
-For containerized deployments, a Dockerfile can be added with node index.js as the entrypoint.
+This frontend consumes the TrustBridgeAI Backend REST and Socket.IO APIs. The backend provides authentication, user data, deals, messaging, notifications, payments, AI routes, and WebRTC token endpoints. Configure VITE_BACKEND_URL to point at the backend base URL.
 
 ---
 
