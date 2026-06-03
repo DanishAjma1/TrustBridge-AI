@@ -179,107 +179,110 @@ export const EntrepreneurDashboard: React.FC = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="space-y-6">
         {/* Collaboration requests */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card>
-            <CardHeader className="flex justify-between items-center">
-              <h2 className="text-lg font-medium text-gray-900">
-                Collaboration Requests
-              </h2>
-              <Badge variant="primary">{pendingRequests.length} pending</Badge>
-            </CardHeader>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <h2 className="text-lg font-medium text-gray-900">
+              Collaboration Requests
+            </h2>
+            <Badge variant="primary">{pendingRequests.length} pending</Badge>
+          </CardHeader>
 
-            <CardBody>
-              {collaborationRequests.length > 0 ? (
-                <div className="space-y-4">
-                  {collaborationRequests.map((request) => (
-                    <CollaborationRequestCard
-                      key={request._id}
-                      request={request}
-                      onStatusUpdate={handleRequestStatusUpdate}
-                    />
-                  ))}
+          <CardBody>
+            {collaborationRequests.length > 0 ? (
+              <div className="space-y-4">
+                {collaborationRequests.map((request) => (
+                  <CollaborationRequestCard
+                    key={request._id}
+                    request={request}
+                    onStatusUpdate={handleRequestStatusUpdate}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                  <AlertCircle size={24} className="text-gray-500" />
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                    <AlertCircle size={24} className="text-gray-500" />
-                  </div>
-                  <p className="text-gray-600">No collaboration requests yet</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    When investors are interested in your startup, their
-                    requests will appear here
-                  </p>
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
+                <p className="text-gray-600">No collaboration requests yet</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  When investors are interested in your startup, their
+                  requests will appear here
+                </p>
+              </div>
+            )}
+          </CardBody>
+        </Card>
 
         {/* AI Recommended investors */}
-        <div className="space-y-4">
-          <Card className="border-2 border-indigo-100 shadow-indigo-50">
-            <CardHeader className="flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-indigo-100 p-1.5 flex items-center justify-center">
-                  <img src="/logo-512x512.png" alt="TrustBridge AI" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900 leading-tight">
-                    TrustBridge AI Matching
-                  </h2>
-                  <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Top Investor Picks</p>
-                </div>
+        <Card className="border-2 border-indigo-100 shadow-indigo-50">
+          <CardHeader className="flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-indigo-100 p-1.5 flex items-center justify-center">
+                <img src="/logo-512x512.png" alt="TrustBridge AI" className="w-full h-full object-contain" />
               </div>
-            </CardHeader>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 leading-tight">
+                  TrustBridge AI Matching
+                </h2>
+                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Top Investor Picks</p>
+              </div>
+            </div>
+          </CardHeader>
 
-            <CardBody className="space-y-4">
-              {isAiLoading ? (
-                <div className="py-8 flex flex-col items-center justify-center space-y-3">
-                  <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                  <p className="text-xs text-indigo-400 font-medium animate-pulse">Finding your perfect matches...</p>
-                </div>
-              ) : aiRecommendedInvestors && aiRecommendedInvestors.length > 0 ? (
-                aiRecommendedInvestors.map((item: Investor, i) => (
-                  <div key={i} className="hover:scale-[1.02] transition-transform">
+          <CardBody>
+            {isAiLoading ? (
+              <div className="py-8 flex flex-col items-center justify-center space-y-3">
+                <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p className="text-xs text-indigo-400 font-medium animate-pulse">Finding your perfect matches...</p>
+              </div>
+            ) : aiRecommendedInvestors && aiRecommendedInvestors.length > 0 ? (
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {aiRecommendedInvestors.map((item: Investor, i) => (
+                  <div
+                    key={i}
+                    className="min-w-[260px] hover:scale-[1.02] transition-transform"
+                  >
                     <InvestorCard investor={item} isRecommended={true} />
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-6 px-4">
-                  <p className="text-sm text-gray-500 italic">No direct matches found for your industry yet. Try updating your profile details!</p>
-                </div>
-              )}
-            </CardBody>
-          </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 px-4">
+                <p className="text-sm text-gray-500 italic">No direct matches found for your industry yet. Try updating your profile details!</p>
+              </div>
+            )}
+          </CardBody>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex justify-between items-center">
-              <h2 className="text-lg font-medium text-gray-900">
-                Recommended Investors
-              </h2>
-              <Link
-                to="/investors"
-                className="text-sm font-medium text-primary-600 hover:text-primary-500"
-              >
-                View all
-              </Link>
-            </CardHeader>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <h2 className="text-lg font-medium text-gray-900">
+              Recommended Investors
+            </h2>
+            <Link
+              to="/investors"
+              className="text-sm font-medium text-primary-600 hover:text-primary-500"
+            >
+              View all
+            </Link>
+          </CardHeader>
 
-            <CardBody className="space-y-4">
-              {recommendedInvestors && recommendedInvestors.length > 0 ? (
-                recommendedInvestors.slice(0, 2).map((investor, i) => (
-                  <div key={i}>
+          <CardBody>
+            {recommendedInvestors && recommendedInvestors.length > 0 ? (
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {recommendedInvestors.slice(0, 6).map((investor, i) => (
+                  <div key={i} className="min-w-[260px]">
                     <InvestorCard investor={investor} />
                   </div>
-                ))
-              ) : (
-                <div>No investors found</div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
+                ))}
+              </div>
+            ) : (
+              <div>No investors found</div>
+            )}
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
