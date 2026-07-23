@@ -80,7 +80,7 @@ TrustBridge/
 
 ## Prerequisites
 
-- **Node.js** v18 or higher
+- **Node.js** v20 or higher
 - Backend API running (see Backend Notes)
 
 ---
@@ -97,6 +97,7 @@ cd TrustBridge-AI/frontend/TrustBridge
 **2. Install dependencies**
 
 ```bash
+cd TrustBridge-AI
 npm install
 ```
 
@@ -114,7 +115,7 @@ npm run dev
 
 ## Environment Variables
 
-Create a .env file in this folder. Typical variables include:
+Create a .env file in the root folder. Typical variables include:
 
 ```env
 VITE_BACKEND_URL=http://localhost:5000
