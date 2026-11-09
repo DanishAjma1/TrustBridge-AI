@@ -1,160 +1,125 @@
-# TrustBridge AI Frontend
+# 🚀 TrustBridge AI — Enterprise Investor Collaboration Platform (PWA)
 
-The TrustBridge frontend is a React + Vite application that delivers the full product UI for collaboration, investment workflows, real-time chat, and AI-assisted features. It connects to the TrustBridgeAI backend API for auth, data, payments, and realtime events.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 18" />
+  <img src="https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/WebRTC-Agora_RTC-099DFD?style=for-the-badge&logo=agora&logoColor=white" alt="Agora RTC" />
+  <img src="https://img.shields.io/badge/Socket.IO-Client-010101?style=for-the-badge&logo=socketdotio&logoColor=white" alt="Socket.IO" />
+  <img src="https://img.shields.io/badge/Stripe-Elements_SDK-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe" />
+  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Vitest-Unit_Tested-729B1B?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest" />
+</p>
+<br/>
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Available Scripts](#available-scripts)
-- [Backend Notes](#backend-notes)
-- [Contributing](#contributing)
+> **TrustBridge AI Frontend** is an enterprise-grade Progressive Web Application (PWA) built for high-stakes startup fundraising, deal negotiations, and real-time investor collaboration. It combines WebRTC video conferencing, bidirectional Socket.IO state synchronization, and Stripe Elements checkout.
 
 ---
 
-## Overview
+## 🏗️ System Architecture
 
-This client app powers the TrustBridge user experience, including dashboards, deals, campaigns, messaging, notifications, and settings. It is built as a PWA and uses WebRTC, Stripe, and Socket.IO for realtime and media experiences.
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["Client Presentation & PWA Shell"]
+        PWA["PWA Service Worker & Cache Layer"]
+        Router["React Router v6 Protected Guard"]
+        Shell["Framer Motion App Shell"]
+    end
 
----
+    subgraph FeaturePortals ["Role-Based Portals"]
+        Entrepreneur["Entrepreneur Portal (Pitch Decks, Analytics)"]
+        Investor["Investor Console (Deal Flow, Escrow)"]
+        Admin["SuperAdmin Dashboard (Risk Events, Approvals)"]
+    end
 
-## Tech Stack
+    subgraph RealTimeEngines ["Real-Time & Media Services"]
+        AgoraEngine["Agora RTC WebRTC Video & Audio Engine"]
+        SocketBus["Socket.IO Bidirectional Event Bus"]
+        StripeCheckout["Stripe Elements Escrow Payment Modal"]
+        AIAssistant["Botpress AI Deal Assistant Chat"]
+    end
 
-| Category | Technology |
-|---|---|
-| Framework | React 18 + TypeScript |
-| Build Tool | Vite |
-| Styling | Tailwind CSS, PostCSS |
-| Routing | React Router |
-| Forms / Validation | React Hook Form, Yup, Valibot |
-| Realtime | socket.io-client |
-| Payments | Stripe JS |
-| Media | Agora WebRTC SDK |
-| Charts | Recharts |
-| PWA | vite-plugin-pwa |
-| Testing | Vitest + Testing Library |
+    subgraph BackendAPI ["TrustBridge Distributed Backend"]
+        RESTAPI["Express 5 REST API Gateway"]
+        RedisPubSub["Redis-Adapter WebSockets"]
+    end
 
----
+    PWA --> Router
+    Router --> Shell
+    Shell --> FeaturePortals
 
-## Features
+    FeaturePortals --> AgoraEngine
+    FeaturePortals --> SocketBus
+    FeaturePortals --> StripeCheckout
+    FeaturePortals --> AIAssistant
 
-- **Authentication UI** — login, registration, OTP flows, 2FA, and security settings.
-- **Dashboards** — role-based views for entrepreneurs, investors, and admins.
-- **Deals & Negotiation** — deal creation, negotiation modals, receipts, and payment flows.
-- **Campaigns & Fundraises** — create and browse fundraising campaigns.
-- **Messaging & Notifications** — realtime chat and notification centers.
-- **Documents** — upload and view documents tied to deals and profiles.
-- **AI Experiences** — AI chat and recommendation screens.
-- **Video / WebRTC** — in-app media calling UI.
-- **PWA Support** — offline caching and installable app shell.
-
----
-
-## Project Structure
-
-```
-TrustBridge/
-├── public/
-├── src/
-│   ├── components/         # Reusable UI + domain components
-│   ├── pages/              # Route-level screens
-│   ├── context/            # App state providers
-│   ├── hooks/              # Custom hooks
-│   ├── types/              # TypeScript types
-│   ├── utils/              # Shared helpers
-│   └── __tests__/          # Frontend tests
-├── dev-dist/               # PWA build outputs for dev
-├── vite.config.ts
-├── tailwind.config.js
-└── package.json
+    SocketBus <--> RedisPubSub
+    AgoraEngine <--> RESTAPI
+    StripeCheckout <--> RESTAPI
+    AIAssistant <--> RESTAPI
 ```
 
 ---
 
-## Prerequisites
+## ⚡ Core Engineering Highlights
 
-- **Node.js** v20 or higher
-- Backend API running (see Backend Notes)
+- **Multi-Role Portal Segmentation**: Granular role-guarded routes separating startup pitch dashboards, investor deal management, and platform administrator fraud detection.
+- **Low-Latency Video Calling**: Integrated Agora WebRTC SDK (`agora-rtc-sdk-ng`) supporting camera/mic toggling, screen-sharing, and dynamic channel token expiration handling.
+- **Real-Time Negotiation Synchronization**: Bidirectional Socket.IO event streams sync live deal valuation updates, document revisions, and push notification triggers with optimistic client updates.
+- **Progressive Web App (PWA)**: Built with `vite-plugin-pwa` and custom service worker caching, enabling seamless offline capabilities, background notifications, and installability.
+- **Production CI/CD Quality**: Enforced linting and unit testing pipelines via GitHub Actions (`nexus-ci.yml`), Husky pre-commit hooks, and Vitest test suites.
 
 ---
 
-## Getting Started
+## 📁 Repository Structure
 
-**1. Clone the repository**
+```text
+src/
+  components/
+    admin/              Campaign charts, fraud detection, startup growth widgets
+    ai/                 AI chat assistant and recommendation modals
+    DealForm.tsx        Interactive term sheet negotiation interface
+    DealPaymentModal.tsx Secure Stripe payment elements integration
+  context/              Auth, WebRTC, and Socket context providers
+  hooks/                Custom React hooks for Agora, WebSockets, and media streams
+```
 
+---
+
+## 🚀 Quick Start & Local Setup
+
+### Prerequisites
+- Node.js >= 20.0.0
+- npm or pnpm
+
+### 1. Installation
 ```bash
 git clone https://github.com/DanishAjma1/TrustBridge-AI.git
-cd TrustBridge-AI/frontend/TrustBridge
-```
-
-**2. Install dependencies**
-
-```bash
 cd TrustBridge-AI
 npm install
 ```
 
-**3. Configure environment variables**
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+VITE_BACKEND_URL="http://localhost:5000"
+VITE_AGORA_APP_ID="your-agora-app-id"
+VITE_STRIPE_PUBLISHABLE_KEY="your-stripe-publishable-key"
+```
 
-Create a .env file in this folder and set values (see [Environment Variables](#environment-variables)).
-
-**4. Start the dev server**
-
+### 3. Run Development Server
 ```bash
 npm run dev
 ```
+Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
----
-
-## Environment Variables
-
-Create a .env file in the root folder. Typical variables include:
-
-```env
-VITE_BACKEND_URL=http://localhost:5000
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+### 4. Run Test Suite
+```bash
+npm run test
 ```
 
 ---
 
-## Available Scripts
-
-| Script | Command | Description |
-|---|---|---|
-| Dev | npm run dev | Starts Vite dev server |
-| Build | npm run build | Production build |
-| Preview | npm run preview | Preview the build |
-| Lint | npm run lint | Lint frontend sources |
-| Test | npm run test | Run unit tests |
-
----
-
-## Backend Notes
-
-This frontend consumes the TrustBridgeAI Backend REST and Socket.IO APIs. The backend provides authentication, user data, deals, messaging, notifications, payments, AI routes, and WebRTC token endpoints. Configure VITE_BACKEND_URL to point at the backend base URL.
-
----
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch: git checkout -b feature/your-feature-name
-3. Commit your changes: git commit -m "feat: add your feature"
-4. Push to your fork: git push origin feature/your-feature-name
-5. Open a Pull Request.
-
-Please follow conventional commit messages and keep PRs focused on a single concern.
-
----
-
-Built by:
-- Zain Imran  https://github.com/zainImran864
-- Danish Ajmal  https://github.com/DanishAjma1
-- Umar Nadeem  https://github.com/umar24012003
+## 📜 License
+Distributed under the MIT License. Built with passion by [Danish Ajmal](https://github.com/DanishAjma1).
